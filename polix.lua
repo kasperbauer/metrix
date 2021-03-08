@@ -97,13 +97,13 @@ function drawPageSelector()
         for x = 1, #directions do
             g:led(x, y, 3)
 
-            if selectedDirection == 'forward' and x == 1 then
+            if selectedDirection == directions[1] and x == 1 then
                 g:led(x, y, 15)
-            elseif selectedDirection == 'reverse' and x == 2 then
+            elseif selectedDirection == directions[2] and x == 2 then
                 g:led(x, y, 15)
-            elseif selectedDirection == 'alternate' and x == 3 then
+            elseif selectedDirection == directions[3] and x == 3 then
                 g:led(x, y, 15)
-            elseif selectedDirection == 'random' and x == 4 then
+            elseif selectedDirection == directions[4] and x == 4 then
                 g:led(x, y, 15)
             end
         end
@@ -335,14 +335,8 @@ function g.key(x, y, z)
     if on and y == 16 and x <= maxPages then
         if shiftIsHeld() == false then
             selectPage(x)
-        elseif x == 1 then
-            selectDirection('forward')
-        elseif x == 2 then
-            selectDirection('reverse')
-        elseif x == 3 then
-            selectDirection('alternate')
-        elseif x == 4 then
-            selectDirection('random')
+        else
+            selectDirection(directions[x])
         end
     end
 
