@@ -173,9 +173,9 @@ function drawTopMatrix(paramName, filled)
 
             if stepInLoop(x, voice) then
                 if 11 - y == value then
-                    g:led(x, y, 15)
+                    g:led(x, y, 10)
                 elseif 11 - y < value and filled then
-                    g:led(x, y, 15)
+                    g:led(x, y, 10)
                 elseif 11 - y < value and filled == false then
                     g:led(x, y, 3)
                 else
