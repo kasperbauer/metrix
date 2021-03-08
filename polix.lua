@@ -191,11 +191,7 @@ function drawBottomMatrix(param, options)
                 elseif value == options[4] and y == 15 then
                     g:led(x, y, 10)
                 else
-                    -- if value == options[4] then
-                    --     g:led(x, y, 0)
-                    -- else
                     g:led(x, y, 3)
-                    -- end
                 end
             else
                 if value == options[1] and y == 12 then
