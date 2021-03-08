@@ -127,29 +127,23 @@ function drawGateTypeMatrix()
 
         for y = 12, 15 do
             if x >= voice.loop.start and x <= voice.loop.stop then
-                if gateType == "single" and y == 12 then
+                if gateType == "hold" and y == 12 then
                     g:led(x, y, 15)
-                elseif gateType == "multiple" and y == 11 then
+                elseif gateType == "multiple" and y == 13 then
                     g:led(x, y, 15)
-                elseif gateType == "hold" and y == 10 then
+                elseif gateType == "single" and y == 14 then
                     g:led(x, y, 15)
-                elseif gateType == "rest" and y == 9 then
-                    g:led(x, y, 15)
+                elseif gateType == "rest" and y == 15 then
+                    g:led(x, y, 5)
                 else
-                    g:led(x, y, 3)
+                    if gateType == "rest" then
+                        g:led(x, y, 0)
+                    else
+                        g:led(x, y, 3)
+                    end
                 end
             else
-                if gateType == "single" and y == 12 then
-                    g:led(x, y, 3)
-                elseif gateType == "multiple" and y == 11 then
-                    g:led(x, y, 3)
-                elseif gateType == "hold" and y == 10 then
-                    g:led(x, y, 3)
-                elseif gateType == "rest" and y == 9 then
-                    g:led(x, y, 3)
-                else
-                    g:led(x, y, 0)
-                end
+                g:led(x, y, 3)
             end
         end
     end
@@ -195,10 +189,20 @@ function g.key(x, y, z)
     end
 
     -- row 3-10: pulse pitch matrix
-    if selectedPage == 1 then
-        if on and y >= 3 and y <= 10 then
-            local step, length = x, 11 - y
+    if selectedPage == 1 and on then
+        local step = x
+
+        if y >= 3 and y <= 10 then
+            local length = 11 - y
             voice:setStepLength(step, length)
+        elseif y == 12 then
+            voice:setGateType(step, 'hold')
+        elseif y == 13 then
+            voice:setGateType(step, 'multiple')
+        elseif y == 14 then
+            voice:setGateType(step, 'single')
+        elseif y == 15 then
+            voice:setGateType(step, 'rest')
         end
     end
 

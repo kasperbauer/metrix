@@ -1,9 +1,9 @@
 local Voice = {}
 
 local gateTypes = {
-    [1] = 'single',
+    [1] = 'hold',
     [2] = 'multiple',
-    [3] = 'hold',
+    [3] = 'single',
     [4] = 'rest'
 }
 
@@ -21,7 +21,7 @@ function Voice:new(args)
     for i = 1, 8 do
         steps[i] = {
             pulses = {},
-            gateType = gateTypes[1]
+            gateType = gateTypes[2]
         }
 
         for j = 1, 8 do
@@ -52,6 +52,10 @@ function Voice:setStepLength(step, length)
         end
     end
     self.steps[step].pulses = pulses
+end
+
+function Voice:setGateType(step, gateType)
+    self.steps[step].gateType = gateType or 'single'
 end
 
 function Voice:getGateTypes()
