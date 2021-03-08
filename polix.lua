@@ -71,7 +71,11 @@ function redrawGrid()
     -- pulse matrix
     if selectedPage == 1 then
         drawTopMatrix('pulses', true)
-        drawBottomMatrix('gateType', voice:getGateTypes())
+        if shiftIsHeld() == false then
+            drawBottomMatrix('gateType', voice:getGateTypes())
+        else
+            drawBottomMatrix('gateLength', voice:getGateLengths())
+        end
     elseif selectedPage == 2 then
         drawTopMatrix('note', false)
         drawBottomMatrix('octave', voice:getOctaves())

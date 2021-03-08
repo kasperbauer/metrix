@@ -7,6 +7,13 @@ local gateTypes = {
     [4] = 'rest'
 }
 
+local gateLengths = {
+    [1] = 1,
+    [2] = 0.75,
+    [3] = 0.5,
+    [4] = 0.1
+}
+
 local probabilities = {
     [1] = 1,
     [2] = 0.75,
@@ -37,9 +44,10 @@ function Voice:new(args)
             pulses = i,
             ratchets = 1,
             gateType = gateTypes[2],
+            gateLength = gateLengths[3],
             note = i,
             octave = octaves[4],
-            probability = probabilities[1]
+            probability = probabilities[1],
         }
     end
     t.steps = steps
@@ -78,6 +86,10 @@ end
 
 function Voice:getGateTypes()
     return gateTypes
+end
+
+function Voice:getGateLengths()
+    return gateLengths
 end
 
 function Voice:getProbabilities()
