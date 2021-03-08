@@ -20,6 +20,8 @@ for x = 1, 8 do
         momentary[x][y] = false
     end
 end
+local loopWasSelected = false
+local voiceWasSelected = false
 
 local voice = include('lib/voice')
 local voices = {}
@@ -77,26 +79,47 @@ function drawLoopSelector()
 end
 
 function g.key(x, y, z)
-    if z == 1 then
-        -- row 1 & 2: set seq length / loop
-        if y <= 2 then
-            selectVoice(y)
-            local start, stop, voice = getMomentaryInRow(y), x, getSelectedVoice()
-            if start and start ~= stop then
-                voice:setLoop(start, stop)
-            else
-                voice:setLoop(stop, stop)
-            end
-        end
+    local on, off = z == 1, z == 0;
 
-        -- row 16: select page
-        if y == 16 and x <= maxPages then
-            selectPage(x)
-        end
-
+    if on then
         momentary[x][y] = true
     else
         momentary[x][y] = false
+    end
+
+    -- row 1 & 2: set seq length / loop
+    if y <= 2 then
+        if selectedVoice ~= y then
+            selectVoice(y)
+        else
+            local held, tapped, voice = getMomentaryInRow(y), x, getSelectedVoice()
+
+            if on then
+                if held and held ~= tapped then
+                    voice:setLoop(held, tapped)
+                    loopWasSelected = true
+                end
+            else
+                if held == false then
+                    if loopWasSelected == false and voiceWasSelected == false then
+                        voice:setLoop(tapped, tapped)
+                    end
+
+                    if loopWasSelected then
+                        loopWasSelected = false
+                    end
+
+                    if voiceWasSelected then
+                        voiceWasSelected = false
+                    end
+                end
+            end
+        end
+    end
+
+    -- row 16: select page
+    if on and y == 16 and x <= maxPages then
+        selectPage(x)
     end
 
     redrawGrid()
@@ -128,4 +151,6 @@ function selectVoice(voiceNumber)
     else
         notSelectedVoice = 1
     end
+
+    voiceWasSelected = true
 end
