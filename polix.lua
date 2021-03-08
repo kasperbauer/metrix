@@ -248,13 +248,14 @@ function drawOctaveMatrix()
     end
 end
 
-function stepInLoop(step, voice)
-    return step >= voice.loop.start and step <= voice.loop.stop
+function stepInLoop(stepIndex, voice)
+    return stepIndex >= voice.loop.start and stepIndex <= voice.loop.stop
 end
 
 function g.key(x, y, z)
     local on, off = z == 1, z == 0
-    local step, voice = x, getSelectedVoice()
+    local stepIndex, voice = x, getSelectedVoice()
+    local step = voice.steps[stepIndex]
 
     if on then
         momentary[x][y] = true
@@ -293,19 +294,17 @@ function g.key(x, y, z)
 
     -- row 3-10: pulse & gate type matrix
     if selectedPage == 1 and on then
-        local gateTypes = voice:getGateTypes()
 
         if y >= 3 and y <= 10 then
             local pulseCount = 11 - y
-            voice:setPulses(step, pulseCount)
+            voice:setPulses(stepIndex, pulseCount)
         elseif y >= 12 and y <= 15 then
-            local gateTypeIndex = math.abs(11 - y)
-            if (step == 1 and voice.steps[step].gateType == gateTypes[gateTypeIndex]) then
-                for i = 1, 8 do
-                    voice:setGateType(i, gateTypes[gateTypeIndex])
-                end
+            local gateTypes = voice:getGateTypes()
+            local gateType = gateTypes[math.abs(11 - y)]
+            if (stepIndex == 1 and step.gateType == gateType) then
+                setForAllSteps('gateType', gateType)
             else
-                voice:setGateType(step, gateTypes[gateTypeIndex])
+                voice:setGateType(stepIndex, gateType)
             end
         end
     end
@@ -314,15 +313,14 @@ function g.key(x, y, z)
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
             local note = 11 - y
-            voice:setNote(step, note)
+            voice:setNote(stepIndex, note)
         elseif y >= 12 and y <= 15 then
-            local octaves, octaveIndex = voice:getOctaves(), y - 11
-            if (step == 1 and voice.steps[step].octave == octaves[octaveIndex]) then
-                for i = 1, 8 do
-                    voice:setOctave(i, octaves[octaveIndex])
-                end
+            local octaves = voice:getOctaves()
+            local octave = octaves[y - 11]
+            if (stepIndex == 1 and step.octave == octave) then
+                setForAllSteps('octave', octave)
             else
-                voice:setOctave(step, octaves[octaveIndex])
+                voice:setOctave(stepIndex, octave)
             end
         end
     end
@@ -331,15 +329,14 @@ function g.key(x, y, z)
     if selectedPage == 3 and on then
         if y >= 3 and y <= 10 then
             local ratchetCount = 11 - y
-            voice:setRatchets(step, ratchetCount)
+            voice:setRatchets(stepIndex, ratchetCount)
         elseif y >= 12 and y <= 15 then
-            local probabilities, probabilityIndex = voice:getProbabilities(), y - 11
-            if (step == 1 and voice.steps[step].probability == probabilities[probabilityIndex]) then
-                for i = 1, 8 do
-                    voice:setProbability(i, probabilities[probabilityIndex])
-                end
+            local probabilities = voice:getProbabilities()
+            local probability = probabilities[y - 11]
+            if (stepIndex == 1 and step.probability == probability) then
+                setForAllSteps('probability', probability)
             else
-                voice:setProbability(step, probabilities[probabilityIndex])
+                voice:setProbability(stepIndex, probability)
             end
         end
     end
@@ -354,6 +351,13 @@ function g.key(x, y, z)
     end
 
     redrawGrid()
+end
+
+function setForAllSteps(param, value)
+    local voice = getSelectedVoice()
+    for i = 1, 8 do
+        voice.steps[i][param] = value
+    end
 end
 
 function getMomentaryInRow(y)
