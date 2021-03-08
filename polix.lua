@@ -42,6 +42,15 @@ voice[2] = voice:new({
 local loopWasSelected = false
 local voiceWasSelected = false
 
+-- directions
+local directions = {
+    [1] = 'forward',
+    [2] = 'reverse',
+    [3] = 'alternate',
+    [4] = 'random'
+}
+local selectedDirection = directions[1]
+
 function init()
     redrawGrid()
 end
@@ -60,21 +69,49 @@ function redrawGrid()
     elseif selectedPage == 2 then
         drawPitchMatrix()
         drawOctaveMatrix()
+    elseif selectedPage == 3 then
+        -- drawRatchetMatrix()
+        -- drawProbabilityMatrix()
+    elseif selectedPage == 4 then
+        -- drawPresetSelector()
+        -- drawScaleSelector()
+        -- drawRootNoteSelector()
     end
 
     g:refresh()
 end
 
 function drawPageSelector()
-    y = 16
-    for x = 1, maxPages do
-        g:led(x, y, 3)
+    local y = 16
+
+    if shiftIsHeld() == false then
+        for x = 1, maxPages do
+            g:led(x, y, 3)
+        end
+        g:led(selectedPage, 16, 15)
+    else
+        for x = 1, #directions do
+            g:led(x, y, 3)
+
+            if selectedDirection == 'forward' and x == 1 then
+                g:led(x, y, 15)
+            elseif selectedDirection == 'reverse' and x == 2 then
+                g:led(x, y, 15)
+            elseif selectedDirection == 'alternate' and x == 3 then
+                g:led(x, y, 15)
+            elseif selectedDirection == 'random' and x == 4 then
+                g:led(x, y, 15)
+            end
+        end
     end
-    g:led(selectedPage, 16, 15)
 end
 
 function drawShift()
-    g:led(8, 16, 3)
+    if shiftIsHeld() then
+        g:led(8, 16, 15)
+    else
+        g:led(8, 16, 3)
+    end
 end
 
 function drawLoopSelector()
@@ -303,7 +340,17 @@ function g.key(x, y, z)
 
     -- row 16: select page
     if on and y == 16 and x <= maxPages then
-        selectPage(x)
+        if shiftIsHeld() == false then
+            selectPage(x)
+        elseif x == 1 then
+            selectDirection('forward')
+        elseif x == 2 then
+            selectDirection('reverse')
+        elseif x == 3 then
+            selectDirection('alternate')
+        elseif x == 4 then
+            selectDirection('random')
+        end
     end
 
     redrawGrid()
@@ -341,4 +388,8 @@ function selectVoice(voiceNumber)
     end
 
     voiceWasSelected = true
+end
+
+function selectDirection(direction)
+    selectedDirection = direction
 end
