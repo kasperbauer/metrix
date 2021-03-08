@@ -66,6 +66,7 @@ function redrawGrid()
     g:all(0)
     drawPageSelector()
     drawShift()
+    drawAlt()
 
     if selectedPage >= 1 and selectedPage <= 3 then
         drawLoopSelector()
@@ -124,6 +125,14 @@ function drawShift()
         g:led(8, 16, 15)
     else
         g:led(8, 16, 3)
+    end
+end
+
+function drawAlt()
+    if altIsHeld() then
+        g:led(7, 16, 15)
+    else
+        g:led(7, 16, 3)
     end
 end
 
@@ -279,7 +288,7 @@ function g.key(x, y, z)
 
         if y >= 3 and y <= 10 then
             local pulseCount = 11 - y
-            if (stepIndex == 1 and step.pulses == pulseCount) then
+            if altIsHeld() then
                 setForAllSteps('pulses', pulseCount)
             else
                 voice:setPulses(stepIndex, pulseCount)
@@ -287,7 +296,7 @@ function g.key(x, y, z)
         elseif y >= 12 and y <= 15 then
             local gateTypes = voice:getGateTypes()
             local gateType = gateTypes[math.abs(11 - y)]
-            if (stepIndex == 1 and step.gateType == gateType) then
+            if altIsHeld() then
                 setForAllSteps('gateType', gateType)
             else
                 voice:setGateType(stepIndex, gateType)
@@ -299,16 +308,15 @@ function g.key(x, y, z)
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
             local note = 11 - y
-            if (stepIndex == 1 and step.note == note) then
+            if altIsHeld() then
                 setForAllSteps('note', note)
             else
                 voice:setNote(stepIndex, note)
             end
-            voice:setNote(stepIndex, note)
         elseif y >= 12 and y <= 15 then
             local octaves = voice:getOctaves()
             local octave = octaves[y - 11]
-            if (stepIndex == 1 and step.octave == octave) then
+            if altIsHeld() then
                 setForAllSteps('octave', octave)
             else
                 voice:setOctave(stepIndex, octave)
@@ -320,7 +328,7 @@ function g.key(x, y, z)
     if selectedPage == 3 and on then
         if y >= 3 and y <= 10 then
             local ratchetCount = 11 - y
-            if (stepIndex == 1 and step.ratchets == ratchetCount) then
+            if altIsHeld() then
                 setForAllSteps('ratchets', ratchetCount)
             else
                 voice:setRatchets(stepIndex, ratchetCount)
@@ -328,7 +336,7 @@ function g.key(x, y, z)
         elseif y >= 12 and y <= 15 then
             local probabilities = voice:getProbabilities()
             local probability = probabilities[y - 11]
-            if (stepIndex == 1 and step.probability == probability) then
+            if altIsHeld() then
                 setForAllSteps('probability', probability)
             else
                 voice:setProbability(stepIndex, probability)
@@ -338,10 +346,10 @@ function g.key(x, y, z)
 
     -- row 16: select page
     if on and y == 16 and x <= maxPages then
-        if shiftIsHeld() == false then
-            selectPage(x)
-        else
+        if shiftIsHeld() then
             selectDirection(directions[x])
+        else
+            selectPage(x)
         end
     end
 
@@ -349,10 +357,10 @@ function g.key(x, y, z)
     if selectedPage == 4 and on then
         if y >= 1 and y <= 4 then
             local presetIndex = (y - 1) * 8 + x
-            if (shiftIsHeld() == false) then
-                loadPreset(presetIndex)
-            else
+            if shiftIsHeld() then
                 savePreset(presetIndex)
+            else
+                loadPreset(presetIndex)
             end
         end
     end
@@ -378,6 +386,10 @@ end
 
 function shiftIsHeld()
     return momentary[8][16];
+end
+
+function altIsHeld()
+    return momentary[7][16];
 end
 
 function getSelectedVoice(voiceNumber)
