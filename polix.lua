@@ -61,10 +61,12 @@ end
 
 function redrawGrid()
     g:all(0)
-
-    drawLoopSelector()
     drawPageSelector()
     drawShift()
+
+    if selectedPage >= 1 and selectedPage <= 3 then
+        drawLoopSelector()
+    end
 
     -- pulse matrix
     if selectedPage == 1 then
