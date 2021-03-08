@@ -150,13 +150,8 @@ function g.key(x, y, z)
                         end
                     end
 
-                    if loopWasSelected then
-                        loopWasSelected = false
-                    end
-
-                    if voiceWasSelected then
-                        voiceWasSelected = false
-                    end
+                    loopWasSelected = false
+                    voiceWasSelected = false
                 end
             end
         end
