@@ -114,7 +114,7 @@ function drawBottomRow()
             end
         end
     elseif altIsHeld() then
-        for x = 1, #voices do
+        for x = 1, 3 do
             g:led(x, y, 3)
         end
     else
@@ -371,7 +371,13 @@ function g.key(x, y, z)
         if shiftIsHeld() then
             selectDirection(directions[x])
         elseif altIsHeld() then
-            randomizeVoice(x)
+            if x == 1 then
+                voice:randomize({'pulses', 'gateType', 'gateLength'})
+            elseif x == 2 then
+                voice:randomize({'note', 'octave'})
+            elseif x == 3 then
+                voice:randomize({'ratchets', 'probability'})
+            end
         else
             selectPage(x)
         end
@@ -439,9 +445,4 @@ end
 
 function selectDirection(direction)
     selectedDirection = direction
-end
-
-function randomizeVoice(voiceIndex)
-    local voice = voices[voiceIndex]
-    voice:randomize()
 end

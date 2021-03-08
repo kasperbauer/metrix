@@ -55,15 +55,30 @@ function Voice:new(args)
     return t
 end
 
-function Voice:randomize()
+function Voice:randomize(params)
     math.randomseed(os.time())
-    for step = 1, 8 do
-        self:setPulses(step, math.random(1, 8))
-        self:setRatchets(step, math.random(1, 8))
-        self:setNote(step, math.random(1, 8))
-        self:setOctave(step, octaves[math.random(1, 4)])
-        self:setGateType(step, gateTypes[math.random(1, 4)])
-        self:setGateLength(step, gateLengths[math.random(1, 4)])
+    for i = 1, #params do
+        local key = params[i]
+        for step = 1, 8 do
+            if key == 'pulses' then
+                self:setPulses(step, math.random(1, 8))
+            end
+            if key == 'ratchets' then
+                self:setRatchets(step, math.random(1, 8))
+            end
+            if key == 'note' then
+                self:setNote(step, math.random(1, 8))
+            end
+            if key == 'octave' then
+                self:setOctave(step, octaves[math.random(1, 4)])
+            end
+            if key == 'gateType' then
+                self:setGateType(step, gateTypes[math.random(1, 4)])
+            end
+            if key == 'gateLength' then
+                self:setGateLength(step, gateLengths[math.random(1, 4)])
+            end
+        end
     end
 
 end
