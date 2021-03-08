@@ -91,6 +91,8 @@ function redrawGrid()
         -- drawRootNoteSelector()
     end
 
+    drawMomentary()
+
     g:refresh()
 end
 
@@ -238,6 +240,16 @@ function drawPresetSelector()
                 g:led(x, y, 15)
             else
                 g:led(x, y, 3)
+            end
+        end
+    end
+end
+
+function drawMomentary()
+    for x = 1, 8 do
+        for y = 1, 16 do
+            if momentary[x][y] then
+                g:led(x, y, 15)
             end
         end
     end
