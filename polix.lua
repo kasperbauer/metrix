@@ -212,42 +212,6 @@ function drawBottomMatrix(param, options)
     end
 end
 
-function drawOctaveMatrix()
-    local voice = getSelectedVoice()
-
-    for x = 1, 8 do
-        local octave = voice.steps[x].octave
-
-        for y = 12, 15 do
-            if stepInLoop(x, voice) then
-                if octave == 0 and y == 15 then
-                    g:led(x, y, 15)
-                elseif octave == 1 and y == 14 then
-                    g:led(x, y, 15)
-                elseif octave == 2 and y == 13 then
-                    g:led(x, y, 15)
-                elseif octave == 3 and y == 12 then
-                    g:led(x, y, 15)
-                else
-                    g:led(x, y, 3)
-                end
-            else
-                if octave == 0 and y == 15 then
-                    g:led(x, y, 3)
-                elseif octave == 1 and y == 14 then
-                    g:led(x, y, 3)
-                elseif octave == 2 and y == 13 then
-                    g:led(x, y, 3)
-                elseif octave == 3 and y == 12 then
-                    g:led(x, y, 3)
-                else
-                    g:led(x, y, 0)
-                end
-            end
-        end
-    end
-end
-
 function stepInLoop(stepIndex, voice)
     return stepIndex >= voice.loop.start and stepIndex <= voice.loop.stop
 end
