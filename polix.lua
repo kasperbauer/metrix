@@ -13,7 +13,7 @@ local VERSION = '0.1'
 
 -- page selector
 local maxPages = 4
-local selectedPage = 2
+local selectedPage = 4
 
 -- momentary pressed keys
 local momentary = {}
@@ -55,6 +55,9 @@ local directions = {
 }
 local selectedDirection = directions[1]
 
+-- presets
+local selectedPreset = 1
+
 function init()
     redrawGrid()
 end
@@ -83,7 +86,7 @@ function redrawGrid()
         drawTopMatrix('ratchets', true)
         drawBottomMatrix('probability', voice:getProbabilities())
     elseif selectedPage == 4 then
-        -- drawPresetSelector()
+        drawPresetSelector()
         -- drawScaleSelector()
         -- drawRootNoteSelector()
     end
@@ -218,6 +221,19 @@ function stepInLoop(stepIndex, voice)
     return stepIndex >= voice.loop.start and stepIndex <= voice.loop.stop
 end
 
+function drawPresetSelector()
+    for y = 1, 4 do
+        for x = 1, 8 do
+            local presetIndex = (y - 1) * 8 + x
+            if (selectedPreset == presetIndex) then
+                g:led(x, y, 15)
+            else
+                g:led(x, y, 3)
+            end
+        end
+    end
+end
+
 function g.key(x, y, z)
     local on, off = z == 1, z == 0
     local stepIndex, voice = x, getSelectedVoice()
@@ -329,6 +345,17 @@ function g.key(x, y, z)
         end
     end
 
+    -- row 1-4: load presets
+    if selectedPage == 4 and on then
+        if y >= 1 and y <= 4 then
+            local presetIndex = (y - 1) * 8 + x
+            if (shiftIsHeld() == false) then
+                loadPreset(presetIndex)
+            else
+                savePreset(presetIndex)
+            end
+        end
+    end
     redrawGrid()
 end
 
@@ -359,6 +386,14 @@ end
 
 function selectPage(pageNumber)
     selectedPage = pageNumber or 1
+end
+
+function loadPreset(presetIndex)
+    selectedPreset = presetIndex or 1
+end
+
+function savePreset(presetIndex)
+    selectedPreset = presetIndex or 1
 end
 
 function selectVoice(voiceNumber)
