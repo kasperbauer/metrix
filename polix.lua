@@ -96,15 +96,6 @@ function g.key(x, y, z)
 
         momentary[x][y] = true
     else
-        -- row 1 & 2: set single step
-        if y <= 2 then
-            selectVoice(y)
-            local start, stop, voice = getMomentaryInRow(y), x, getSelectedVoice()
-            if start and start ~= stop then
-                voice:setLoop(start, stop)
-            end
-        end
-
         momentary[x][y] = false
     end
 
