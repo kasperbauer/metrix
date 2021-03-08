@@ -1,5 +1,12 @@
 local Voice = {}
 
+local gateTypes = {
+    [1] = 'single',
+    [2] = 'multiple',
+    [3] = 'hold',
+    [4] = 'rest'
+}
+
 function Voice:new(args)
     local t = setmetatable({}, {
         __index = Voice
@@ -13,7 +20,8 @@ function Voice:new(args)
     local steps = {};
     for i = 1, 8 do
         steps[i] = {
-            pulses = {}
+            pulses = {},
+            gateType = gateTypes[1]
         }
 
         for j = 1, 8 do
@@ -44,6 +52,10 @@ function Voice:setStepLength(step, length)
         end
     end
     self.steps[step].pulses = pulses
+end
+
+function Voice:getGateTypes()
+    return gateTypes
 end
 
 return Voice
