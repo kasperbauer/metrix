@@ -78,23 +78,55 @@ end
 
 function g.key(x, y, z)
     if z == 1 then
-        momentary[x][y] = true
-
-        -- rows 1 & 2: seq length / loop
+        -- row 1 & 2: set seq length / loop
         if y <= 2 then
             selectVoice(y)
-            -- row 16: page selector
-        elseif y == 16 and x <= maxPages then
+            local start, stop, voice = getMomentaryInRow(y), x, getSelectedVoice()
+            if start and start ~= stop then
+                voice:setLoop(start, stop)
+            else
+                voice:setLoop(stop, stop)
+            end
+        end
+
+        -- row 16: select page
+        if y == 16 and x <= maxPages then
             selectPage(x)
         end
+
+        momentary[x][y] = true
     else
+        -- row 1 & 2: set single step
+        if y <= 2 then
+            selectVoice(y)
+            local start, stop, voice = getMomentaryInRow(y), x, getSelectedVoice()
+            if start and start ~= stop then
+                voice:setLoop(start, stop)
+            end
+        end
+
         momentary[x][y] = false
     end
+
+    redrawGrid()
+end
+
+function getMomentaryInRow(y)
+    for x = 1, 8 do
+        if momentary[x][y] then
+            return x
+        end
+    end
+
+    return false
+end
+
+function getSelectedVoice(voiceNumber)
+    return voice[selectedVoice]
 end
 
 function selectPage(pageNumber)
     selectedPage = pageNumber or 1
-    redrawGrid()
 end
 
 function selectVoice(voiceNumber)
@@ -105,6 +137,4 @@ function selectVoice(voiceNumber)
     else
         notSelectedVoice = 1
     end
-
-    redrawGrid()
 end
