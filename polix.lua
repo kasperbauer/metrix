@@ -49,8 +49,9 @@ end
 function redrawGrid()
     g:all(0)
 
-    drawPageSelector()
     drawLoopSelector()
+    drawPageSelector()
+    drawShift()
 
     -- pulse matrix
     if selectedPage == 1 then
@@ -69,6 +70,10 @@ function drawPageSelector()
         g:led(x, y, 3)
     end
     g:led(selectedPage, 16, 15)
+end
+
+function drawShift()
+    g:led(8, 16, 3)
 end
 
 function drawLoopSelector()
@@ -247,6 +252,10 @@ function getMomentaryInRow(y)
     end
 
     return false
+end
+
+function shiftIsHeld()
+    return momentary[8][16];
 end
 
 function getSelectedVoice(voiceNumber)
