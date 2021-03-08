@@ -55,6 +55,7 @@ function redrawGrid()
     -- pulse matrix
     if selectedPage == 1 then
         drawPulseMatrix()
+        drawGateTypeMatrix()
     end
 
     g:refresh()
@@ -103,13 +104,49 @@ function drawPulseMatrix()
 
             if x >= voice.loop.start and x <= voice.loop.stop then
                 if pulse then
-                    g:led(x, y, 10)
+                    g:led(x, y, 15)
                 else
                     g:led(x, y, 0)
                 end
-            elseif x < voice.loop.start or x > voice.loop.stop then
+            else
                 if pulse then
-                    g:led(x, y, 4)
+                    g:led(x, y, 3)
+                else
+                    g:led(x, y, 0)
+                end
+            end
+        end
+    end
+end
+
+function drawGateTypeMatrix()
+    local voice = getSelectedVoice()
+
+    for x = 1, 8 do
+        local gateType = voice.steps[x].gateType
+
+        for y = 12, 15 do
+            if x >= voice.loop.start and x <= voice.loop.stop then
+                if gateType == "single" and y == 12 then
+                    g:led(x, y, 15)
+                elseif gateType == "multiple" and y == 11 then
+                    g:led(x, y, 15)
+                elseif gateType == "hold" and y == 10 then
+                    g:led(x, y, 15)
+                elseif gateType == "rest" and y == 9 then
+                    g:led(x, y, 15)
+                else
+                    g:led(x, y, 3)
+                end
+            else
+                if gateType == "single" and y == 12 then
+                    g:led(x, y, 3)
+                elseif gateType == "multiple" and y == 11 then
+                    g:led(x, y, 3)
+                elseif gateType == "hold" and y == 10 then
+                    g:led(x, y, 3)
+                elseif gateType == "rest" and y == 9 then
+                    g:led(x, y, 3)
                 else
                     g:led(x, y, 0)
                 end
