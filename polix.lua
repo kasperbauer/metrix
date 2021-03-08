@@ -75,10 +75,10 @@ function redrawGrid()
     -- pulse matrix
     if selectedPage == 1 then
         drawTopMatrix('pulses', true)
-        if shiftIsHeld() == false then
-            drawBottomMatrix('gateType', voice:getGateTypes())
-        else
+        if shiftIsHeld() then
             drawBottomMatrix('gateLength', voice:getGateLengths())
+        else
+            drawBottomMatrix('gateType', voice:getGateTypes())
         end
     elseif selectedPage == 2 then
         drawTopMatrix('note', false)
@@ -98,12 +98,7 @@ end
 function drawPageSelector()
     local y = 16
 
-    if shiftIsHeld() == false then
-        for x = 1, maxPages do
-            g:led(x, y, 3)
-        end
-        g:led(selectedPage, 16, 15)
-    else
+    if shiftIsHeld() then
         for x = 1, #directions do
             g:led(x, y, 3)
 
@@ -117,6 +112,11 @@ function drawPageSelector()
                 g:led(x, y, 15)
             end
         end
+    else
+        for x = 1, maxPages do
+            g:led(x, y, 3)
+        end
+        g:led(selectedPage, 16, 15)
     end
 end
 
