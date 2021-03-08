@@ -109,7 +109,8 @@ function drawPulseMatrix()
 end
 
 function g.key(x, y, z)
-    local on, off = z == 1, z == 0;
+    local on, off = z == 1, z == 0
+    local voice = getSelectedVoice()
 
     if on then
         momentary[x][y] = true
@@ -122,7 +123,7 @@ function g.key(x, y, z)
         if selectedVoice ~= y then
             selectVoice(y)
         else
-            local held, tapped, voice = getMomentaryInRow(y), x, getSelectedVoice()
+            local held, tapped = getMomentaryInRow(y), x
 
             if on then
                 if held and held ~= tapped then
@@ -144,6 +145,14 @@ function g.key(x, y, z)
                     end
                 end
             end
+        end
+    end
+
+    -- row 3-10: pulse pitch matrix
+    if selectedPage == 1 then
+        if on and y >= 3 and y <= 10 then
+            local step, length = x, 11 - y
+            voice:setStepLength(step, length)
         end
     end
 
