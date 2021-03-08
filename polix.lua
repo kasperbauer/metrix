@@ -26,7 +26,6 @@ end
 
 -- voices data
 local selectedVoice = 1
-local notSelectedVoice = 2
 local voice = include('lib/voice')
 local voices = {}
 voices[1] = voice:new({
@@ -423,13 +422,6 @@ end
 
 function selectVoice(voiceNumber)
     selectedVoice = voiceNumber or 1
-
-    if selectedVoice == 1 then
-        notSelectedVoice = 2
-    else
-        notSelectedVoice = 1
-    end
-
     voiceWasSelected = true
 end
 
