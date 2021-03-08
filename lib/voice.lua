@@ -22,7 +22,8 @@ function Voice:new(args)
         steps[i] = {
             pulses = {},
             gateType = gateTypes[2],
-            note = i
+            note = i,
+            octave = 0
         }
 
         for j = 1, 8 do

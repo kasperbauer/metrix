@@ -59,6 +59,7 @@ function redrawGrid()
         drawGateTypeMatrix()
     elseif selectedPage == 2 then
         drawPitchMatrix()
+        drawOctaveMatrix()
     end
 
     g:refresh()
@@ -164,6 +165,34 @@ function drawPitchMatrix()
             if stepInLoop(x, voice) then
                 local note = voice.steps[x].note;
                 if 11 - y == note then
+                    g:led(x, y, 15)
+                elseif 11 - y > note then
+                    g:led(x, y, 0)
+                else
+                    g:led(x, y, 3)
+                end
+            else
+                g:led(x, y, 0)
+            end
+        end
+    end
+end
+
+function drawOctaveMatrix()
+    local voice = getSelectedVoice()
+
+    for x = 1, 8 do
+        local octave = voice.steps[x].octave
+
+        for y = 12, 15 do
+            if stepInLoop(x, voice) then
+                if octave == 0 and y == 15 then
+                    g:led(x, y, 15)
+                elseif octave == 1 and y == 14 then
+                    g:led(x, y, 15)
+                elseif octave == 2 and y == 13 then
+                    g:led(x, y, 15)
+                elseif octave == 3 and y == 12 then
                     g:led(x, y, 15)
                 else
                     g:led(x, y, 3)
