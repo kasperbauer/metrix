@@ -256,7 +256,11 @@ function g.key(x, y, z)
 
     -- row 1 & 2: set seq length / loop
     if y <= 2 then
-        if selectedVoice ~= y then
+        if on and altIsHeld() then
+            selectVoice(y)
+            voice = getSelectedVoice()
+            voice:setLoop(1, 8)
+        elseif selectedVoice ~= y then
             selectVoice(y)
         else
             local held, tapped = getMomentaryInRow(y), x
@@ -269,11 +273,7 @@ function g.key(x, y, z)
             else
                 if held == false then
                     if loopWasSelected == false and voiceWasSelected == false then
-                        if tapped == 1 and voice.loop.start == 1 and voice.loop.stop == 1 then
-                            voice:setLoop(1, 8)
-                        else
-                            voice:setLoop(tapped, tapped)
-                        end
+                        voice:setLoop(tapped, tapped)
                     end
 
                     loopWasSelected = false
