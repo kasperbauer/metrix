@@ -47,6 +47,8 @@ function init()
 end
 
 function redrawGrid()
+    g:all(0)
+
     drawPageSelector()
     drawLoopSelector()
 
@@ -99,10 +101,18 @@ function drawPulseMatrix()
         for y = 3, 10 do
             local pulse = voice.steps[x].pulses[11 - y]
 
-            if pulse then
-                g:led(x, y, 10)
-            else
-                g:led(x, y, 0)
+            if x >= voice.loop.start and x <= voice.loop.stop then
+                if pulse then
+                    g:led(x, y, 10)
+                else
+                    g:led(x, y, 0)
+                end
+            elseif x < voice.loop.start or x > voice.loop.stop then
+                if pulse then
+                    g:led(x, y, 4)
+                else
+                    g:led(x, y, 0)
+                end
             end
         end
     end
