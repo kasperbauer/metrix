@@ -9,7 +9,7 @@ g:rotation(45)
 
 -- page selector
 local maxPages = 4
-local selectedPage = 1
+local selectedPage = 2
 
 -- momentary pressed keys
 local momentary = {}
@@ -56,6 +56,8 @@ function redrawGrid()
     if selectedPage == 1 then
         drawPulseMatrix()
         drawGateTypeMatrix()
+    elseif selectedPage == 2 then
+        drawPitchMatrix()
     end
 
     g:refresh()
@@ -102,7 +104,7 @@ function drawPulseMatrix()
         for y = 3, 10 do
             local pulse = voice.steps[x].pulses[11 - y]
 
-            if x >= voice.loop.start and x <= voice.loop.stop then
+            if stepInLoop(x, voice) then
                 if pulse then
                     g:led(x, y, 15)
                 else
@@ -126,7 +128,7 @@ function drawGateTypeMatrix()
         local gateType = voice.steps[x].gateType
 
         for y = 12, 15 do
-            if x >= voice.loop.start and x <= voice.loop.stop then
+            if stepInLoop(x, voice) then
                 if gateType == "hold" and y == 12 then
                     g:led(x, y, 15)
                 elseif gateType == "multiple" and y == 13 then
@@ -147,6 +149,29 @@ function drawGateTypeMatrix()
             end
         end
     end
+end
+
+function drawPitchMatrix()
+    local voice = getSelectedVoice()
+
+    for x = 1, 8 do
+        for y = 3, 10 do
+            if stepInLoop(x, voice) then
+                local note = voice.steps[x].note;
+                if 11 - y == note then
+                    g:led(x, y, 15)
+                else
+                    g:led(x, y, 3)
+                end
+            else
+                g:led(x, y, 0)
+            end
+        end
+    end
+end
+
+function stepInLoop(step, voice)
+    return step >= voice.loop.start and step <= voice.loop.stop
 end
 
 function g.key(x, y, z)
