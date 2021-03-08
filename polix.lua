@@ -68,14 +68,14 @@ function redrawGrid()
 
     -- pulse matrix
     if selectedPage == 1 then
-        drawPulseMatrix()
-        drawGateTypeMatrix()
+        drawTopMatrix('pulses', true)
+        drawBottomMatrix('gateType', voice:getGateTypes())
     elseif selectedPage == 2 then
-        drawPitchMatrix()
-        drawOctaveMatrix()
+        drawTopMatrix('note', false)
+        drawBottomMatrix('octave', voice:getOctaves())
     elseif selectedPage == 3 then
-        -- drawRatchetMatrix()
-        -- drawProbabilityMatrix()
+        drawTopMatrix('ratchets', true)
+        drawBottomMatrix('probability', voice:getProbabilities())
     elseif selectedPage == 4 then
         -- drawPresetSelector()
         -- drawScaleSelector()
@@ -144,21 +144,25 @@ function drawLoopSelector()
     end
 end
 
-function drawPulseMatrix()
+function drawTopMatrix(paramName, filled)
     local voice = getSelectedVoice()
 
     for x = 1, 8 do
         for y = 3, 10 do
-            local pulseCount = voice.steps[x].pulses
+            local value = voice.steps[x][paramName]
 
             if stepInLoop(x, voice) then
-                if 11 - y <= pulseCount then
+                if 11 - y == value then
                     g:led(x, y, 15)
+                elseif 11 - y < value and filled then
+                    g:led(x, y, 15)
+                elseif 11 - y < value and filled == false then
+                    g:led(x, y, 3)
                 else
                     g:led(x, y, 0)
                 end
             else
-                if 11 - y == pulseCount then
+                if 11 - y == value then
                     g:led(x, y, 3)
                 else
                     g:led(x, y, 0)
@@ -168,62 +172,37 @@ function drawPulseMatrix()
     end
 end
 
-function drawGateTypeMatrix()
+function drawBottomMatrix(param, options)
     local voice = getSelectedVoice()
 
     for x = 1, 8 do
-        local gateType = voice.steps[x].gateType
+        local value = voice.steps[x][param]
 
         for y = 12, 15 do
             if stepInLoop(x, voice) then
-                if gateType == "hold" and y == 12 then
-                    g:led(x, y, 15)
-                elseif gateType == "multiple" and y == 13 then
-                    g:led(x, y, 15)
-                elseif gateType == "single" and y == 14 then
-                    g:led(x, y, 15)
-                elseif gateType == "rest" and y == 15 then
-                    g:led(x, y, 5)
+                if value == options[1] and y == 12 then
+                    g:led(x, y, 10)
+                elseif value == options[2] and y == 13 then
+                    g:led(x, y, 10)
+                elseif value == options[3] and y == 14 then
+                    g:led(x, y, 10)
+                elseif value == options[4] and y == 15 then
+                    g:led(x, y, 10)
                 else
-                    if gateType == "rest" then
-                        g:led(x, y, 0)
-                    else
-                        g:led(x, y, 3)
-                    end
+                    -- if value == options[4] then
+                    --     g:led(x, y, 0)
+                    -- else
+                    g:led(x, y, 3)
+                    -- end
                 end
             else
-                if gateType == "hold" and y == 12 then
+                if value == options[1] and y == 12 then
                     g:led(x, y, 3)
-                elseif gateType == "multiple" and y == 13 then
+                elseif value == options[2] and y == 13 then
                     g:led(x, y, 3)
-                elseif gateType == "single" and y == 14 then
+                elseif value == options[3] and y == 14 then
                     g:led(x, y, 3)
-                elseif gateType == "rest" and y == 15 then
-                    g:led(x, y, 3)
-                else
-                    g:led(x, y, 0)
-                end
-            end
-        end
-    end
-end
-
-function drawPitchMatrix()
-    local voice = getSelectedVoice()
-
-    for x = 1, 8 do
-        for y = 3, 10 do
-            local note = voice.steps[x].note;
-            if stepInLoop(x, voice) then
-                if 11 - y == note then
-                    g:led(x, y, 15)
-                elseif 11 - y > note then
-                    g:led(x, y, 0)
-                else
-                    g:led(x, y, 3)
-                end
-            else
-                if 11 - y == note then
+                elseif value == options[4] and y == 15 then
                     g:led(x, y, 3)
                 else
                     g:led(x, y, 0)
@@ -339,6 +318,16 @@ function g.key(x, y, z)
             voice:setNote(step, note)
         elseif y >= 12 and y <= 15 then
             voice:setOctave(step, 15 - y)
+        end
+    end
+
+    -- row 3-10: ratchet & probability matrix
+    if selectedPage == 3 and on then
+        local step = x
+
+        if y >= 3 and y <= 10 then
+            local ratchetCount = 11 - y
+            voice:setRatchets(step, ratchetCount)
         end
     end
 
