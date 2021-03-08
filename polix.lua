@@ -26,12 +26,16 @@ local notSelectedVoice = 2
 local voice = include('lib/voice')
 local voices = {}
 voice[1] = voice:new({
-    start = 2,
-    stop = 6
+    loop = {
+        start = 1,
+        stop = 6
+    }
 })
 voice[2] = voice:new({
-    start = 5,
-    stop = 8
+    loop = {
+        start = 5,
+        stop = 8
+    }
 })
 
 -- grid state helpers
@@ -45,6 +49,12 @@ end
 function redrawGrid()
     drawPageSelector()
     drawLoopSelector()
+
+    -- pulse matrix
+    if selectedPage == 1 then
+        drawPulseMatrix()
+    end
+
     g:refresh()
 end
 
@@ -66,17 +76,33 @@ function drawLoopSelector()
                 if (x >= start and x <= stop) then
                     g:led(x, y, 15)
                 else
-                    g:led(x, y, 5)
+                    g:led(x, y, 3)
                 end
             else
                 local start = voice[notSelectedVoice].loop.start
                 local stop = voice[notSelectedVoice].loop.stop
 
                 if (x >= start and x <= stop) then
-                    g:led(x, y, 8)
+                    g:led(x, y, 7)
                 else
-                    g:led(x, y, 2)
+                    g:led(x, y, 0)
                 end
+            end
+        end
+    end
+end
+
+function drawPulseMatrix()
+    local voice = getSelectedVoice()
+
+    for x = 1, 8 do
+        for y = 3, 10 do
+            local pulse = voice.steps[x].pulses[11 - y]
+
+            if pulse then
+                g:led(x, y, 10)
+            else
+                g:led(x, y, 0)
             end
         end
     end
