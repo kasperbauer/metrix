@@ -247,7 +247,7 @@ function g.key(x, y, z)
         end
     end
 
-    -- row 3-10: pulse pitch matrix
+    -- row 3-10: pulse & gate type matrix
     if selectedPage == 1 and on then
         local step = x
 
@@ -262,6 +262,18 @@ function g.key(x, y, z)
             voice:setGateType(step, 'single')
         elseif y == 15 then
             voice:setGateType(step, 'rest')
+        end
+    end
+
+    -- row 3-10: pitch & octave matrix
+    if selectedPage == 2 and on then
+        local step = x
+
+        if y >= 3 and y <= 10 then
+            local note = 11 - y
+            voice:setNote(step, note)
+        elseif y >= 12 and y <= 15 then
+            voice:setOctave(step, 15 - y)
         end
     end
 

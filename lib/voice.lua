@@ -57,11 +57,15 @@ function Voice:setStepLength(step, length)
 end
 
 function Voice:setGateType(step, gateType)
-    self.steps[step].gateType = gateType or 'single'
+    self.steps[step].gateType = gateType
 end
 
-function Voice:getGateTypes()
-    return gateTypes
+function Voice:setNote(step, note)
+    self.steps[step].note = note
+end
+
+function Voice:setOctave(step, octave)
+    self.steps[step].octave = octave
 end
 
 return Voice
