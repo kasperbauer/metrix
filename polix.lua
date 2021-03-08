@@ -293,19 +293,14 @@ function g.key(x, y, z)
 
     -- row 3-10: pulse & gate type matrix
     if selectedPage == 1 and on then
-        local step = x
+        local step, gateTypes = x, voice:getGateTypes()
 
         if y >= 3 and y <= 10 then
             local pulseCount = 11 - y
             voice:setPulses(step, pulseCount)
-        elseif y == 12 then
-            voice:setGateType(step, 'hold')
-        elseif y == 13 then
-            voice:setGateType(step, 'multiple')
-        elseif y == 14 then
-            voice:setGateType(step, 'single')
-        elseif y == 15 then
-            voice:setGateType(step, 'rest')
+        elseif y >= 12 and y <= 15 then
+            local gateTypeIndex = math.abs(11 - y)
+            voice:setGateType(step, gateTypes[gateTypeIndex])
         end
     end
 
