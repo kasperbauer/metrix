@@ -312,13 +312,11 @@ function g.key(x, y, z)
 
     -- row 3-10: pitch & octave matrix
     if selectedPage == 2 and on then
-        local octaves = voice:getOctaves()
-
         if y >= 3 and y <= 10 then
             local note = 11 - y
             voice:setNote(step, note)
         elseif y >= 12 and y <= 15 then
-            local octaveIndex = y - 11
+            local octaves, octaveIndex = voice:getOctaves(), y - 11
             if (step == 1 and voice.steps[step].octave == octaves[octaveIndex]) then
                 for i = 1, 8 do
                     voice:setOctave(i, octaves[octaveIndex])
@@ -334,6 +332,15 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             local ratchetCount = 11 - y
             voice:setRatchets(step, ratchetCount)
+        elseif y >= 12 and y <= 15 then
+            local probabilities, probabilityIndex = voice:getProbabilities(), y - 11
+            if (step == 1 and voice.steps[step].probability == probabilities[probabilityIndex]) then
+                for i = 1, 8 do
+                    voice:setProbability(i, probabilities[probabilityIndex])
+                end
+            else
+                voice:setProbability(step, probabilities[probabilityIndex])
+            end
         end
     end
 
