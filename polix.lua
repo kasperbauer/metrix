@@ -7,12 +7,11 @@
 g = grid.connect()
 g:rotation(45)
 
+-- page selector
 local maxPages = 4
 local selectedPage = 1
 
-local selectedVoice = 1
-local notSelectedVoice = 2
-
+-- momentary pressed keys
 local momentary = {}
 for x = 1, 8 do
     momentary[x] = {}
@@ -20,9 +19,10 @@ for x = 1, 8 do
         momentary[x][y] = false
     end
 end
-local loopWasSelected = false
-local voiceWasSelected = false
 
+-- voices data
+local selectedVoice = 1
+local notSelectedVoice = 2
 local voice = include('lib/voice')
 local voices = {}
 voice[1] = voice:new({
@@ -33,6 +33,10 @@ voice[2] = voice:new({
     start = 5,
     stop = 8
 })
+
+-- grid state helpers
+local loopWasSelected = false
+local voiceWasSelected = false
 
 function init()
     redrawGrid()
