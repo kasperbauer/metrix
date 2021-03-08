@@ -254,7 +254,7 @@ end
 
 function g.key(x, y, z)
     local on, off = z == 1, z == 0
-    local voice = getSelectedVoice()
+    local step, voice = x, getSelectedVoice()
 
     if on then
         momentary[x][y] = true
@@ -293,33 +293,44 @@ function g.key(x, y, z)
 
     -- row 3-10: pulse & gate type matrix
     if selectedPage == 1 and on then
-        local step, gateTypes = x, voice:getGateTypes()
+        local gateTypes = voice:getGateTypes()
 
         if y >= 3 and y <= 10 then
             local pulseCount = 11 - y
             voice:setPulses(step, pulseCount)
         elseif y >= 12 and y <= 15 then
             local gateTypeIndex = math.abs(11 - y)
-            voice:setGateType(step, gateTypes[gateTypeIndex])
+            if (step == 1 and voice.steps[step].gateType == gateTypes[gateTypeIndex]) then
+                for i = 1, 8 do
+                    voice:setGateType(i, gateTypes[gateTypeIndex])
+                end
+            else
+                voice:setGateType(step, gateTypes[gateTypeIndex])
+            end
         end
     end
 
     -- row 3-10: pitch & octave matrix
     if selectedPage == 2 and on then
-        local step = x
+        local octaves = voice:getOctaves()
 
         if y >= 3 and y <= 10 then
             local note = 11 - y
             voice:setNote(step, note)
         elseif y >= 12 and y <= 15 then
-            voice:setOctave(step, 15 - y)
+            local octaveIndex = y - 11
+            if (step == 1 and voice.steps[step].octave == octaves[octaveIndex]) then
+                for i = 1, 8 do
+                    voice:setOctave(i, octaves[octaveIndex])
+                end
+            else
+                voice:setOctave(step, octaves[octaveIndex])
+            end
         end
     end
 
     -- row 3-10: ratchet & probability matrix
     if selectedPage == 3 and on then
-        local step = x
-
         if y >= 3 and y <= 10 then
             local ratchetCount = 11 - y
             voice:setRatchets(step, ratchetCount)

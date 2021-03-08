@@ -38,8 +38,8 @@ function Voice:new(args)
             ratchets = 1,
             gateType = gateTypes[2],
             note = i,
-            octave = 0,
-            probability = 1
+            octave = octaves[4],
+            probability = probabilities[1]
         }
     end
     t.steps = steps
