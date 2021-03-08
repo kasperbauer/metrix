@@ -47,12 +47,25 @@ function Voice:new(args)
             gateLength = gateLengths[3],
             note = i,
             octave = octaves[4],
-            probability = probabilities[1],
+            probability = probabilities[1]
         }
     end
     t.steps = steps
 
     return t
+end
+
+function Voice:randomize()
+    math.randomseed(os.time())
+    for step = 1, 8 do
+        self:setPulses(step, math.random(1, 8))
+        self:setRatchets(step, math.random(1, 8))
+        self:setNote(step, math.random(1, 8))
+        self:setOctave(step, octaves[math.random(1, 4)])
+        self:setGateType(step, gateTypes[math.random(1, 4)])
+        self:setGateLength(step, gateLengths[math.random(1, 4)])
+    end
+
 end
 
 function Voice:setLoop(start, stop)
@@ -70,6 +83,10 @@ end
 
 function Voice:setGateType(step, gateType)
     self.steps[step].gateType = gateType
+end
+
+function Voice:setGateLength(step, gateLength)
+    self.steps[step].gateLength = gateLength
 end
 
 function Voice:setNote(step, note)

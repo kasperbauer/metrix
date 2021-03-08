@@ -13,7 +13,7 @@ local VERSION = '0.1'
 
 -- page selector
 local maxPages = 4
-local selectedPage = 4
+local selectedPage = 1
 
 -- momentary pressed keys
 local momentary = {}
@@ -29,13 +29,13 @@ local selectedVoice = 1
 local notSelectedVoice = 2
 local voice = include('lib/voice')
 local voices = {}
-voice[1] = voice:new({
+voices[1] = voice:new({
     loop = {
         start = 1,
         stop = 6
     }
 })
-voice[2] = voice:new({
+voices[2] = voice:new({
     loop = {
         start = 5,
         stop = 8
@@ -64,7 +64,7 @@ end
 
 function redrawGrid()
     g:all(0)
-    drawPageSelector()
+    drawBottomRow()
     drawShift()
     drawAlt()
 
@@ -95,7 +95,7 @@ function redrawGrid()
     g:refresh()
 end
 
-function drawPageSelector()
+function drawBottomRow()
     local y = 16
 
     if shiftIsHeld() then
@@ -111,6 +111,10 @@ function drawPageSelector()
             elseif selectedDirection == directions[4] and x == 4 then
                 g:led(x, y, 15)
             end
+        end
+    elseif altIsHeld() then
+        for x = 1, #voices do
+            g:led(x, y, 3)
         end
     else
         for x = 1, maxPages do
@@ -139,21 +143,18 @@ end
 function drawLoopSelector()
     for y = 1, 2 do
         for x = 1, 8 do
-            if y == selectedVoice then
-                local start = voice[selectedVoice].loop.start
-                local stop = voice[selectedVoice].loop.stop
+            local voice = voices[y];
+            local isSelected, start, stop = selectedVoice == y, voice.loop.start, voice.loop.stop
 
-                if (x >= start and x <= stop) then
+            if (x >= start and x <= stop) then
+                if (isSelected) then
                     g:led(x, y, 15)
                 else
-                    g:led(x, y, 3)
+                    g:led(x, y, 7)
                 end
             else
-                local start = voice[notSelectedVoice].loop.start
-                local stop = voice[notSelectedVoice].loop.stop
-
-                if (x >= start and x <= stop) then
-                    g:led(x, y, 7)
+                if (isSelected) then
+                    g:led(x, y, 3)
                 else
                     g:led(x, y, 0)
                 end
@@ -294,12 +295,22 @@ function g.key(x, y, z)
                 voice:setPulses(stepIndex, pulseCount)
             end
         elseif y >= 12 and y <= 15 then
-            local gateTypes = voice:getGateTypes()
-            local gateType = gateTypes[math.abs(11 - y)]
-            if altIsHeld() then
-                setForAllSteps('gateType', gateType)
+            if shiftIsHeld() then
+                local gateLengths = voice:getGateLengths()
+                local gateLength = gateLengths[math.abs(11 - y)]
+                if altIsHeld() then
+                    setForAllSteps('gateLength', gateLength)
+                else
+                    voice:setGateLength(stepIndex, gateLength)
+                end
             else
-                voice:setGateType(stepIndex, gateType)
+                local gateTypes = voice:getGateTypes()
+                local gateType = gateTypes[math.abs(11 - y)]
+                if altIsHeld() then
+                    setForAllSteps('gateType', gateType)
+                else
+                    voice:setGateType(stepIndex, gateType)
+                end
             end
         end
     end
@@ -348,6 +359,8 @@ function g.key(x, y, z)
     if on and y == 16 and x <= maxPages then
         if shiftIsHeld() then
             selectDirection(directions[x])
+        elseif altIsHeld() then
+            randomizeVoice(x)
         else
             selectPage(x)
         end
@@ -393,7 +406,7 @@ function altIsHeld()
 end
 
 function getSelectedVoice(voiceNumber)
-    return voice[selectedVoice]
+    return voices[selectedVoice]
 end
 
 function selectPage(pageNumber)
@@ -422,4 +435,9 @@ end
 
 function selectDirection(direction)
     selectedDirection = direction
+end
+
+function randomizeVoice(voiceIndex)
+    local voice = voices[voiceIndex]
+    voice:randomize()
 end
