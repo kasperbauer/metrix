@@ -143,7 +143,11 @@ function g.key(x, y, z)
             else
                 if held == false then
                     if loopWasSelected == false and voiceWasSelected == false then
-                        voice:setLoop(tapped, tapped)
+                        if tapped == 1 and voice.loop.start == 1 and voice.loop.stop == 1 then
+                            voice:setLoop(1, 8)
+                        else
+                            voice:setLoop(tapped, tapped)
+                        end
                     end
 
                     if loopWasSelected then
