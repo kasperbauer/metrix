@@ -151,7 +151,17 @@ function drawGateTypeMatrix()
                     end
                 end
             else
-                g:led(x, y, 3)
+                if gateType == "hold" and y == 12 then
+                    g:led(x, y, 3)
+                elseif gateType == "multiple" and y == 13 then
+                    g:led(x, y, 3)
+                elseif gateType == "single" and y == 14 then
+                    g:led(x, y, 3)
+                elseif gateType == "rest" and y == 15 then
+                    g:led(x, y, 3)
+                else
+                    g:led(x, y, 0)
+                end
             end
         end
     end
@@ -162,8 +172,8 @@ function drawPitchMatrix()
 
     for x = 1, 8 do
         for y = 3, 10 do
+            local note = voice.steps[x].note;
             if stepInLoop(x, voice) then
-                local note = voice.steps[x].note;
                 if 11 - y == note then
                     g:led(x, y, 15)
                 elseif 11 - y > note then
@@ -172,7 +182,11 @@ function drawPitchMatrix()
                     g:led(x, y, 3)
                 end
             else
-                g:led(x, y, 0)
+                if 11 - y == note then
+                    g:led(x, y, 3)
+                else
+                    g:led(x, y, 0)
+                end
             end
         end
     end
@@ -198,7 +212,17 @@ function drawOctaveMatrix()
                     g:led(x, y, 3)
                 end
             else
-                g:led(x, y, 0)
+                if octave == 0 and y == 15 then
+                    g:led(x, y, 3)
+                elseif octave == 1 and y == 14 then
+                    g:led(x, y, 3)
+                elseif octave == 2 and y == 13 then
+                    g:led(x, y, 3)
+                elseif octave == 3 and y == 12 then
+                    g:led(x, y, 3)
+                else
+                    g:led(x, y, 0)
+                end
             end
         end
     end
