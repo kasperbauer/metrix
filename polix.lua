@@ -1,11 +1,15 @@
 --
 --
--- polix
+-- polix v0.1
 -- metropolix for norns
+-- github.com/kasperbauer/polix
 --
 --
 g = grid.connect()
 g:rotation(45)
+
+-- meta
+local VERSION = '0.1'
 
 -- page selector
 local maxPages = 4
@@ -145,16 +149,16 @@ function drawPulseMatrix()
 
     for x = 1, 8 do
         for y = 3, 10 do
-            local pulse = voice.steps[x].pulses[11 - y]
+            local pulseCount = voice.steps[x].pulses
 
             if stepInLoop(x, voice) then
-                if pulse then
+                if 11 - y <= pulseCount then
                     g:led(x, y, 15)
                 else
                     g:led(x, y, 0)
                 end
             else
-                if pulse then
+                if 11 - y == pulseCount then
                     g:led(x, y, 3)
                 else
                     g:led(x, y, 0)
@@ -313,8 +317,8 @@ function g.key(x, y, z)
         local step = x
 
         if y >= 3 and y <= 10 then
-            local length = 11 - y
-            voice:setStepLength(step, length)
+            local pulseCount = 11 - y
+            voice:setPulses(step, pulseCount)
         elseif y == 12 then
             voice:setGateType(step, 'hold')
         elseif y == 13 then

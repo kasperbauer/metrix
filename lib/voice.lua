@@ -20,19 +20,12 @@ function Voice:new(args)
     local steps = {};
     for i = 1, 8 do
         steps[i] = {
-            pulses = {},
+            pulses = i,
+            ratchets = 1,
             gateType = gateTypes[2],
             note = i,
             octave = 0
         }
-
-        for j = 1, 8 do
-            steps[i].pulses[j] = false
-        end
-
-        for k = 1, i do
-            steps[i].pulses[k] = true
-        end
     end
     t.steps = steps
 
@@ -44,16 +37,8 @@ function Voice:setLoop(start, stop)
     self.loop.stop = stop or 8
 end
 
-function Voice:setStepLength(step, length)
-    pulses = self.steps[step].pulses
-    for i = 1, 8 do
-        if (i <= length) then
-            pulses[i] = true
-        else
-            pulses[i] = false
-        end
-    end
-    self.steps[step].pulses = pulses
+function Voice:setPulses(step, pulseCount)
+    self.steps[step].pulses = pulseCount
 end
 
 function Voice:setGateType(step, gateType)
