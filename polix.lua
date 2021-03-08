@@ -261,7 +261,11 @@ function g.key(x, y, z)
 
         if y >= 3 and y <= 10 then
             local pulseCount = 11 - y
-            voice:setPulses(stepIndex, pulseCount)
+            if (stepIndex == 1 and step.pulses == pulseCount) then
+                setForAllSteps('pulses', pulseCount)
+            else
+                voice:setPulses(stepIndex, pulseCount)
+            end
         elseif y >= 12 and y <= 15 then
             local gateTypes = voice:getGateTypes()
             local gateType = gateTypes[math.abs(11 - y)]
@@ -277,6 +281,11 @@ function g.key(x, y, z)
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
             local note = 11 - y
+            if (stepIndex == 1 and step.note == note) then
+                setForAllSteps('note', note)
+            else
+                voice:setNote(stepIndex, note)
+            end
             voice:setNote(stepIndex, note)
         elseif y >= 12 and y <= 15 then
             local octaves = voice:getOctaves()
@@ -293,7 +302,11 @@ function g.key(x, y, z)
     if selectedPage == 3 and on then
         if y >= 3 and y <= 10 then
             local ratchetCount = 11 - y
-            voice:setRatchets(stepIndex, ratchetCount)
+            if (stepIndex == 1 and step.ratchets == ratchetCount) then
+                setForAllSteps('ratchets', ratchetCount)
+            else
+                voice:setRatchets(stepIndex, ratchetCount)
+            end
         elseif y >= 12 and y <= 15 then
             local probabilities = voice:getProbabilities()
             local probability = probabilities[y - 11]
