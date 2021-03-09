@@ -69,9 +69,6 @@ function voice:randomize(params)
             if key == 'pulses' then
                 self:setPulses(step, math.random(1, 8))
             end
-            if key == 'ratchets' then
-                self:setRatchets(step, math.random(1, 8))
-            end
             if key == 'note' then
                 self:setNote(step, math.random(1, 8))
             end
@@ -83,6 +80,12 @@ function voice:randomize(params)
             end
             if key == 'gateLength' then
                 self:setGateLength(step, gateLengths[math.random(1, 4)])
+            end
+            if key == 'ratchets' then
+                self:setRatchets(step, math.random(1, 8))
+            end
+            if key == 'probability' then
+                self:setProbability(step, probabilities[math.random(1, 4)])
             end
         end
     end
