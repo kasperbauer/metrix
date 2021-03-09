@@ -104,11 +104,13 @@ end
 
 function redraw()
     screen.clear()
-    screen.move(0, 10)
+    screen.move(0, 8)
+    screen.text('POLIX')
+    screen.move(0, 48)
     if seq then
         screen.text(seq.transport)
     end
-    screen.move(0, 59)
+    screen.move(0, 60)
     if seq and seq.enabled then
         screen.text('||')
     else
