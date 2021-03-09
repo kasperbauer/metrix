@@ -99,7 +99,6 @@ function playPause()
 end
 
 function playPattern(t)
-    print('lattice', t)
     requestScreenRedraw()
 end
 
