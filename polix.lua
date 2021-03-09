@@ -9,6 +9,7 @@ musicUtil = require('lib/musicutil')
 json = include('lib/json')
 helpers = include('lib/helpers')
 preset = include('lib/preset')
+voice = include('lib/voice')
 
 g = grid.connect()
 g:rotation(45)
@@ -28,20 +29,9 @@ end
 
 -- voices data
 local selectedVoice = 1
-local voice = include('lib/voice')
 local voices = {}
-voices[1] = voice:new({
-    loop = {
-        start = 1,
-        stop = 6
-    }
-})
-voices[2] = voice:new({
-    loop = {
-        start = 5,
-        stop = 8
-    }
-})
+voices[1] = voice:new()
+voices[2] = voice:new()
 
 -- grid state helpers
 local loopWasSelected = false
@@ -58,7 +48,7 @@ local selectedDirection = directions[1]
 
 -- presets
 local presets = {}
-local selectedPreset = 1
+local selectedPreset = nil
 
 -- scales
 local scales = {};
@@ -307,7 +297,7 @@ function g.key(x, y, z)
     end
 
     -- row 1 & 2: set seq length / loop
-    if y <= 2 then
+    if selectedPage ~= 4 and y <= 2 then
         if on and altIsHeld() then
             selectVoice(y)
             voice = getSelectedVoice()
@@ -477,9 +467,12 @@ end
 
 function loadPreset(presetIndex)
     local data = preset.load(presetIndex)
-    print(json.stringify(data))
-    -- local voices, direction = data.voices, data.direction
-    selectedPreset = presetIndex or 1
+    voices = data.voices
+    selectedDirection = data.direction
+    print(json.stringify(voices[1]))
+    print(json.stringify(voices[2]))
+    selectedPreset = presetIndex
+    redrawGrid()
 end
 
 function savePreset(presetIndex)
@@ -488,7 +481,7 @@ function savePreset(presetIndex)
         ['voices'] = voices
     }
     preset.save(presetIndex, data)
-    selectedPreset = presetIndex or 1
+    selectedPreset = presetIndex
     readPresetDirectory()
 end
 

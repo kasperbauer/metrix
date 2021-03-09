@@ -1,4 +1,5 @@
 local preset = {}
+local voice = include('lib/voice')
 
 function preset.load(presetIndex)
     local file = assert(io.open(_path.code .. 'polix/presets/' .. presetIndex .. '.json', 'r'))
@@ -6,7 +7,16 @@ function preset.load(presetIndex)
     file:close()
 
     local data = json.parse(jsonContent)
-    return data;
+    local voices = {}
+    for i = 1, #data.voices do
+        local voice = voice:new(data.voices[i])
+        table.insert(voices, voice)
+    end
+
+    return {
+        voices = voices,
+        direction = data.direction
+    };
 end
 
 function preset.save(presetIndex, data)
@@ -24,7 +34,7 @@ function preset.readDirectory()
         local presetNumber = name:gsub(".json", "")
         table.insert(existingPresets, tonumber(presetNumber))
     end
-    
+
     return existingPresets
 end
 
