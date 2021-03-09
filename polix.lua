@@ -88,7 +88,7 @@ function redrawGrid()
     drawAlt()
 
     if selectedPage >= 1 and selectedPage <= 3 then
-        drawLoopSelector()
+        drawLoopPicker()
     end
 
     -- pulse matrix
@@ -106,9 +106,9 @@ function redrawGrid()
         drawTopMatrix('ratchets', true)
         drawBottomMatrix('probability', voice:getProbabilities())
     elseif selectedPage == 4 then
-        drawPresetSelector()
-        drawScaleSelector()
-        -- drawRootNoteSelector()
+        drawPresetPicker()
+        drawScalePicker()
+        -- drawRootNotePicker()
     end
 
     drawMomentary()
@@ -161,7 +161,7 @@ function drawAlt()
     end
 end
 
-function drawLoopSelector()
+function drawLoopPicker()
     for y = 1, 2 do
         for x = 1, 8 do
             local voice = voices[y];
@@ -252,7 +252,7 @@ function stepInLoop(stepIndex, voice)
     return stepIndex >= voice.loop.start and stepIndex <= voice.loop.stop
 end
 
-function drawPresetSelector()
+function drawPresetPicker()
     for y = 1, 4 do
         for x = 1, 8 do
             local presetIndex = (y - 1) * 8 + x
@@ -265,7 +265,7 @@ function drawPresetSelector()
     end
 end
 
-function drawScaleSelector()
+function drawScalePicker()
     local rows = math.ceil(#scales / 8)
     scaleIndex = 1
     for y = 6, 6 + rows do
