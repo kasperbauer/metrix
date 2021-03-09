@@ -55,7 +55,9 @@ local selectedScale = nil
 
 function init()
     initScales()
-    redrawGrid()
+
+    gridIsDirty = true
+    clock.run(redrawGridClock)
 end
 
 function initScales()
@@ -68,6 +70,16 @@ function initScales()
         ::continue::
     end
     selectedScale = scales[1]
+end
+
+function redrawGridClock()
+    while true do -- while it's running...
+        clock.sleep(1 / 30) -- refresh at 30fps.
+        if gridIsDirty then -- if a redraw is needed...
+            redrawGrid() -- redraw...
+            gridIsDirty = false -- then redraw is no longer needed.
+        end
+    end
 end
 
 function redrawGrid()
@@ -427,7 +439,7 @@ function g.key(x, y, z)
             selectScale(scales[scaleIndex])
         end
     end
-    redrawGrid()
+    requestRedraw()
 end
 
 function setForAllSteps(param, value)
@@ -468,7 +480,7 @@ function loadPreset(presetIndex)
     voices = data.voices
     selectedDirection = data.direction
     selectedPreset = presetIndex
-    redrawGrid()
+    requestRedraw()
 end
 
 function savePreset(presetIndex)
@@ -491,4 +503,8 @@ end
 
 function selectScale(scale)
     selectedScale = scale
+end
+
+function requestRedraw()
+    gridIsDirty = true
 end
