@@ -1,4 +1,4 @@
-local Voice = {}
+local voice = {}
 
 local gateTypes = {
     [1] = 'hold',
@@ -28,34 +28,40 @@ local octaves = {
     [4] = 0
 }
 
-function Voice:new(args)
+function voice:new(args)
     local t = setmetatable({}, {
-        __index = Voice
+        __index = voice
     })
+
+    args = args or {}
 
     t.loop = args.loop or {
         start = 1,
         stop = 8
     }
 
-    local steps = {};
-    for i = 1, 8 do
-        steps[i] = {
-            pulses = i,
-            ratchets = 1,
-            gateType = gateTypes[2],
-            gateLength = gateLengths[3],
-            note = i,
-            octave = octaves[4],
-            probability = probabilities[1]
-        }
+    if args.steps then
+        t.steps = args.steps
+    else
+        local steps = {};
+        for i = 1, 8 do
+            steps[i] = {
+                pulses = i,
+                ratchets = 1,
+                gateType = gateTypes[2],
+                gateLength = gateLengths[3],
+                note = i,
+                octave = octaves[4],
+                probability = probabilities[1]
+            }
+        end
+        t.steps = steps
     end
-    t.steps = steps
 
     return t
 end
 
-function Voice:randomize(params)
+function voice:randomize(params)
     math.randomseed(os.time())
     for i = 1, #params do
         local key = params[i]
@@ -83,53 +89,53 @@ function Voice:randomize(params)
 
 end
 
-function Voice:setLoop(start, stop)
+function voice:setLoop(start, stop)
     self.loop.start = start or 1
     self.loop.stop = stop or 8
 end
 
-function Voice:setPulses(step, pulseCount)
+function voice:setPulses(step, pulseCount)
     self.steps[step].pulses = pulseCount
 end
 
-function Voice:setRatchets(step, ratchetCount)
+function voice:setRatchets(step, ratchetCount)
     self.steps[step].ratchets = ratchetCount
 end
 
-function Voice:setGateType(step, gateType)
+function voice:setGateType(step, gateType)
     self.steps[step].gateType = gateType
 end
 
-function Voice:setGateLength(step, gateLength)
+function voice:setGateLength(step, gateLength)
     self.steps[step].gateLength = gateLength
 end
 
-function Voice:setNote(step, note)
+function voice:setNote(step, note)
     self.steps[step].note = note
 end
 
-function Voice:setOctave(step, octave)
+function voice:setOctave(step, octave)
     self.steps[step].octave = octave
 end
 
-function Voice:setProbability(step, probability)
+function voice:setProbability(step, probability)
     self.steps[step].probability = probability
 end
 
-function Voice:getGateTypes()
+function voice:getGateTypes()
     return gateTypes
 end
 
-function Voice:getGateLengths()
+function voice:getGateLengths()
     return gateLengths
 end
 
-function Voice:getProbabilities()
+function voice:getProbabilities()
     return probabilities
 end
 
-function Voice:getOctaves()
+function voice:getOctaves()
     return octaves
 end
 
-return Voice
+return voice
