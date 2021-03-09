@@ -72,11 +72,9 @@ end
 function initScales()
     for i = 1, #musicUtil.SCALES do
         local scale = musicUtil.SCALES[i]
-        if #scale.intervals > 8 then
-            goto continue
-        end
+        if #scale.intervals == 8 then
         table.insert(scales, scale)
-        ::continue::
+        end
     end
     selectedScale = scales[1]
 end
@@ -152,7 +150,7 @@ function redrawGrid()
             drawBottomMatrix('gateType', voice:getGateTypes())
         end
     elseif selectedPage == 2 then
-        drawTopMatrix('note', false)
+        drawTopMatrix('interval', false)
         drawBottomMatrix('octave', voice:getOctaves())
     elseif selectedPage == 3 then
         drawTopMatrix('ratchetCount', true)
@@ -425,11 +423,11 @@ function g.key(x, y, z)
     -- row 3-10: pitch & octave matrix
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
-            local note = 11 - y
+            local interval = 11 - y
             if altIsHeld() then
-                setForAllSteps('note', note)
+                setForAllSteps('interval', interval)
             else
-                voice:setNote(stepIndex, note)
+                voice:setInterval(stepIndex, interval)
             end
         elseif y >= 12 and y <= 15 then
             local octaves = voice:getOctaves()
@@ -470,7 +468,7 @@ function g.key(x, y, z)
             if x == 1 then
                 voice:randomize({'pulseCount', 'gateType', 'gateLength'})
             elseif x == 2 then
-                voice:randomize({'note', 'octave'})
+                voice:randomize({'interval', 'octave'})
             elseif x == 3 then
                 voice:randomize({'ratchetCount', 'probability'})
             end

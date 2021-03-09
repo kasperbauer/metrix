@@ -50,7 +50,7 @@ function voice:new(args)
                 ratchetCount = 1,
                 gateType = gateTypes[2],
                 gateLength = gateLengths[3],
-                note = i,
+                interval = i,
                 octave = octaves[4],
                 probability = probabilities[1]
             }
@@ -69,8 +69,8 @@ function voice:randomize(params)
             if key == 'pulseCount' then
                 self:setPulseCount(step, math.random(1, 8))
             end
-            if key == 'note' then
-                self:setNote(step, math.random(1, 8))
+            if key == 'interval' then
+                self:setInterval(step, math.random(1, 8))
             end
             if key == 'octave' then
                 self:setOctave(step, octaves[math.random(1, 4)])
@@ -113,8 +113,8 @@ function voice:setGateLength(step, gateLength)
     self.steps[step].gateLength = gateLength
 end
 
-function voice:setNote(step, note)
-    self.steps[step].note = note
+function voice:setInterval(step, interval)
+    self.steps[step].interval = interval
 end
 
 function voice:setOctave(step, octave)
