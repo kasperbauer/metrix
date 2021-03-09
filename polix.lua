@@ -10,9 +10,6 @@ musicUtil = require('lib/musicutil')
 g = grid.connect()
 g:rotation(45)
 
--- meta
-local VERSION = '0.1'
-
 -- page selector
 local maxPages = 4
 local selectedPage = 4
