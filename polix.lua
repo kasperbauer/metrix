@@ -300,11 +300,7 @@ function g.key(x, y, z)
     local stepIndex, voice = x, getSelectedVoice()
     local step = voice.steps[stepIndex]
 
-    if on then
-        momentary[x][y] = true
-    else
-        momentary[x][y] = false
-    end
+    momentary[x][y] = z == 1 and true or false
 
     -- row 1 & 2: set seq length / loop
     if selectedPage ~= 4 and y <= 2 then
@@ -439,7 +435,7 @@ function g.key(x, y, z)
             selectScale(scales[scaleIndex])
         end
     end
-    
+
     requestRedraw()
 end
 
