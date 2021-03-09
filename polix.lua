@@ -5,6 +5,8 @@
 -- github.com/kasperbauer/polix
 --
 --
+musicUtil = require('lib/musicutil')
+
 g = grid.connect()
 g:rotation(45)
 
@@ -13,7 +15,7 @@ local VERSION = '0.1'
 
 -- page selector
 local maxPages = 4
-local selectedPage = 1
+local selectedPage = 4
 
 -- momentary pressed keys
 local momentary = {}
@@ -57,8 +59,26 @@ local selectedDirection = directions[1]
 -- presets
 local selectedPreset = 1
 
+-- scales
+local scales = {};
+local selectedScale = nil
+
 function init()
+    initScales()
     redrawGrid()
+end
+
+function initScales()
+    for i = 1, #musicUtil.SCALES do
+        local scale = musicUtil.SCALES[i]
+        if #scale.intervals > 8 then
+            goto continue
+        end
+        table.insert(scales, scale)
+        ::continue::
+    end
+    selectedScale = scales[1]
+    print(selectedScale.name)
 end
 
 function redrawGrid()
@@ -87,7 +107,7 @@ function redrawGrid()
         drawBottomMatrix('probability', voice:getProbabilities())
     elseif selectedPage == 4 then
         drawPresetSelector()
-        -- drawScaleSelector()
+        drawScaleSelector()
         -- drawRootNoteSelector()
     end
 
@@ -245,6 +265,23 @@ function drawPresetSelector()
     end
 end
 
+function drawScaleSelector()
+    local rows = math.ceil(#scales / 8)
+    scaleIndex = 1
+    for y = 6, 6 + rows do
+        for x = 1, 8 do
+            if (scaleIndex > #scales) then
+                break
+            elseif selectedScale.name == scales[scaleIndex].name then
+                g:led(x, y, 15)
+            else
+                g:led(x, y, 3)
+            end
+            scaleIndex = scaleIndex + 1
+        end
+    end
+end
+
 function drawMomentary()
     for x = 1, 8 do
         for y = 1, 16 do
@@ -393,6 +430,11 @@ function g.key(x, y, z)
                 loadPreset(presetIndex)
             end
         end
+
+        local scaleRows, scaleIndex = math.ceil(#scales / 8), (y - 6) * 8 + x
+        if y >= 6 and y <= 6 + scaleRows and scaleIndex <= #scales then
+            selectScale(scales[scaleIndex])
+        end
     end
     redrawGrid()
 end
@@ -445,4 +487,8 @@ end
 
 function selectDirection(direction)
     selectedDirection = direction
+end
+
+function selectScale(scale)
+    selectedScale = scale
 end
