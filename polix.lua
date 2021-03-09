@@ -6,6 +6,8 @@
 --
 --
 musicUtil = require('lib/musicutil')
+json = include('lib/json')
+helpers = include('lib/helpers')
 
 g = grid.connect()
 g:rotation(45)
@@ -54,6 +56,7 @@ local directions = {
 local selectedDirection = directions[1]
 
 -- presets
+local presets = {}
 local selectedPreset = 1
 
 -- scales
@@ -62,6 +65,7 @@ local selectedScale = nil
 
 function init()
     initScales()
+    readPresetDirectory()
     redrawGrid()
 end
 
@@ -75,7 +79,6 @@ function initScales()
         ::continue::
     end
     selectedScale = scales[1]
-    print(selectedScale.name)
 end
 
 function redrawGrid()
@@ -255,6 +258,8 @@ function drawPresetPicker()
             local presetIndex = (y - 1) * 8 + x
             if (selectedPreset == presetIndex) then
                 g:led(x, y, 15)
+            elseif (helpers.arrayContains(presets, presetIndex)) then
+                g:led(x, y, 7)
             else
                 g:led(x, y, 3)
             end
@@ -470,11 +475,39 @@ function selectPage(pageNumber)
 end
 
 function loadPreset(presetIndex)
+    local file = assert(io.open(_path.code .. 'polix/presets/' .. presetIndex .. '.json', 'r'))
+    local jsonContent = file:read('*all')
+    file:close()
+
+    local data = json.parse(jsonContent)
+    print(json.stringify(data))
+    -- local voices, direction = data.voices, data.direction
     selectedPreset = presetIndex or 1
 end
 
 function savePreset(presetIndex)
+    local data = {
+        ['direction'] = selectedDirection,
+        ['voices'] = voices
+    }
+    local jsonContent = json.stringify(data)
+
+    local file = assert(io.open(_path.code .. 'polix/presets/' .. presetIndex .. '.json', 'w'))
+    file:write(jsonContent)
+    file:close()
+
     selectedPreset = presetIndex or 1
+    readPresetDirectory()
+end
+
+function readPresetDirectory()
+    local dir = io.popen('ls ' .. _path.code .. 'polix/presets/')
+    local existingPresets = {}
+    for name in dir:lines() do
+        local presetNumber = name:gsub(".json", "")
+        table.insert(existingPresets, tonumber(presetNumber))
+    end
+    presets = existingPresets
 end
 
 function selectVoice(voiceNumber)
