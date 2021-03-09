@@ -8,13 +8,14 @@
 musicUtil = require('lib/musicutil')
 preset = include('lib/preset')
 voice = include('lib/voice')
+lattice = require('lattice')
 
 g = grid.connect()
 g:rotation(45)
 
 -- page selector
 local maxPages = 4
-local selectedPage = 4
+local selectedPage = 1
 
 -- momentary pressed keys
 local momentary = {}
@@ -53,11 +54,19 @@ local selectedPreset = nil
 local scales = {};
 local selectedScale = nil
 
+-- sequencer
+local seq = nil
+local pattern1 = nil
+local pattern2 = nil
+
+-- redraw
+local gridIsDirty = true
+local screenIsDirty = false
+
 function init()
     initScales()
-
-    gridIsDirty = true
-    clock.run(redrawGridClock)
+    initSequencer()
+    clock.run(redrawClock)
 end
 
 function initScales()
@@ -72,12 +81,53 @@ function initScales()
     selectedScale = scales[1]
 end
 
-function redrawGridClock()
-    while true do -- while it's running...
-        clock.sleep(1 / 30) -- refresh at 30fps.
-        if gridIsDirty then -- if a redraw is needed...
-            redrawGrid() -- redraw...
-            gridIsDirty = false -- then redraw is no longer needed.
+function initSequencer()
+    seq = lattice:new()
+    pattern1 = seq:new_pattern({
+        action = playPattern,
+        division = 1 / 4
+    })
+
+end
+
+function playPause()
+    if seq and seq.enabled then
+        seq:stop()
+    else
+        seq:start()
+    end
+end
+
+function playPattern(t)
+    print('lattice', t)
+    requestScreenRedraw()
+end
+
+function redraw()
+    screen.clear()
+    screen.move(0, 10)
+    if seq then
+        screen.text(seq.transport)
+    end
+    screen.move(0, 59)
+    if seq and seq.enabled then
+        screen.text('||')
+    else
+        screen.text('>')
+    end
+    screen.update()
+end
+
+function redrawClock()
+    while true do
+        clock.sleep(1 / 30)
+        if screenIsDirty then
+            redraw()
+            screenIsDirty = false
+        end
+        if gridIsDirty then
+            redrawGrid()
+            gridIsDirty = false
         end
     end
 end
@@ -295,6 +345,15 @@ function drawMomentary()
     end
 end
 
+function key(n, z)
+    if z == 1 then
+        if n == 2 then
+            playPause()
+        end
+    end
+    requestScreenRedraw()
+end
+
 function g.key(x, y, z)
     local on, off = z == 1, z == 0
     local stepIndex, voice = x, getSelectedVoice()
@@ -436,7 +495,7 @@ function g.key(x, y, z)
         end
     end
 
-    requestRedraw()
+    requestGridRedraw()
 end
 
 function setForAllSteps(param, value)
@@ -477,7 +536,7 @@ function loadPreset(presetIndex)
     voices = data.voices
     selectedDirection = data.direction
     selectedPreset = presetIndex
-    requestRedraw()
+    requestGridRedraw()
 end
 
 function savePreset(presetIndex)
@@ -502,6 +561,10 @@ function selectScale(scale)
     selectedScale = scale
 end
 
-function requestRedraw()
+function requestScreenRedraw()
+    screenIsDirty = true
+end
+
+function requestGridRedraw()
     gridIsDirty = true
 end
