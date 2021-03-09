@@ -143,7 +143,7 @@ function redrawGrid()
 
     -- pulse matrix
     if selectedPage == 1 then
-        drawTopMatrix('pulses', true)
+        drawTopMatrix('pulseCount', true)
         if shiftIsHeld() then
             drawBottomMatrix('gateLength', voice:getGateLengths())
         else
@@ -153,7 +153,7 @@ function redrawGrid()
         drawTopMatrix('note', false)
         drawBottomMatrix('octave', voice:getOctaves())
     elseif selectedPage == 3 then
-        drawTopMatrix('ratchets', true)
+        drawTopMatrix('ratchetCount', true)
         drawBottomMatrix('probability', voice:getProbabilities())
     elseif selectedPage == 4 then
         drawPresetPicker()
@@ -466,11 +466,11 @@ function g.key(x, y, z)
             selectDirection(directions[x])
         elseif altIsHeld() then
             if x == 1 then
-                voice:randomize({'pulses', 'gateType', 'gateLength'})
+                voice:randomize({'pulseCount', 'gateType', 'gateLength'})
             elseif x == 2 then
                 voice:randomize({'note', 'octave'})
             elseif x == 3 then
-                voice:randomize({'ratchets', 'probability'})
+                voice:randomize({'ratchetCount', 'probability'})
             end
         else
             selectPage(x)

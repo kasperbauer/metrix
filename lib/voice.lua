@@ -46,8 +46,8 @@ function voice:new(args)
         local steps = {};
         for i = 1, 8 do
             steps[i] = {
-                pulses = i,
-                ratchets = 1,
+                pulseCount = i,
+                ratchetCount = 1,
                 gateType = gateTypes[2],
                 gateLength = gateLengths[3],
                 note = i,
@@ -66,8 +66,8 @@ function voice:randomize(params)
     for i = 1, #params do
         local key = params[i]
         for step = 1, 8 do
-            if key == 'pulses' then
-                self:setPulses(step, math.random(1, 8))
+            if key == 'pulseCount' then
+                self:setPulseCount(step, math.random(1, 8))
             end
             if key == 'note' then
                 self:setNote(step, math.random(1, 8))
@@ -81,8 +81,8 @@ function voice:randomize(params)
             if key == 'gateLength' then
                 self:setGateLength(step, gateLengths[math.random(1, 4)])
             end
-            if key == 'ratchets' then
-                self:setRatchets(step, math.random(1, 8))
+            if key == 'ratchetCount' then
+                self:setRatchetCount(step, math.random(1, 8))
             end
             if key == 'probability' then
                 self:setProbability(step, probabilities[math.random(1, 4)])
@@ -97,12 +97,12 @@ function voice:setLoop(start, stop)
     self.loop.stop = stop or 8
 end
 
-function voice:setPulses(step, pulseCount)
-    self.steps[step].pulses = pulseCount
+function voice:setPulseCount(step, pulseCount)
+    self.steps[step].pulseCount = pulseCount
 end
 
-function voice:setRatchets(step, ratchetCount)
-    self.steps[step].ratchets = ratchetCount
+function voice:setRatchetCount(step, ratchetCount)
+    self.steps[step].ratchetCount = ratchetCount
 end
 
 function voice:setGateType(step, gateType)
@@ -139,6 +139,10 @@ end
 
 function voice:getOctaves()
     return octaves
+end
+
+function voice:getPulses()
+    return {}
 end
 
 return voice
