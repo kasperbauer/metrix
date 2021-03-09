@@ -1,12 +1,20 @@
 local preset = {}
 local voice = include('lib/voice')
 
-function preset.load(presetIndex)
-    local file = assert(io.open(_path.code .. 'polix/presets/' .. presetIndex .. '.json', 'r'))
-    local jsonContent = file:read('*all')
-    file:close()
+function preset:new()
+    local t = setmetatable({}, {
+        __index = preset
+    })
 
-    local data = json.parse(jsonContent)
+    t.path = _path.code .. 'polix/presets/'
+    util.make_dir(t.path)
+
+    return t
+end
+
+function preset:load(id)
+    local data = tab.load(self.path .. id)
+
     local voices = {}
     for i = 1, #data.voices do
         local voice = voice:new(data.voices[i])
@@ -19,23 +27,12 @@ function preset.load(presetIndex)
     };
 end
 
-function preset.save(presetIndex, data)
-    local jsonContent = json.stringify(data)
-
-    local file = assert(io.open(_path.code .. 'polix/presets/' .. presetIndex .. '.json', 'w'))
-    file:write(jsonContent)
-    file:close()
+function preset:save(id, data)
+    tab.save(data, self.path .. id)
 end
 
-function preset.readDirectory()
-    local dir = io.popen('ls ' .. _path.code .. 'polix/presets/')
-    local existingPresets = {}
-    for name in dir:lines() do
-        local presetNumber = name:gsub(".json", "")
-        table.insert(existingPresets, tonumber(presetNumber))
-    end
-
-    return existingPresets
+function preset:exists(id)
+    return util.file_exists(self.path .. id)
 end
 
 return preset

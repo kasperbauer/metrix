@@ -6,8 +6,6 @@
 --
 --
 musicUtil = require('lib/musicutil')
-json = include('lib/json')
-helpers = include('lib/helpers')
 preset = include('lib/preset')
 voice = include('lib/voice')
 
@@ -47,6 +45,7 @@ local directions = {
 local selectedDirection = directions[1]
 
 -- presets
+local preset = preset:new()
 local presets = {}
 local selectedPreset = nil
 
@@ -56,7 +55,6 @@ local selectedScale = nil
 
 function init()
     initScales()
-    readPresetDirectory()
     redrawGrid()
 end
 
@@ -249,7 +247,7 @@ function drawPresetPicker()
             local presetIndex = (y - 1) * 8 + x
             if (selectedPreset == presetIndex) then
                 g:led(x, y, 15)
-            elseif (helpers.arrayContains(presets, presetIndex)) then
+            elseif preset:exists(presetIndex) then
                 g:led(x, y, 7)
             else
                 g:led(x, y, 3)
@@ -466,11 +464,9 @@ function selectPage(pageNumber)
 end
 
 function loadPreset(presetIndex)
-    local data = preset.load(presetIndex)
+    local data = preset:load(presetIndex)
     voices = data.voices
     selectedDirection = data.direction
-    print(json.stringify(voices[1]))
-    print(json.stringify(voices[2]))
     selectedPreset = presetIndex
     redrawGrid()
 end
@@ -480,13 +476,8 @@ function savePreset(presetIndex)
         ['direction'] = selectedDirection,
         ['voices'] = voices
     }
-    preset.save(presetIndex, data)
     selectedPreset = presetIndex
-    readPresetDirectory()
-end
-
-function readPresetDirectory()
-    presets = preset.readDirectory()
+    preset:save(presetIndex, data)
 end
 
 function selectVoice(voiceNumber)
