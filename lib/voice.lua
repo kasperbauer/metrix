@@ -62,7 +62,7 @@ function voice:new(args)
 end
 
 function voice:randomize(params)
-    math.randomseed(os.time())
+    math.randomseed(util.time())
     for i = 1, #params do
         local key = params[i]
         for step = 1, 8 do
