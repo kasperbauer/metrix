@@ -429,7 +429,7 @@ function g.key(x, y, z)
             local presetIndex = (y - 1) * 8 + x
             if shiftIsHeld() then
                 savePreset(presetIndex)
-            else
+            elseif preset:exists(presetIndex) then
                 loadPreset(presetIndex)
             end
         end
@@ -439,6 +439,7 @@ function g.key(x, y, z)
             selectScale(scales[scaleIndex])
         end
     end
+    
     requestRedraw()
 end
 
