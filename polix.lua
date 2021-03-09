@@ -8,6 +8,7 @@
 musicUtil = require('lib/musicutil')
 json = include('lib/json')
 helpers = include('lib/helpers')
+preset = include('lib/preset')
 
 g = grid.connect()
 g:rotation(45)
@@ -475,11 +476,7 @@ function selectPage(pageNumber)
 end
 
 function loadPreset(presetIndex)
-    local file = assert(io.open(_path.code .. 'polix/presets/' .. presetIndex .. '.json', 'r'))
-    local jsonContent = file:read('*all')
-    file:close()
-
-    local data = json.parse(jsonContent)
+    local data = preset.load(presetIndex)
     print(json.stringify(data))
     -- local voices, direction = data.voices, data.direction
     selectedPreset = presetIndex or 1
@@ -490,24 +487,13 @@ function savePreset(presetIndex)
         ['direction'] = selectedDirection,
         ['voices'] = voices
     }
-    local jsonContent = json.stringify(data)
-
-    local file = assert(io.open(_path.code .. 'polix/presets/' .. presetIndex .. '.json', 'w'))
-    file:write(jsonContent)
-    file:close()
-
+    preset.save(presetIndex, data)
     selectedPreset = presetIndex or 1
     readPresetDirectory()
 end
 
 function readPresetDirectory()
-    local dir = io.popen('ls ' .. _path.code .. 'polix/presets/')
-    local existingPresets = {}
-    for name in dir:lines() do
-        local presetNumber = name:gsub(".json", "")
-        table.insert(existingPresets, tonumber(presetNumber))
-    end
-    presets = existingPresets
+    presets = preset.readDirectory()
 end
 
 function selectVoice(voiceNumber)
