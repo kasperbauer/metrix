@@ -72,6 +72,7 @@ local stepProbabilities = {
     [1] = {},
     [2] = {}
 }
+local activePulse = {1, 1}
 
 -- redraw
 local gridIsDirty = true
@@ -113,6 +114,7 @@ end
 function playPause()
     if seq and seq.enabled then
         seq:stop()
+        setActivePulse(1, 1)
         currentPulseIndex[1] = nil
         currentPulseIndex[2] = nil
     else
@@ -135,6 +137,13 @@ function refreshStepProbabilities()
     end
 end
 
+function setActivePulse(x, y)
+    activePulse = {
+        [1] = x,
+        [2] = y
+    }
+end
+
 function advanceToNextPulse(voiceIndex, skipStep)
     local pulseIndex = currentPulseIndex[voiceIndex]
 
@@ -145,6 +154,8 @@ function advanceToNextPulse(voiceIndex, skipStep)
 
     local pulse = pulses[voiceIndex][pulseIndex]
     local stepProbability = stepProbabilities[voiceIndex][pulse.step]
+
+    setActivePulse(pulse.step, pulse.index)
 
     -- skip pulse if step is marked or if probability check fails
     local skip = pulse.probability < stepProbability
@@ -164,6 +175,7 @@ function advanceToNextPulse(voiceIndex, skipStep)
     currentPulseIndex[voiceIndex] = pulseIndex + 1
 
     requestScreenRedraw()
+    requestGridRedraw()
 end
 
 function redraw()
@@ -227,6 +239,7 @@ function redrawGrid()
         -- drawRootNotePicker()
     end
 
+    drawActivePulse()
     drawMomentary()
 
     g:refresh()
@@ -408,6 +421,11 @@ function drawMomentary()
             end
         end
     end
+end
+
+function drawActivePulse()
+    local x, y = activePulse[1], 11 - activePulse[2]
+    g:led(x, y, 15)
 end
 
 function key(n, z)
