@@ -28,6 +28,17 @@ local octaves = {
     [4] = 0
 }
 
+local divisions = {
+    [1] = 1 / 1,
+    [2] = 1 / 2,
+    [3] = 3 / 8,
+    [4] = 1 / 4,
+    [5] = 3 / 16,
+    [6] = 1 / 8,
+    [7] = 1 / 16,
+    [8] = 1 / 32
+}
+
 function voice:new(args)
     local t = setmetatable({}, {
         __index = voice
@@ -126,6 +137,10 @@ function voice:setProbability(step, probability)
     self.steps[step].probability = probability
 end
 
+function voice:setDivision(division)
+    self.division = division
+end
+
 function voice:getGateTypes()
     return gateTypes
 end
@@ -142,6 +157,14 @@ function voice:getOctaves()
     return octaves
 end
 
+function voice:getDivisions()
+    return divisions
+end
+
+function voice:getDivisionIndex()
+    return tab.key(divisions, self.division)
+end
+
 function voice:setAll(param, value)
     for i = 1, 8 do
         self.steps[i][param] = value
@@ -150,7 +173,7 @@ end
 
 function voice:getPulse(stepIndex, pulseCount)
     local step = self.steps[stepIndex]
-    
+
     if pulseCount > step.pulseCount then
         return nil
     end

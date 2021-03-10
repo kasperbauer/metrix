@@ -129,7 +129,7 @@ function redrawGrid()
     elseif selectedPage == 4 then
         drawPresetPicker()
         drawScalePicker()
-        -- drawRootNotePicker()
+        drawDivisionPicker()
     end
 
     drawActivePulse()
@@ -311,6 +311,19 @@ function drawScalePicker()
     end
 end
 
+function drawDivisionPicker()
+    for y = 13, 14 do
+        for x = 1, 8 do
+            local voice = seq.voices[y - 12];
+            if x == voice:getDivisionIndex() then
+                g:led(x, y, 15)
+            else
+                g:led(x, y, 3)
+            end
+        end
+    end
+end
+
 function drawMomentary()
     for x = 1, 8 do
         for y = 1, 16 do
@@ -480,8 +493,18 @@ function g.key(x, y, z)
         end
 
         local scaleRows, scaleIndex = math.ceil(#scales / 8), (y - 6) * 8 + x
+
         if y >= 6 and y <= 6 + scaleRows and scaleIndex <= #scales then
             selectScale(scales[scaleIndex])
+        end
+
+        if y == 13 or y == 14 then
+            local divisions = voice:getDivisions()
+            local division = divisions[x]
+            local voice = seq.voices[y - 12]
+            local pattern = seq.patterns[y - 12];
+            voice:setDivision(division)
+            pattern:set_division(division)
         end
     end
 

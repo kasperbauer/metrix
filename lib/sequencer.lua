@@ -22,6 +22,7 @@ function sequencer:new(onPulseAdvance)
     t.pulseCount = {}
     t.activePulse = {}
     t.direction = directions[1]
+    t.patterns = {}
 
     t.onPulseAdvance = onPulseAdvance or function()
     end
@@ -46,6 +47,7 @@ end
 
 function sequencer:resetVoices()
     self.voices = {}
+    self.patterns = {}
     self.lattice = lattice:new()
 end
 
@@ -56,9 +58,9 @@ end
 function sequencer:addPattern(division, action)
     local voiceIndex = #self.voices;
 
-    if (voiceIndex == 2) then
-        return
-    end
+    -- if (voiceIndex == 2) then
+    --     return
+    -- end
 
     local pattern = self.lattice:new_pattern({
         action = function()
@@ -67,6 +69,7 @@ function sequencer:addPattern(division, action)
         end,
         division = division
     })
+    table.insert(self.patterns, pattern)
 end
 
 function sequencer:playPause()
