@@ -43,7 +43,10 @@ local scales = {};
 local selectedScale = nil
 
 -- sequencer
-local seq = sequencer:new()
+local seq = sequencer:new(function()
+    requestGridRedraw()
+    requestScreenRedraw()
+end)
 seq:addVoices(2)
 
 -- redraw
@@ -52,7 +55,7 @@ local screenIsDirty = false
 
 function init()
     initScales()
-    loadPreset(1)
+    -- loadPreset(1)
     clock.run(redrawClock)
 end
 
@@ -127,7 +130,7 @@ function redrawGrid()
         -- drawRootNotePicker()
     end
 
-    -- drawActivePulse()
+    drawActivePulse()
     drawMomentary()
 
     g:refresh()
@@ -317,7 +320,11 @@ function drawMomentary()
 end
 
 function drawActivePulse()
-
+    if seq.activePulse[selectedVoice] then
+        local x = seq.activePulse[selectedVoice].x
+        local y = 11 - seq.activePulse[selectedVoice].y
+        g:led(x, y, 15);
+    end
 end
 
 function key(n, z)

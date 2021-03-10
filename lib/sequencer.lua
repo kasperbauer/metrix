@@ -10,7 +10,7 @@ local directions = {
     [4] = 'random'
 }
 
-function sequencer:new(voiceCount)
+function sequencer:new(onPulseAdvance)
     local t = setmetatable({}, {
         __index = sequencer
     })
@@ -20,7 +20,11 @@ function sequencer:new(voiceCount)
     t.probabilities = {}
     t.stepIndex = {}
     t.pulseCount = {}
+    t.activePulse = {}
     t.direction = directions[1]
+
+    t.onPulseAdvance = onPulseAdvance or function()
+    end
 
     return t
 end
@@ -34,7 +38,10 @@ end
 function sequencer:addVoice(args)
     local voice = voice:new(args)
     table.insert(self.voices, voice)
-    self:addPattern(voice.division, #self.voices)
+    local voiceIndex = #self.voices
+    self:addPattern(voice.division, voiceIndex)
+    self:resetStepIndex(voiceIndex)
+    self:resetPulseCount(voiceIndex)
 end
 
 function sequencer:resetVoices()
@@ -48,14 +55,13 @@ end
 
 function sequencer:addPattern(division, action)
     local voiceIndex = #self.voices;
-    if (voiceIndex == 1) then
-        local pattern = self.lattice:new_pattern({
-            action = function()
-                self:advanceToNextPulse(voiceIndex)
-            end,
-            division = division
-        })
-    end
+    local pattern = self.lattice:new_pattern({
+        action = function()
+            self:advanceToNextPulse(voiceIndex)
+            self.onPulseAdvance()
+        end,
+        division = division
+    })
 end
 
 function sequencer:playPause()
@@ -99,6 +105,8 @@ function sequencer:resetPulseCount(voiceIndex)
 end
 
 function sequencer:advanceToNextPulse(voiceIndex)
+    self:setActivePulse(voiceIndex)
+
     local voice = self:getVoice(voiceIndex)
     local stepIndex = self.stepIndex[voiceIndex]
     local pulseCount = self.pulseCount[voiceIndex]
@@ -129,10 +137,17 @@ end
 function sequencer:advanceToNextStep(voiceIndex)
     local voice = self:getVoice(voiceIndex)
     self.stepIndex[voiceIndex] = self.stepIndex[voiceIndex] + 1;
-    
+
     if (self.stepIndex[voiceIndex] > voice.loop.stop) then
         self:resetStepIndex(voiceIndex)
     end
+end
+
+function sequencer:setActivePulse(voiceIndex)
+    self.activePulse[voiceIndex] = {
+        x = self.stepIndex[voiceIndex],
+        y = self.pulseCount[voiceIndex]
+    }
 end
 
 function sequencer:getDirections()
