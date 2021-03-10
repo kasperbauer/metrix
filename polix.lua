@@ -132,7 +132,10 @@ function redrawGrid()
         drawDivisionPicker()
     end
 
-    drawActivePulse()
+    if selectedPage ~= 4 then
+        drawActivePulse()
+    end
+
     drawMomentary()
 
     g:refresh()
