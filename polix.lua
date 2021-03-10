@@ -304,7 +304,7 @@ function drawLoopPicker()
                 if (isSelected) then
                     g:led(x, y, 15)
                 else
-                    g:led(x, y, 7)
+                    g:led(x, y, 8)
                 end
             else
                 if (isSelected) then
@@ -396,7 +396,7 @@ function drawPresetPicker()
             if (selectedPreset == presetIndex) then
                 g:led(x, y, 15)
             elseif preset:exists(presetIndex) then
-                g:led(x, y, 7)
+                g:led(x, y, 8)
             else
                 g:led(x, y, 3)
             end
