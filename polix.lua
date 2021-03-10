@@ -446,7 +446,8 @@ function g.key(x, y, z)
     -- row 16: select page
     if on and y == 16 and x <= maxPages then
         if shiftIsHeld() then
-            seq:setDirection(x)
+            local directions = seq:getDirections()
+            seq:setDirection(directions[x])
         elseif altIsHeld() then
             if x == 1 then
                 voice:randomize({'pulseCount', 'gateType', 'gateLength'})
