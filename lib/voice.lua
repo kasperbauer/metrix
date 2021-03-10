@@ -35,6 +35,8 @@ function voice:new(args)
 
     args = args or {}
 
+    -- t.division = args.division or 1/16
+    t.division = args.division or 1
     t.loop = args.loop or {
         start = 1,
         stop = 8
@@ -141,66 +143,57 @@ function voice:getOctaves()
     return octaves
 end
 
-function voice:getPulses()
-    local pulses = {}
-    for stepIndex = self.loop.start, self.loop.stop do
-        local step = self.steps[stepIndex]
-
-        if step.gateType == 'multiple' then
-            -- multiple: every pulse is played
-            for i = 1, step.pulseCount do
-                local pulse = self:getPulse(step, stepIndex, i)
-                table.insert(pulses, pulse)
-            end
-        elseif step.gateType == 'single' or step.gateType == 'hold' then
-            local pulse = self:getPulse(step, stepIndex, 1)
-            -- hold: increase duration
-            if step.gateType == 'hold' then
-                pulse.duration = pulse.duration * step.pulseCount
-            end
-            -- single / hold: only first note is played
-            table.insert(pulses, pulse)
-            -- other pulses are rests
-            if step.pulseCount then
-                for i = 2, step.pulseCount do
-                    local rest = self:getRest(step, stepIndex, i)
-                    table.insert(pulses, rest)
-                end
-            end
-        elseif step.gateType == 'rest' then
-            -- rest: every pulse is a rest
-            for i = 1, step.pulseCount do
-                local rest = self:getRest(step, stepIndex, i)
-                table.insert(pulses, rest)
-            end
-        end
+function voice:setAll(param, value)
+    for i = 1, 8 do
+        self.steps[i][param] = value
     end
-
-    return pulses
 end
 
-function voice:getPulse(step, stepIndex, index)
-    return {
+function voice:getPulse(stepIndex, pulseCount)
+    local step = self.steps[stepIndex]
+    local first, last = pulseCount == 1, pulseCount == step.pulseCount
+    local pulse = {
         interval = step.interval,
         octave = step.octave,
-        ratchetCount = step.ratchetCount,
-        duration = 1,
         gateType = step.gateType,
         gateLength = step.gateLength,
         probability = step.probability,
-        step = stepIndex,
-        index = index
+        ratchetCount = step.ratchetCount,
+        first = first,
+        last = last,
+        duration = 1
     }
-end
-
-function voice:getRest(step, stepIndex, index)
-    return {
-        duration = 1,
+    local rest = {
         gateType = 'rest',
-        probability = step.probability,
-        step = stepIndex,
-        index = index
+        first = first,
+        last = last,
+        duration = 1,
     }
+
+    if step.gateType == 'rest' then
+        return rest
+    end
+
+    if step.gateType == 'multiple' then
+        return pulse
+    end
+
+    if step.gateType == 'single' then
+        if pulse.first then
+            return pulse
+        else
+            return rest
+        end
+    end
+
+    if step.gateType == 'hold' then
+        if pulse.first then
+            pulse.duration = pulse.duration * step.pulseCount
+            return pulse
+        else
+            return rest
+        end
+    end
 end
 
 return voice

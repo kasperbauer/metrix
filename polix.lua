@@ -7,8 +7,8 @@
 --
 musicUtil = require('lib/musicutil')
 preset = include('lib/preset')
+sequencer = include('lib/sequencer')
 voice = include('lib/voice')
-lattice = require('lattice')
 
 g = grid.connect()
 g:rotation(45)
@@ -28,22 +28,10 @@ end
 
 -- voices data
 local selectedVoice = 1
-local voices = {}
-voices[1] = voice:new()
-voices[2] = voice:new()
 
 -- grid state helpers
 local loopWasSelected = false
 local voiceWasSelected = false
-
--- directions
-local directions = {
-    [1] = 'forward',
-    [2] = 'reverse',
-    [3] = 'alternate',
-    [4] = 'random'
-}
-local selectedDirection = directions[1]
 
 -- presets
 local preset = preset:new()
@@ -55,27 +43,8 @@ local scales = {};
 local selectedScale = nil
 
 -- sequencer
-local seq = nil
-local patterns = {
-    [1] = {},
-    [2] = {}
-}
-local pulses = {
-    [1] = {},
-    [2] = {}
-}
-local currentPulseIndex = {
-    [1] = nil,
-    [2] = nil
-}
-local stepProbabilities = {
-    [1] = {},
-    [2] = {}
-}
-local activePulses = {
-    [1] = {nil, nil},
-    [2] = {nil, nil}
-}
+local seq = sequencer:new()
+seq:addVoices(2)
 
 -- redraw
 local gridIsDirty = true
@@ -83,7 +52,6 @@ local screenIsDirty = false
 
 function init()
     initScales()
-    initSequencer()
     loadPreset(1)
     clock.run(redrawClock)
 end
@@ -98,97 +66,13 @@ function initScales()
     selectedScale = scales[1]
 end
 
-function initSequencer()
-    seq = lattice:new()
-    patterns[1] = seq:new_pattern({
-        action = function()
-            advanceToNextPulse(1)
-        end,
-        division = 1 / 16
-    })
-    patterns[2] = seq:new_pattern({
-        action = function()
-            advanceToNextPulse(2)
-        end,
-        division = 1 / 16
-    })
-end
-
-function playPause()
-    if seq and seq.enabled then
-        seq:stop()
-        currentPulseIndex[1] = nil
-        currentPulseIndex[2] = nil
-        setActivePulse(1, nil, nil)
-        setActivePulse(2, nil, nil)
-    else
-        generatePulses()
-        seq:start()
-    end
-end
-
-function generatePulses()
-    pulses[1] = voices[1]:getPulses()
-    pulses[2] = voices[2]:getPulses()
-end
-
-function refreshStepProbabilities()
-    math.randomseed(seq.transport)
-
-    for i = 1, 8 do
-        stepProbabilities[1][i] = math.random(1, 100) / 100
-        stepProbabilities[2][i] = math.random(1, 100) / 100
-    end
-end
-
-function setActivePulse(voiceIndex, x, y)
-    activePulses[voiceIndex] = {
-        [1] = x,
-        [2] = y
-    }
-    requestGridRedraw()
-end
-
-function advanceToNextPulse(voiceIndex, skipStep)
-    local pulseIndex = currentPulseIndex[voiceIndex]
-
-    if pulseIndex == nil or pulseIndex > #pulses[voiceIndex] then
-        refreshStepProbabilities()
-        pulseIndex = 1
-    end
-
-    local pulse = pulses[voiceIndex][pulseIndex]
-    local stepProbability = stepProbabilities[voiceIndex][pulse.step]
-
-    setActivePulse(voiceIndex, pulse.step, pulse.index)
-
-    -- skip pulse if step is marked or if probability check fails
-    local skip = pulse.probability < stepProbability
-    if skip then
-        -- rest: do nothing
-        print('[' .. voiceIndex .. '] [' .. pulse.step .. '] [' .. pulseIndex .. '] skipped')
-    elseif pulse.gateType == 'rest' then
-        -- rest: do nothing
-        print('[' .. voiceIndex .. '] [' .. pulse.step .. '] [' .. pulseIndex .. '] rest')
-    else
-        -- note: play note
-        local interval = selectedScale.intervals[pulse.interval]
-        print('[' .. voiceIndex .. '] [' .. pulse.step .. '] [' .. pulseIndex .. '] note, interval:' .. interval ..
-                  ', duration: ' .. pulse.duration .. ', gateLength: ' .. pulse.gateLength)
-    end
-
-    currentPulseIndex[voiceIndex] = pulseIndex + 1
-
-    requestScreenRedraw()
-end
-
 function redraw()
     screen.clear()
     screen.move(0, 8)
     screen.text('POLIX')
     screen.move(0, 48)
     if seq then
-        screen.text(seq.transport)
+        screen.text(seq.lattice.transport)
     end
     screen.move(0, 60)
     if seq and seq.enabled then
@@ -243,7 +127,7 @@ function redrawGrid()
         -- drawRootNotePicker()
     end
 
-    drawActivePulse()
+    -- drawActivePulse()
     drawMomentary()
 
     g:refresh()
@@ -253,16 +137,17 @@ function drawBottomRow()
     local y = 16
 
     if shiftIsHeld() then
+        local directions = seq:getDirections()
         for x = 1, #directions do
             g:led(x, y, 3)
 
-            if selectedDirection == directions[1] and x == 1 then
+            if seq.direction == directions[1] and x == 1 then
                 g:led(x, y, 15)
-            elseif selectedDirection == directions[2] and x == 2 then
+            elseif seq.direction == directions[2] and x == 2 then
                 g:led(x, y, 15)
-            elseif selectedDirection == directions[3] and x == 3 then
+            elseif seq.direction == directions[3] and x == 3 then
                 g:led(x, y, 15)
-            elseif selectedDirection == directions[4] and x == 4 then
+            elseif seq.direction == directions[4] and x == 4 then
                 g:led(x, y, 15)
             end
         end
@@ -297,7 +182,7 @@ end
 function drawLoopPicker()
     for y = 1, 2 do
         for x = 1, 8 do
-            local voice = voices[y];
+            local voice = seq:getVoice(y);
             local isSelected, start, stop = selectedVoice == y, voice.loop.start, voice.loop.stop
 
             if (x >= start and x <= stop) then
@@ -432,20 +317,13 @@ function drawMomentary()
 end
 
 function drawActivePulse()
-    local activePulse = activePulses[selectedVoice]
 
-    if activePulse[1] == nil or activePulse[2] == nil then
-        return
-    end
-
-    local x, y = activePulse[1], 11 - activePulse[2]
-    g:led(x, y, 15)
 end
 
 function key(n, z)
     if z == 1 then
         if n == 2 then
-            playPause()
+            seq:playPause()
         end
     end
     requestScreenRedraw()
@@ -493,16 +371,16 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             local pulseCount = 11 - y
             if altIsHeld() then
-                setForAllSteps('pulses', pulseCount)
+                voice:setAll('pulseCount', pulseCount)
             else
-                voice:setPulses(stepIndex, pulseCount)
+                voice:setPulseCount(stepIndex, pulseCount)
             end
         elseif y >= 12 and y <= 15 then
             if shiftIsHeld() then
                 local gateLengths = voice:getGateLengths()
                 local gateLength = gateLengths[math.abs(11 - y)]
                 if altIsHeld() then
-                    setForAllSteps('gateLength', gateLength)
+                    voice:setAll('gateLength', gateLength)
                 else
                     voice:setGateLength(stepIndex, gateLength)
                 end
@@ -510,7 +388,7 @@ function g.key(x, y, z)
                 local gateTypes = voice:getGateTypes()
                 local gateType = gateTypes[math.abs(11 - y)]
                 if altIsHeld() then
-                    setForAllSteps('gateType', gateType)
+                    voice:setAll('gateType', gateType)
                 else
                     voice:setGateType(stepIndex, gateType)
                 end
@@ -523,7 +401,7 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             local interval = 11 - y
             if altIsHeld() then
-                setForAllSteps('interval', interval)
+                voice:setAll('interval', interval)
             else
                 voice:setInterval(stepIndex, interval)
             end
@@ -531,7 +409,7 @@ function g.key(x, y, z)
             local octaves = voice:getOctaves()
             local octave = octaves[y - 11]
             if altIsHeld() then
-                setForAllSteps('octave', octave)
+                voice:setAll('octave', octave)
             else
                 voice:setOctave(stepIndex, octave)
             end
@@ -543,15 +421,15 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             local ratchetCount = 11 - y
             if altIsHeld() then
-                setForAllSteps('ratchets', ratchetCount)
+                voice:setAll('ratchetCount', ratchetCount)
             else
-                voice:setRatchets(stepIndex, ratchetCount)
+                voice:setRatchetCount(stepIndex, ratchetCount)
             end
         elseif y >= 12 and y <= 15 then
             local probabilities = voice:getProbabilities()
             local probability = probabilities[y - 11]
             if altIsHeld() then
-                setForAllSteps('probability', probability)
+                voice:setAll('probability', probability)
             else
                 voice:setProbability(stepIndex, probability)
             end
@@ -561,7 +439,7 @@ function g.key(x, y, z)
     -- row 16: select page
     if on and y == 16 and x <= maxPages then
         if shiftIsHeld() then
-            selectDirection(directions[x])
+            seq:setDirection(x)
         elseif altIsHeld() then
             if x == 1 then
                 voice:randomize({'pulseCount', 'gateType', 'gateLength'})
@@ -593,14 +471,6 @@ function g.key(x, y, z)
     end
 
     requestGridRedraw()
-    generatePulses()
-end
-
-function setForAllSteps(param, value)
-    local voice = getSelectedVoice()
-    for i = 1, 8 do
-        voice.steps[i][param] = value
-    end
 end
 
 function getMomentaryInRow(y)
@@ -621,8 +491,8 @@ function altIsHeld()
     return momentary[7][16];
 end
 
-function getSelectedVoice(voiceNumber)
-    return voices[selectedVoice]
+function getSelectedVoice()
+    return seq:getVoice(selectedVoice)
 end
 
 function selectPage(pageNumber)
@@ -631,28 +501,29 @@ end
 
 function loadPreset(presetIndex)
     local data = preset:load(presetIndex)
-    voices = data.voices
-    selectedDirection = data.direction
+    seq:resetVoices()
+    seq:setDirection(data.direction)
+
+    for i, voice in pairs(data.voices) do
+        seq:addVoice(voice)
+    end
+
     selectedPreset = presetIndex
     requestGridRedraw()
 end
 
 function savePreset(presetIndex)
     local data = {
-        ['direction'] = selectedDirection,
-        ['voices'] = voices
+        voices = seq.voices,
+        direction = seq.direction
     }
     selectedPreset = presetIndex
     preset:save(presetIndex, data)
 end
 
 function selectVoice(voiceNumber)
-    selectedVoice = voiceNumber or 1
+    selectedVoice = voiceNumber
     voiceWasSelected = true
-end
-
-function selectDirection(direction)
-    selectedDirection = direction
 end
 
 function selectScale(scale)
