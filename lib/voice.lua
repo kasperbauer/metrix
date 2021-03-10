@@ -142,7 +142,53 @@ function voice:getOctaves()
 end
 
 function voice:getPulses()
-    return {}
+    local pulses = {}
+    for stepIndex = self.loop.start, self.loop.stop do
+        local step = self.steps[stepIndex]
+        local pulse = {
+            interval = step.interval,
+            octave = step.octave,
+            ratchetCount = step.ratchetCount,
+            duration = 1,
+            gateType = step.gateType,
+            gateLength = step.gateLength,
+            probability = step.probability,
+            step = stepIndex
+        }
+        local rest = {
+            duration = 1,
+            gateType = 'rest',
+            probability = step.probability,
+            step = stepIndex
+        }
+
+        if step.gateType == 'multiple' then
+            -- multiple: every pulse is played
+            for i = 1, step.pulseCount do
+                table.insert(pulses, pulse)
+            end
+        elseif step.gateType == 'single' or step.gateType == 'hold' then
+            -- hold: increase duration
+            if step.gateType == 'hold' then
+                pulse.duration = pulse.duration * step.pulseCount
+            end
+            -- single / hold: only first note is played
+            table.insert(pulses, pulse)
+            -- other pulses are rests
+            if step.pulseCount then
+                for pulseIndex = 2, step.pulseCount do
+                    table.insert(pulses, rest)
+                end
+            end
+        elseif step.gateType == 'rest' then
+            -- rest: every pulse is a rest
+            for pulseIndex = 1, step.pulseCount do
+                table.insert(pulses, rest)
+            end
+        end
+    end
+
+    return pulses
 end
 
 return voice
