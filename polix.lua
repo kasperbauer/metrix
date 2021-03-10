@@ -55,7 +55,7 @@ local screenIsDirty = false
 
 function init()
     initScales()
-    loadPreset(1)
+    -- loadPreset(1)
     clock.run(redrawClock)
 end
 
@@ -78,11 +78,13 @@ function redraw()
         screen.text(seq.lattice.transport)
     end
     screen.move(0, 60)
-    if seq and seq.enabled then
+    if seq and seq.lattice.enabled then
         screen.text('||')
     else
         screen.text('>')
     end
+    screen.move(20, 60)
+    screen.text('reset')
     screen.update()
 end
 
@@ -331,9 +333,12 @@ function key(n, z)
     if z == 1 then
         if n == 2 then
             seq:playPause()
+        elseif n == 3 then
+            seq:reset()
         end
     end
     requestScreenRedraw()
+    requestGridRedraw()
 end
 
 function g.key(x, y, z)
