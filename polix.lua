@@ -55,7 +55,7 @@ local screenIsDirty = false
 
 function init()
     initScales()
-    -- loadPreset(1)
+    loadPreset(1)
     clock.run(redrawClock)
 end
 
@@ -464,7 +464,9 @@ function g.key(x, y, z)
     if selectedPage == 4 and on then
         if y >= 1 and y <= 4 then
             local presetIndex = (y - 1) * 8 + x
-            if shiftIsHeld() then
+            if shiftIsHeld() and altIsHeld() then
+                preset:delete(presetIndex)
+            elseif shiftIsHeld() then
                 savePreset(presetIndex)
             elseif preset:exists(presetIndex) then
                 loadPreset(presetIndex)

@@ -35,4 +35,10 @@ function preset:exists(id)
     return util.file_exists(self.path .. id)
 end
 
+function preset:delete(id)
+    if self:exists(id) then
+        os.remove(self.path .. id)
+    end
+end
+
 return preset
