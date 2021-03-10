@@ -22,6 +22,7 @@ function sequencer:new(onPulseAdvance)
     t.pulseCount = {}
     t.activePulse = {}
     t.direction = directions[1]
+    t.alternateDirection = 'forward'
     t.patterns = {}
 
     t.onPulseAdvance = onPulseAdvance or function()
@@ -110,6 +111,12 @@ function sequencer:resetStepIndex(voiceIndex)
         self.stepIndex[voiceIndex] = voice.loop.start
     elseif (self.direction == 'reverse') then
         self.stepIndex[voiceIndex] = voice.loop.stop
+    elseif (self.direction == 'alternate') then
+        if self.alternateDirection == 'forward' then
+            self.stepIndex[voiceIndex] = voice.loop.start
+        elseif self.alternateDirection == 'forward' then
+            self.stepIndex[voiceIndex] = voice.loop.stop
+        end
     end
 end
 
@@ -147,15 +154,34 @@ function sequencer:advanceToNextPulse(voiceIndex)
 end
 
 function sequencer:prepareNextPulse(voiceIndex, pulse)
+    local voice = self:getVoice(voiceIndex)
+
     if pulse and not pulse.last then
         self.pulseCount[voiceIndex] = self.pulseCount[voiceIndex] + 1
+    elseif voice.loop.start == voice.loop.stop then
+        self.stepIndex[voiceIndex] = voice.loop.start
+        self:resetPulseCount(voiceIndex)
     else
         self:resetPulseCount(voiceIndex)
-        if (self.direction == 'forward') then
+        if self.direction == 'forward' then
             self:advanceToNextStep(voiceIndex, 1)
-        elseif (self.direction == 'reverse') then
+        elseif self.direction == 'reverse' then
             self:advanceToNextStep(voiceIndex, -1)
-        elseif (self.direction == 'random') then
+        elseif self.direction == 'alternate' then
+            local stepIndex = self.stepIndex[voiceIndex]
+
+            if stepIndex == voice.loop.stop then
+                self.alternateDirection = 'reverse'
+            elseif stepIndex == voice.loop.start then
+                self.alternateDirection = 'forward'
+            end
+
+            if self.alternateDirection == 'forward' then
+                self:advanceToNextStep(voiceIndex, 1)
+            elseif self.alternateDirection == 'reverse' then
+                self:advanceToNextStep(voiceIndex, -1)
+            end
+        elseif self.direction == 'random' then
             self:advanceToNextStep(voiceIndex)
         end
     end
@@ -163,9 +189,8 @@ end
 
 function sequencer:advanceToNextStep(voiceIndex, amount)
     local voice = self:getVoice(voiceIndex)
-    amount = amount
 
-    if (self.direction == 'random') then
+    if self.direction == 'random' then
         math.randomseed(self.lattice.transport)
         local randomStep = math.random(voice.loop.start, voice.loop.stop)
         self.stepIndex[voiceIndex] = randomStep;
@@ -173,9 +198,9 @@ function sequencer:advanceToNextStep(voiceIndex, amount)
         self.stepIndex[voiceIndex] = self.stepIndex[voiceIndex] + amount;
     end
 
-    if (self.stepIndex[voiceIndex] > voice.loop.stop) then
+    if self.stepIndex[voiceIndex] > voice.loop.stop then
         self:resetStepIndex(voiceIndex)
-    elseif (self.stepIndex[voiceIndex] < voice.loop.start) then
+    elseif self.stepIndex[voiceIndex] < voice.loop.start then
         self:resetStepIndex(voiceIndex)
     end
 end
