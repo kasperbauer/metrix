@@ -72,7 +72,10 @@ local stepProbabilities = {
     [1] = {},
     [2] = {}
 }
-local activePulse = {1, 1}
+local activePulses = {
+    [1] = {nil, nil},
+    [2] = {nil, nil}
+}
 
 -- redraw
 local gridIsDirty = true
@@ -100,23 +103,24 @@ function initSequencer()
     patterns[1] = seq:new_pattern({
         action = function()
             advanceToNextPulse(1)
-        end
-        -- division = 1 / 4
+        end,
+        division = 1 / 16
     })
-    -- patterns[2] = seq:new_pattern({
-    --     action = function()
-    --         advanceToNextPulse(2)
-    --     end,
-    --     division = 1 / 4
-    -- })
+    patterns[2] = seq:new_pattern({
+        action = function()
+            advanceToNextPulse(2)
+        end,
+        division = 1 / 16
+    })
 end
 
 function playPause()
     if seq and seq.enabled then
         seq:stop()
-        setActivePulse(1, 1)
         currentPulseIndex[1] = nil
         currentPulseIndex[2] = nil
+        setActivePulse(1, nil, nil)
+        setActivePulse(2, nil, nil)
     else
         generatePulses()
         seq:start()
@@ -137,11 +141,12 @@ function refreshStepProbabilities()
     end
 end
 
-function setActivePulse(x, y)
-    activePulse = {
+function setActivePulse(voiceIndex, x, y)
+    activePulses[voiceIndex] = {
         [1] = x,
         [2] = y
     }
+    requestGridRedraw()
 end
 
 function advanceToNextPulse(voiceIndex, skipStep)
@@ -155,7 +160,7 @@ function advanceToNextPulse(voiceIndex, skipStep)
     local pulse = pulses[voiceIndex][pulseIndex]
     local stepProbability = stepProbabilities[voiceIndex][pulse.step]
 
-    setActivePulse(pulse.step, pulse.index)
+    setActivePulse(voiceIndex, pulse.step, pulse.index)
 
     -- skip pulse if step is marked or if probability check fails
     local skip = pulse.probability < stepProbability
@@ -175,7 +180,6 @@ function advanceToNextPulse(voiceIndex, skipStep)
     currentPulseIndex[voiceIndex] = pulseIndex + 1
 
     requestScreenRedraw()
-    requestGridRedraw()
 end
 
 function redraw()
@@ -322,9 +326,9 @@ function drawTopMatrix(paramName, filled)
 
             if stepInLoop(x, voice) then
                 if 11 - y == value then
-                    g:led(x, y, 10)
+                    g:led(x, y, 8)
                 elseif 11 - y < value and filled then
-                    g:led(x, y, 10)
+                    g:led(x, y, 8)
                 elseif 11 - y < value and filled == false then
                     g:led(x, y, 3)
                 else
@@ -332,6 +336,10 @@ function drawTopMatrix(paramName, filled)
                 end
             else
                 if 11 - y == value then
+                    g:led(x, y, 3)
+                elseif 11 - y < value and filled then
+                    g:led(x, y, 3)
+                elseif 11 - y < value and filled == false then
                     g:led(x, y, 3)
                 else
                     g:led(x, y, 0)
@@ -424,6 +432,12 @@ function drawMomentary()
 end
 
 function drawActivePulse()
+    local activePulse = activePulses[selectedVoice]
+
+    if activePulse[1] == nil or activePulse[2] == nil then
+        return
+    end
+
     local x, y = activePulse[1], 11 - activePulse[2]
     g:led(x, y, 15)
 end
