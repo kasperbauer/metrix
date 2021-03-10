@@ -35,7 +35,7 @@ function voice:new(args)
 
     args = args or {}
 
-    t.division = args.division or 1 / 4
+    t.division = args.division or 1 / 16
     t.loop = args.loop or {
         start = 1,
         stop = 8

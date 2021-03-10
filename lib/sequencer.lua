@@ -55,6 +55,11 @@ end
 
 function sequencer:addPattern(division, action)
     local voiceIndex = #self.voices;
+
+    if (voiceIndex == 2) then
+        return
+    end
+
     local pattern = self.lattice:new_pattern({
         action = function()
             self:advanceToNextPulse(voiceIndex)
@@ -68,7 +73,7 @@ function sequencer:playPause()
     if self.lattice.enabled then
         self.lattice:stop()
     else
-        self:reset()
+        self:refreshProbabilities()
         self.lattice:start()
     end
 end
@@ -76,6 +81,7 @@ end
 function sequencer:reset()
     self:refreshProbabilities()
     for i = 1, #self.voices do
+        self:setActivePulse(i, 1, 1)
         self:resetStepIndex(i)
         self:resetPulseCount(i)
     end
@@ -97,11 +103,21 @@ end
 
 function sequencer:resetStepIndex(voiceIndex)
     local voice = self:getVoice(voiceIndex)
-    self.stepIndex[voiceIndex] = voice.loop.start
+    if (self.direction == 'forward') then
+        self.stepIndex[voiceIndex] = voice.loop.start
+    elseif (self.direction == 'reverse') then
+        self.stepIndex[voiceIndex] = voice.loop.stop
+    end
 end
 
 function sequencer:resetPulseCount(voiceIndex)
-    self.pulseCount[voiceIndex] = 1
+    local voice = self:getVoice(voiceIndex)
+    if (self.direction == 'forward') then
+        self.pulseCount[voiceIndex] = 1
+    elseif (self.direction == 'reverse') then
+        local stepIndex = self.stepIndex[voiceIndex]
+        self.pulseCount[voiceIndex] = voice.steps[stepIndex].pulseCount
+    end
 end
 
 function sequencer:advanceToNextPulse(voiceIndex)
@@ -113,8 +129,7 @@ function sequencer:advanceToNextPulse(voiceIndex)
     local pulse = voice:getPulse(stepIndex, pulseCount)
 
     if pulse == nil then
-        self:resetPulseCount(voiceIndex)
-        self:advanceToNextStep(voiceIndex)
+        self:prepareNextPulse(voiceIndex, pulse)
         self:advanceToNextPulse(voiceIndex)
         return
     end
@@ -130,31 +145,47 @@ function sequencer:advanceToNextPulse(voiceIndex)
         print('v' .. voiceIndex, 's' .. stepIndex, 'p' .. pulseCount, pulse.gateType)
     end
 
-    self:increasePulseCount(voiceIndex)
+    self:prepareNextPulse(voiceIndex, pulse)
+end
 
-    if pulse == nil or pulse.last then
-        self:resetPulseCount(voiceIndex)
-        self:advanceToNextStep(voiceIndex)
+function sequencer:prepareNextPulse(voiceIndex, pulse)
+    if (self.direction == 'forward') then
+        -- last pulse? reset to first and advance one step
+        if pulse == nil or pulse.last then
+            self:resetPulseCount(voiceIndex)
+            self:advanceToNextStep(voiceIndex, 1)
+        else
+            self.pulseCount[voiceIndex] = self.pulseCount[voiceIndex] + 1
+        end
+    elseif (self.direction == 'reverse') then
+        -- first pulse? reset to last and advance one step back
+        if pulse == nil or pulse.first then
+            self:advanceToNextStep(voiceIndex, -1)
+            self:resetPulseCount(voiceIndex)
+        else
+            self.pulseCount[voiceIndex] = self.pulseCount[voiceIndex] - 1
+        end
     end
 end
 
-function sequencer:increasePulseCount(voiceIndex)
-    self.pulseCount[voiceIndex] = self.pulseCount[voiceIndex] + 1
-end
-
-function sequencer:advanceToNextStep(voiceIndex)
+function sequencer:advanceToNextStep(voiceIndex, amount)
     local voice = self:getVoice(voiceIndex)
-    self.stepIndex[voiceIndex] = self.stepIndex[voiceIndex] + 1;
+    self.stepIndex[voiceIndex] = self.stepIndex[voiceIndex] + amount;
 
     if (self.stepIndex[voiceIndex] > voice.loop.stop) then
+        self:resetStepIndex(voiceIndex)
+    elseif (self.stepIndex[voiceIndex] < voice.loop.start) then
         self:resetStepIndex(voiceIndex)
     end
 end
 
-function sequencer:setActivePulse(voiceIndex)
+function sequencer:setActivePulse(voiceIndex, x, y)
+    x = x or self.stepIndex[voiceIndex]
+    y = y or self.pulseCount[voiceIndex]
+
     self.activePulse[voiceIndex] = {
-        x = self.stepIndex[voiceIndex],
-        y = self.pulseCount[voiceIndex]
+        x = x,
+        y = y
     }
 end
 
