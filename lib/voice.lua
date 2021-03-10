@@ -35,7 +35,7 @@ function voice:new(args)
 
     args = args or {}
 
-    t.division = args.division or 1/4 
+    t.division = args.division or 1 / 4
     t.loop = args.loop or {
         start = 1,
         stop = 8
@@ -150,6 +150,11 @@ end
 
 function voice:getPulse(stepIndex, pulseCount)
     local step = self.steps[stepIndex]
+    
+    if pulseCount > step.pulseCount then
+        return nil
+    end
+
     local first, last = pulseCount == 1, pulseCount >= step.pulseCount
     local pulse = {
         interval = step.interval,
@@ -166,7 +171,7 @@ function voice:getPulse(stepIndex, pulseCount)
         gateType = 'rest',
         first = first,
         last = last,
-        duration = 1,
+        duration = 1
     }
 
     if step.gateType == 'rest' then

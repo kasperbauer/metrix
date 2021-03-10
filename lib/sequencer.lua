@@ -111,6 +111,14 @@ function sequencer:advanceToNextPulse(voiceIndex)
     local stepIndex = self.stepIndex[voiceIndex]
     local pulseCount = self.pulseCount[voiceIndex]
     local pulse = voice:getPulse(stepIndex, pulseCount)
+
+    if pulse == nil then
+        self:resetPulseCount(voiceIndex)
+        self:advanceToNextStep(voiceIndex)
+        self:advanceToNextPulse(voiceIndex)
+        return
+    end
+
     local pulseProbability = pulse.probability or 1
     local stepProbability = self.probabilities[voiceIndex][stepIndex]
     local skip = pulseProbability < stepProbability
@@ -124,7 +132,7 @@ function sequencer:advanceToNextPulse(voiceIndex)
 
     self:increasePulseCount(voiceIndex)
 
-    if pulse.last then
+    if pulse == nil or pulse.last then
         self:resetPulseCount(voiceIndex)
         self:advanceToNextStep(voiceIndex)
     end
