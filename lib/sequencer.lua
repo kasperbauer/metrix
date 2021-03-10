@@ -163,10 +163,13 @@ function sequencer:prepareNextPulse(voiceIndex, pulse)
         self:resetPulseCount(voiceIndex)
     else
         self:resetPulseCount(voiceIndex)
+
         if self.direction == 'forward' then
             self:advanceToNextStep(voiceIndex, 1)
+
         elseif self.direction == 'reverse' then
             self:advanceToNextStep(voiceIndex, -1)
+
         elseif self.direction == 'alternate' then
             local stepIndex = self.stepIndex[voiceIndex]
 
@@ -181,6 +184,7 @@ function sequencer:prepareNextPulse(voiceIndex, pulse)
             elseif self.alternateDirection == 'reverse' then
                 self:advanceToNextStep(voiceIndex, -1)
             end
+
         elseif self.direction == 'random' then
             self:advanceToNextStep(voiceIndex)
         end
