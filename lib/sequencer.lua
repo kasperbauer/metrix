@@ -152,13 +152,23 @@ function sequencer:prepareNextPulse(voiceIndex, pulse)
             self:advanceToNextStep(voiceIndex, 1)
         elseif (self.direction == 'reverse') then
             self:advanceToNextStep(voiceIndex, -1)
+        elseif (self.direction == 'random') then
+            self:advanceToNextStep(voiceIndex)
         end
     end
 end
 
 function sequencer:advanceToNextStep(voiceIndex, amount)
     local voice = self:getVoice(voiceIndex)
-    self.stepIndex[voiceIndex] = self.stepIndex[voiceIndex] + amount;
+    amount = amount
+
+    if (self.direction == 'random') then
+        math.randomseed(self.lattice.transport)
+        local randomStep = math.random(voice.loop.start, voice.loop.stop)
+        self.stepIndex[voiceIndex] = randomStep;
+    else
+        self.stepIndex[voiceIndex] = self.stepIndex[voiceIndex] + amount;
+    end
 
     if (self.stepIndex[voiceIndex] > voice.loop.stop) then
         self:resetStepIndex(voiceIndex)
