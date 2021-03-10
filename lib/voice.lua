@@ -150,7 +150,7 @@ end
 
 function voice:getPulse(stepIndex, pulseCount)
     local step = self.steps[stepIndex]
-    local first, last = pulseCount == 1, pulseCount == step.pulseCount
+    local first, last = pulseCount == 1, pulseCount >= step.pulseCount
     local pulse = {
         interval = step.interval,
         octave = step.octave,
