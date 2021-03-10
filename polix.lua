@@ -358,13 +358,13 @@ function drawBottomMatrix(param, options)
         for y = 12, 15 do
             if stepInLoop(x, voice) then
                 if value == options[1] and y == 12 then
-                    g:led(x, y, 10)
+                    g:led(x, y, 8)
                 elseif value == options[2] and y == 13 then
-                    g:led(x, y, 10)
+                    g:led(x, y, 8)
                 elseif value == options[3] and y == 14 then
-                    g:led(x, y, 10)
+                    g:led(x, y, 8)
                 elseif value == options[4] and y == 15 then
-                    g:led(x, y, 10)
+                    g:led(x, y, 8)
                 else
                     g:led(x, y, 3)
                 end
