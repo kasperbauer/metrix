@@ -56,8 +56,22 @@ local selectedScale = nil
 
 -- sequencer
 local seq = nil
-local pattern1 = nil
-local pattern2 = nil
+local patterns = {
+    [1] = {},
+    [2] = {}
+}
+local pulses = {
+    [1] = {},
+    [2] = {}
+}
+local currentPulseIndex = {
+    [1] = nil,
+    [2] = nil
+}
+local stepProbabilities = {
+    [1] = {},
+    [2] = {}
+}
 
 -- redraw
 local gridIsDirty = true
@@ -66,6 +80,7 @@ local screenIsDirty = false
 function init()
     initScales()
     initSequencer()
+    loadPreset(1)
     clock.run(redrawClock)
 end
 
@@ -73,7 +88,7 @@ function initScales()
     for i = 1, #musicUtil.SCALES do
         local scale = musicUtil.SCALES[i]
         if #scale.intervals == 8 then
-        table.insert(scales, scale)
+            table.insert(scales, scale)
         end
     end
     selectedScale = scales[1]
@@ -81,22 +96,73 @@ end
 
 function initSequencer()
     seq = lattice:new()
-    pattern1 = seq:new_pattern({
-        action = playPattern,
-        division = 1 / 4
+    patterns[1] = seq:new_pattern({
+        action = function()
+            advanceToNextPulse(1)
+        end
+        -- division = 1 / 4
     })
-
+    -- patterns[2] = seq:new_pattern({
+    --     action = function()
+    --         advanceToNextPulse(2)
+    --     end,
+    --     division = 1 / 4
+    -- })
 end
 
 function playPause()
     if seq and seq.enabled then
         seq:stop()
+        currentPulseIndex[1] = nil
+        currentPulseIndex[2] = nil
     else
+        generatePulses()
         seq:start()
     end
 end
 
-function playPattern(t)
+function generatePulses()
+    pulses[1] = voices[1]:getPulses()
+    pulses[2] = voices[2]:getPulses()
+end
+
+function refreshStepProbabilities()
+    math.randomseed(seq.transport)
+
+    for i = 1, 8 do
+        stepProbabilities[1][i] = math.random(1, 100) / 100
+        stepProbabilities[2][i] = math.random(1, 100) / 100
+    end
+end
+
+function advanceToNextPulse(voiceIndex, skipStep)
+    local pulseIndex = currentPulseIndex[voiceIndex]
+
+    if pulseIndex == nil or pulseIndex > #pulses[voiceIndex] then
+        refreshStepProbabilities()
+        pulseIndex = 1
+    end
+
+    local pulse = pulses[voiceIndex][pulseIndex]
+    local stepProbability = stepProbabilities[voiceIndex][pulse.step]
+
+    -- skip pulse if step is marked or if probability check fails
+    local skip = pulse.probability < stepProbability
+    if skip then
+        -- rest: do nothing
+        print('[' .. voiceIndex .. '] [' .. pulse.step .. '] [' .. pulseIndex .. '] skipped')
+    elseif pulse.gateType == 'rest' then
+        -- rest: do nothing
+        print('[' .. voiceIndex .. '] [' .. pulse.step .. '] [' .. pulseIndex .. '] rest')
+    else
+        -- note: play note
+        local interval = selectedScale.intervals[pulse.interval]
+        print('[' .. voiceIndex .. '] [' .. pulse.step .. '] [' .. pulseIndex .. '] note, interval:' .. interval ..
+                  ', duration: ' .. pulse.duration .. ', gateLength: ' .. pulse.gateLength)
+    end
+
+    currentPulseIndex[voiceIndex] = pulseIndex + 1
+
     requestScreenRedraw()
 end
 
@@ -495,6 +561,7 @@ function g.key(x, y, z)
     end
 
     requestGridRedraw()
+    generatePulses()
 end
 
 function setForAllSteps(param, value)
