@@ -112,12 +112,7 @@ end
 
 function sequencer:resetPulseCount(voiceIndex)
     local voice = self:getVoice(voiceIndex)
-    if (self.direction == 'forward') then
-        self.pulseCount[voiceIndex] = 1
-    elseif (self.direction == 'reverse') then
-        local stepIndex = self.stepIndex[voiceIndex]
-        self.pulseCount[voiceIndex] = voice.steps[stepIndex].pulseCount
-    end
+    self.pulseCount[voiceIndex] = 1
 end
 
 function sequencer:advanceToNextPulse(voiceIndex)
@@ -149,21 +144,14 @@ function sequencer:advanceToNextPulse(voiceIndex)
 end
 
 function sequencer:prepareNextPulse(voiceIndex, pulse)
-    if (self.direction == 'forward') then
-        -- last pulse? reset to first and advance one step
-        if pulse == nil or pulse.last then
-            self:resetPulseCount(voiceIndex)
+    if pulse and not pulse.last then
+        self.pulseCount[voiceIndex] = self.pulseCount[voiceIndex] + 1
+    else
+        self:resetPulseCount(voiceIndex)
+        if (self.direction == 'forward') then
             self:advanceToNextStep(voiceIndex, 1)
-        else
-            self.pulseCount[voiceIndex] = self.pulseCount[voiceIndex] + 1
-        end
-    elseif (self.direction == 'reverse') then
-        -- first pulse? reset to last and advance one step back
-        if pulse == nil or pulse.first then
+        elseif (self.direction == 'reverse') then
             self:advanceToNextStep(voiceIndex, -1)
-            self:resetPulseCount(voiceIndex)
-        else
-            self.pulseCount[voiceIndex] = self.pulseCount[voiceIndex] - 1
         end
     end
 end
