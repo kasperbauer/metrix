@@ -197,7 +197,7 @@ function drawLoopPicker()
                 if (isSelected) then
                     g:led(x, y, 15)
                 else
-                    g:led(x, y, 8)
+                    g:led(x, y, 7)
                 end
             else
                 if (isSelected) then
@@ -218,10 +218,12 @@ function drawTopMatrix(paramName, filled)
             local value = voice.steps[x][paramName]
 
             if stepInLoop(x, voice) then
-                if 11 - y == value then
-                    g:led(x, y, 8)
+                if y == 10 then
+                    g:led(x, y, 11)
+                elseif 11 - y == value then
+                    g:led(x, y, 7)
                 elseif 11 - y < value and filled then
-                    g:led(x, y, 8)
+                    g:led(x, y, 7)
                 elseif 11 - y < value and filled == false then
                     g:led(x, y, 3)
                 else
@@ -251,13 +253,13 @@ function drawBottomMatrix(param, options)
         for y = 12, 15 do
             if stepInLoop(x, voice) then
                 if value == options[1] and y == 12 then
-                    g:led(x, y, 8)
+                    g:led(x, y, 11)
                 elseif value == options[2] and y == 13 then
-                    g:led(x, y, 8)
+                    g:led(x, y, 11)
                 elseif value == options[3] and y == 14 then
-                    g:led(x, y, 8)
+                    g:led(x, y, 11)
                 elseif value == options[4] and y == 15 then
-                    g:led(x, y, 8)
+                    g:led(x, y, 11)
                 else
                     g:led(x, y, 3)
                 end
@@ -289,7 +291,7 @@ function drawPresetPicker()
             if (selectedPreset == presetIndex) then
                 g:led(x, y, 15)
             elseif preset:exists(presetIndex) then
-                g:led(x, y, 8)
+                g:led(x, y, 7)
             else
                 g:led(x, y, 3)
             end
