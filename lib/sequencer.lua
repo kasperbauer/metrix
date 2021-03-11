@@ -1,6 +1,8 @@
 lattice = require('lattice')
 voice = include('lib/voice')
 
+m = midi.connect()
+
 local sequencer = {}
 
 local scales = {};
@@ -264,20 +266,22 @@ end
 
 function sequencer:noteOn(voiceIndex, pulse)
     self:setPreviousPulse(voiceIndex, pulse)
-    print('noteOn', pulse.midiNote, 127, voiceIndex)
+
+    print(self.lattice.transport, voiceIndex, 'noteOn', pulse.midiNote, pulse.noteName, 127)
     -- m.note_on(pulse.midiNote, 127, voiceIndex)
-    engine.noteOn(voiceIndex, pulse.hz, 100)
 
     -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
     crow.output[(voiceIndex * 2) - 1].action = "{ to(5,0), to(0,0.005) }"
     crow.output[voiceIndex * 2].volts = pulse.volts
+
+    engine.noteOn(voiceIndex, pulse.hz, 100)
 end
 
 function sequencer:noteOff(voiceIndex)
     local previousPulse = self.previousPulses[voiceIndex]
     if previousPulse.midiNote then
         -- m.note_off(previousPulse.midiNote, 127, voiceIndex)
-        print('noteOff', previousPulse.midiNote, 127, voiceIndex)
+        print(self.lattice.transport, voiceIndex, 'noteOff', previousPulse.midiNote, previousPulse.noteName, 127)
     end
 
     engine.noteOff(voiceIndex)

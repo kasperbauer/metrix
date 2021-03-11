@@ -13,8 +13,6 @@ voice = include('lib/voice')
 g = grid.connect()
 g:rotation(45)
 
-m = midi.connect()
-
 -- molly the poly
 MollyThePoly = require "molly_the_poly/lib/molly_the_poly_engine"
 engine.name = "MollyThePoly"
