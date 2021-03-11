@@ -5,6 +5,8 @@ m = midi.connect()
 
 local sequencer = {}
 
+local DEBUG = false
+
 local scales = {};
 for i = 1, #musicUtil.SCALES do
     local scale = musicUtil.SCALES[i]
@@ -267,8 +269,11 @@ end
 function sequencer:noteOn(voiceIndex, pulse)
     self:setPreviousPulse(voiceIndex, pulse)
 
-    print(self.lattice.transport, voiceIndex, 'noteOn', pulse.midiNote, pulse.noteName, 127)
-    -- m.note_on(pulse.midiNote, 127, voiceIndex)
+    if DEBUG then
+        print(self.lattice.transport, voiceIndex, 'noteOn', pulse.midiNote, pulse.noteName, 127)
+    end
+
+    m:note_on(pulse.midiNote, 127, voiceIndex)
 
     -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
     crow.output[(voiceIndex * 2) - 1].action = "{ to(5,0), to(0,0.005) }"
@@ -280,8 +285,11 @@ end
 function sequencer:noteOff(voiceIndex)
     local previousPulse = self.previousPulses[voiceIndex]
     if previousPulse.midiNote then
-        -- m.note_off(previousPulse.midiNote, 127, voiceIndex)
-        print(self.lattice.transport, voiceIndex, 'noteOff', previousPulse.midiNote, previousPulse.noteName, 127)
+        m:note_off(previousPulse.midiNote, 127, voiceIndex)
+
+        if DEBUG then
+            print(self.lattice.transport, voiceIndex, 'noteOff', previousPulse.midiNote, previousPulse.noteName, 127)
+        end
     end
 
     engine.noteOff(voiceIndex)
