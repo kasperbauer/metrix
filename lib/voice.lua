@@ -171,11 +171,7 @@ function voice:setAll(param, value)
     end
 end
 
-function voice:getPulse(stepIndex, pulseCount)
-    if stepIndex < self.loop.start or stepIndex > self.loop.stop then
-        return nil
-    end
-
+function voice:getPulse(stepIndex, pulseCount, scale)
     local step = self.steps[stepIndex]
 
     if pulseCount > step.pulseCount then

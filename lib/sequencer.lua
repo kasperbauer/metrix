@@ -133,7 +133,7 @@ function sequencer:advanceToNextPulse(voiceIndex)
     local pulseCount = self.pulseCount[voiceIndex]
     local pulse = voice:getPulse(stepIndex, pulseCount)
 
-    if pulse == nil then
+    if pulse == nil or stepIndex < voice.loop.start or stepIndex > voice.loop.stop then
         self:prepareNextPulse(voiceIndex, pulse)
         self:advanceToNextPulse(voiceIndex)
         return
