@@ -121,7 +121,7 @@ function redrawGrid()
             drawBottomMatrix('gateType', voice:getGateTypes())
         end
     elseif selectedPage == 2 then
-        drawTopMatrix('pitch', false)
+        drawTopMatrix('note', false)
         drawBottomMatrix('octave', voice:getOctaves())
     elseif selectedPage == 3 then
         drawTopMatrix('ratchetCount', true)
@@ -424,14 +424,14 @@ function g.key(x, y, z)
         end
     end
 
-    -- row 3-10: pitch & octave matrix
+    -- row 3-10: note & octave matrix
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
-            local pitch = 11 - y
+            local note = 11 - y
             if altIsHeld() then
-                voice:setAll('pitch', pitch)
+                voice:setAll('note', note)
             else
-                voice:setPitch(stepIndex, pitch)
+                voice:setNote(stepIndex, note)
             end
         elseif y >= 12 and y <= 15 then
             local octaves = voice:getOctaves()
@@ -473,7 +473,7 @@ function g.key(x, y, z)
             if x == 1 then
                 voice:randomize({'pulseCount', 'gateType', 'gateLength'})
             elseif x == 2 then
-                voice:randomize({'pitch', 'octave'})
+                voice:randomize({'note', 'octave'})
             elseif x == 3 then
                 voice:randomize({'ratchetCount', 'probability'})
             end
