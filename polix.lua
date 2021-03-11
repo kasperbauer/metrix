@@ -38,10 +38,6 @@ local preset = preset:new()
 local presets = {}
 local selectedPreset = nil
 
--- scales
-local scales = {};
-local selectedScale = nil
-
 -- sequencer
 local seq = sequencer:new(function()
     requestGridRedraw()
@@ -49,24 +45,15 @@ local seq = sequencer:new(function()
 end)
 seq:addVoices(2)
 
+-- scales
+local scales = seq:getScales()
+
 -- redraw
 local gridIsDirty = true
 local screenIsDirty = false
 
 function init()
-    initScales()
-    -- loadPreset(1)
     clock.run(redrawClock)
-end
-
-function initScales()
-    for i = 1, #musicUtil.SCALES do
-        local scale = musicUtil.SCALES[i]
-        if #scale.intervals == 8 then
-            table.insert(scales, scale)
-        end
-    end
-    selectedScale = scales[1]
 end
 
 function redraw()
@@ -301,12 +288,13 @@ end
 
 function drawScalePicker()
     local rows = math.ceil(#scales / 8)
+
     scaleIndex = 1
     for y = 6, 6 + rows do
         for x = 1, 8 do
             if (scaleIndex > #scales) then
                 break
-            elseif selectedScale.name == scales[scaleIndex].name then
+            elseif seq.scale.name == scales[scaleIndex].name then
                 g:led(x, y, 15)
             else
                 g:led(x, y, 3)
@@ -498,7 +486,7 @@ function g.key(x, y, z)
         local scaleRows, scaleIndex = math.ceil(#scales / 8), (y - 6) * 8 + x
 
         if y >= 6 and y <= 6 + scaleRows and scaleIndex <= #scales then
-            selectScale(scales[scaleIndex])
+            selectScale(scaleIndex)
         end
 
         if y == 13 or y == 14 then
@@ -569,8 +557,8 @@ function selectVoice(voiceNumber)
     voiceWasSelected = true
 end
 
-function selectScale(scale)
-    selectedScale = scale
+function selectScale(scaleIndex)
+    seq:setScale(scaleIndex)
 end
 
 function requestScreenRedraw()

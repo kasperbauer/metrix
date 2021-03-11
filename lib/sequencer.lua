@@ -3,6 +3,15 @@ voice = include('lib/voice')
 
 local sequencer = {}
 
+local scales = {};
+for i = 1, #musicUtil.SCALES do
+    local scale = musicUtil.SCALES[i]
+    -- get all scales with max 8 notes
+    if #scale.intervals <= 8 then
+        table.insert(scales, scale)
+    end
+end
+
 local directions = {
     [1] = 'forward',
     [2] = 'reverse',
@@ -24,6 +33,7 @@ function sequencer:new(onPulseAdvance)
     t.direction = directions[1]
     t.alternateDirection = 'forward'
     t.patterns = {}
+    t.scale = scales[1]
 
     t.onPulseAdvance = onPulseAdvance or function()
     end
@@ -225,6 +235,14 @@ end
 
 function sequencer:setDirection(direction)
     self.direction = direction
+end
+
+function sequencer:getScales()
+    return scales
+end
+
+function sequencer:setScale(scaleIndex)
+    self.scale = scales[scaleIndex]
 end
 
 return sequencer
