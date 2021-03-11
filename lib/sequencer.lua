@@ -33,8 +33,12 @@ function sequencer:new(onPulseAdvance)
     t.direction = directions[1]
     t.alternateDirection = 'forward'
     t.patterns = {}
-    t.rootNote = 0 -- 0 equals 'C'
-    t.scale = scales[1] -- 1 equals major
+
+    -- 0 equals C
+    t.rootNote = 0
+
+    -- 1 equals major
+    t.scale = scales[1]
 
     t.onPulseAdvance = onPulseAdvance or function()
     end
@@ -70,10 +74,6 @@ end
 function sequencer:addPattern(division, action)
     local voiceIndex = #self.voices;
 
-    -- if (voiceIndex == 2) then
-    --     return
-    -- end
-
     local pattern = self.lattice:new_pattern({
         action = function()
             self:advanceToNextPulse(voiceIndex)
@@ -87,6 +87,7 @@ end
 function sequencer:playPause()
     if self.lattice.enabled then
         self.lattice:stop()
+        engine.noteOffAll()
     else
         self:refreshProbabilities()
         self.lattice:start()
@@ -154,11 +155,8 @@ function sequencer:advanceToNextPulse(voiceIndex)
     local stepProbability = self.probabilities[voiceIndex][stepIndex]
     local skip = pulseProbability < stepProbability
 
-    print('PULSE on ' .. self.lattice.transport)
-    if (skip) then
-        print('v' .. voiceIndex, 's' .. stepIndex, 'p' .. pulseCount, 'skipped')
-    else
-        print('v' .. voiceIndex, 's' .. stepIndex, 'p' .. pulseCount, pulse.gateType, pulse.midiNote)
+    if not skip then
+        self:playNote(voiceIndex, pulse)
     end
 
     self:prepareNextPulse(voiceIndex, pulse)
@@ -244,6 +242,18 @@ end
 
 function sequencer:setScale(scaleIndex)
     self.scale = scales[scaleIndex]
+end
+
+function sequencer:playNote(voiceIndex, pulse)
+    if pulse.gateType == 'void' then
+        return
+    end
+
+    engine.noteOff(voiceIndex)
+
+    if pulse.gateType ~= 'rest' then
+        engine.noteOn(voiceIndex, pulse.hz, 100)
+    end
 end
 
 return sequencer

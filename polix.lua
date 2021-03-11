@@ -13,6 +13,10 @@ voice = include('lib/voice')
 g = grid.connect()
 g:rotation(45)
 
+-- molly the poly
+MollyThePoly = require "molly_the_poly/lib/molly_the_poly_engine"
+engine.name = "MollyThePoly"
+
 -- page selector
 local maxPages = 4
 local selectedPage = 1
@@ -53,6 +57,8 @@ local gridIsDirty = true
 local screenIsDirty = false
 
 function init()
+    params:add_group("molly the poly", 46)
+    MollyThePoly.add_params()
     clock.run(redrawClock)
 end
 
