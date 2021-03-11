@@ -63,7 +63,7 @@ function voice:new(args)
                 gateType = gateTypes[2],
                 gateLength = gateLengths[3],
                 note = i,
-                octave = octaves[4],
+                octave = octaves[3],
                 probability = probabilities[1]
             }
         end
@@ -178,7 +178,7 @@ function voice:setAll(param, value)
     end
 end
 
-function voice:getPulse(stepIndex, pulseCount, scale)
+function voice:getPulse(stepIndex, pulseCount, scale, rootNote)
     local step = self.steps[stepIndex]
 
     if pulseCount > step.pulseCount then
@@ -186,9 +186,15 @@ function voice:getPulse(stepIndex, pulseCount, scale)
     end
 
     local first, last = pulseCount == 1, pulseCount >= step.pulseCount
+    local midiNote = self:getMidiNote(step.note, scale, step.octave, rootNote)
+
     local pulse = {
         note = step.note,
         octave = step.octave,
+        midiNote = midiNote,
+        hz = self:getHz(midiNote),
+        volts = self:getVolts(step.note, scale, step.octave, rootNote),
+        noteName = self:getNoteName(midiNote),
         gateType = step.gateType,
         gateLength = step.gateLength,
         probability = step.probability,
@@ -203,6 +209,8 @@ function voice:getPulse(stepIndex, pulseCount, scale)
         last = last,
         duration = 1
     }
+
+    tab.print(pulse)
 
     if step.gateType == 'rest' then
         return rest
@@ -228,6 +236,27 @@ function voice:getPulse(stepIndex, pulseCount, scale)
             return rest
         end
     end
+end
+
+function voice:getMidiNote(note, scale, octave, rootNote)
+    local rootNoteInOctave = rootNote + (12 * octave)
+    local midiScale = musicUtil.generate_scale_of_length(rootNoteInOctave, scale.name, 8)
+    return midiScale[note]
+end
+
+function voice:getHz(midiNote)
+    return musicUtil.note_num_to_freq(midiNote)
+end
+
+function voice:getNoteName(midiNote)
+    return musicUtil.note_num_to_name(midiNote)
+end
+
+function voice:getVolts(note, scale, octave, rootNote)
+    local voltsPerSemitone = 1/12
+    local rootVolts = octave + (rootNote * voltsPerSemitone)
+    local semitones = scale.intervals[note]
+    return rootVolts + (semitones * voltsPerSemitone)
 end
 
 return voice

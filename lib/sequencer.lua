@@ -33,7 +33,8 @@ function sequencer:new(onPulseAdvance)
     t.direction = directions[1]
     t.alternateDirection = 'forward'
     t.patterns = {}
-    t.scale = scales[1]
+    t.rootNote = 0 -- 0 equals 'C'
+    t.scale = scales[1] -- 1 equals major
 
     t.onPulseAdvance = onPulseAdvance or function()
     end
@@ -141,7 +142,7 @@ function sequencer:advanceToNextPulse(voiceIndex)
     local voice = self:getVoice(voiceIndex)
     local stepIndex = self.stepIndex[voiceIndex]
     local pulseCount = self.pulseCount[voiceIndex]
-    local pulse = voice:getPulse(stepIndex, pulseCount)
+    local pulse = voice:getPulse(stepIndex, pulseCount, self.scale, self.rootNote)
 
     if pulse == nil or stepIndex < voice.loop.start or stepIndex > voice.loop.stop then
         self:prepareNextPulse(voiceIndex, pulse)
@@ -157,7 +158,7 @@ function sequencer:advanceToNextPulse(voiceIndex)
     if (skip) then
         print('v' .. voiceIndex, 's' .. stepIndex, 'p' .. pulseCount, 'skipped')
     else
-        print('v' .. voiceIndex, 's' .. stepIndex, 'p' .. pulseCount, pulse.gateType)
+        print('v' .. voiceIndex, 's' .. stepIndex, 'p' .. pulseCount, pulse.gateType, pulse.midiNote)
     end
 
     self:prepareNextPulse(voiceIndex, pulse)
