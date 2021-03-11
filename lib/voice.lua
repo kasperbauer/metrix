@@ -22,10 +22,10 @@ local probabilities = {
 }
 
 local octaves = {
-    [1] = 3,
-    [2] = 2,
-    [3] = 1,
-    [4] = 0
+    [1] = 5,
+    [2] = 4,
+    [3] = 3,
+    [4] = 2
 }
 
 local divisions = {
@@ -63,7 +63,7 @@ function voice:new(args)
                 gateType = gateTypes[2],
                 gateLength = gateLengths[3],
                 note = i,
-                octave = octaves[3],
+                octave = octaves[1],
                 probability = probabilities[1]
             }
         end
@@ -209,8 +209,12 @@ function voice:getPulse(stepIndex, pulseCount, scale, rootNote)
         last = last,
         duration = 1
     }
-
-    tab.print(pulse)
+    local void = {
+        gateType = 'void',
+        first = first,
+        last = last,
+        duration = 1
+    }
 
     if step.gateType == 'rest' then
         return rest
@@ -233,7 +237,7 @@ function voice:getPulse(stepIndex, pulseCount, scale, rootNote)
             pulse.duration = pulse.duration * step.pulseCount
             return pulse
         else
-            return rest
+            return void
         end
     end
 end
@@ -253,8 +257,14 @@ function voice:getNoteName(midiNote)
 end
 
 function voice:getVolts(note, scale, octave, rootNote)
-    local voltsPerSemitone = 1/12
+    local voltsPerSemitone = 1 / 12
     local rootVolts = octave + (rootNote * voltsPerSemitone)
+
+    if (note > #scale.intervals) then
+        local factor = math.floor(note / #scale.intervals)
+        note = note - (factor * #scale.intervals)
+    end
+
     local semitones = scale.intervals[note]
     return rootVolts + (semitones * voltsPerSemitone)
 end
