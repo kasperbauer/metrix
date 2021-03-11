@@ -363,6 +363,7 @@ function g.key(x, y, z)
     local on, off = z == 1, z == 0
     local stepIndex, voice = x, getSelectedVoice()
     local step = voice.steps[stepIndex]
+    local held, tapped = getMomentariesInRow(y), x
 
     momentary[x][y] = z == 1 and true or false
 
@@ -375,22 +376,19 @@ function g.key(x, y, z)
         elseif selectedVoice ~= y then
             selectVoice(y)
         else
-            local held, tapped = getMomentaryInRow(y), x
-
+            local pushed = getMomentariesInRow(y)
             if on then
-                if held and held ~= tapped then
-                    voice:setLoop(held, tapped)
+                if #pushed == 2 then
+                    voice:setLoop(pushed[1], pushed[2])
                     loopWasSelected = true
                 end
-            else
-                if held == false then
-                    if loopWasSelected == false and voiceWasSelected == false then
-                        voice:setLoop(tapped, tapped)
-                    end
-
-                    loopWasSelected = false
-                    voiceWasSelected = false
+            elseif #pushed == 0 then
+                if loopWasSelected == false and voiceWasSelected == false then
+                    voice:setLoop(x, x)
                 end
+
+                loopWasSelected = false
+                voiceWasSelected = false
             end
         end
     end
@@ -516,14 +514,16 @@ function g.key(x, y, z)
     requestGridRedraw()
 end
 
-function getMomentaryInRow(y)
+function getMomentariesInRow(y)
+    local momentaries = {}
+
     for x = 1, 8 do
         if momentary[x][y] then
-            return x
+            table.insert(momentaries, x)
         end
     end
 
-    return false
+    return momentaries
 end
 
 function shiftIsHeld()

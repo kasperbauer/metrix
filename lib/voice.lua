@@ -105,6 +105,13 @@ function voice:randomize(params)
 end
 
 function voice:setLoop(start, stop)
+    -- print(start, stop)
+    if start > stop then
+        local temp = start
+        start = stop
+        stop = temp
+    end
+
     self.loop.start = start or 1
     self.loop.stop = stop or 8
 end
