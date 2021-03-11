@@ -33,6 +33,7 @@ function sequencer:new(onPulseAdvance)
     t.direction = directions[1]
     t.alternateDirection = 'forward'
     t.patterns = {}
+    t.previousPulses = {}
 
     -- 0 equals C
     t.rootNote = 0
@@ -57,6 +58,7 @@ function sequencer:addVoice(args)
     table.insert(self.voices, voice)
     local voiceIndex = #self.voices
     self:addPattern(voice.division, voiceIndex)
+    self:setPreviousPulse(voiceIndex)
     self:resetStepIndex(voiceIndex)
     self:resetPulseCount(voiceIndex)
 end
@@ -64,6 +66,7 @@ end
 function sequencer:resetVoices()
     self.voices = {}
     self.patterns = {}
+    self.previousPulses = {}
     self.lattice = lattice:new()
 end
 
@@ -71,9 +74,7 @@ function sequencer:getVoice(voiceIndex)
     return self.voices[voiceIndex]
 end
 
-function sequencer:addPattern(division, action)
-    local voiceIndex = #self.voices;
-
+function sequencer:addPattern(division, voiceIndex)
     local pattern = self.lattice:new_pattern({
         action = function()
             self:advanceToNextPulse(voiceIndex)
@@ -84,10 +85,15 @@ function sequencer:addPattern(division, action)
     table.insert(self.patterns, pattern)
 end
 
+function sequencer:setPreviousPulse(voiceIndex, pulse)
+    pulse = pulse or {}
+    self.previousPulses[voiceIndex] = pulse
+end
+
 function sequencer:playPause()
     if self.lattice.enabled then
         self.lattice:stop()
-        engine.noteOffAll()
+        self:noteOffAll()
     else
         self:refreshProbabilities()
         self.lattice:start()
@@ -249,11 +255,36 @@ function sequencer:playNote(voiceIndex, pulse)
         return
     end
 
-    engine.noteOff(voiceIndex)
+    self:noteOff(voiceIndex)
 
     if pulse.gateType ~= 'rest' then
-        engine.noteOn(voiceIndex, pulse.hz, 100)
+        self:noteOn(voiceIndex, pulse)
     end
+end
+
+function sequencer:noteOn(voiceIndex, pulse)
+    self:setPreviousPulse(voiceIndex, pulse)
+    print('noteOn', pulse.midiNote, 127, voiceIndex)
+    -- m.note_on(pulse.midiNote, 127, voiceIndex)
+    engine.noteOn(voiceIndex, pulse.hz, 100)
+
+    -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
+    crow.output[(voiceIndex * 2) - 1].action = "{ to(5,0), to(0,0.005) }"
+    crow.output[voiceIndex * 2].volts = pulse.volts
+end
+
+function sequencer:noteOff(voiceIndex)
+    local previousPulse = self.previousPulses[voiceIndex]
+    if previousPulse.midiNote then
+        -- m.note_off(previousPulse.midiNote, 127, voiceIndex)
+        print('noteOff', previousPulse.midiNote, 127, voiceIndex)
+    end
+
+    engine.noteOff(voiceIndex)
+end
+
+function sequencer:noteOffAll()
+    engine.noteOffAll()
 end
 
 return sequencer
