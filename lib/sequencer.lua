@@ -2,7 +2,7 @@ lattice = require('lattice')
 voice = include('lib/voice')
 
 local DEBUG = true
-local DEBUG_MUTE_VOICE = 2
+local DEBUG_MUTE_VOICE = 1
 
 m = midi.connect()
 
@@ -116,6 +116,7 @@ function sequencer:playPause()
         self.lattice:stop()
         m:stop()
         self:noteOffAll()
+        self.events = {}
     else
         self:refreshProbabilities()
         if self.lattice.transport == 0 then
@@ -128,9 +129,6 @@ function sequencer:playPause()
 end
 
 function sequencer:reset()
-    print('EVENTS')
-    tab.print(self.events)
-
     self:refreshProbabilities()
     for i = 1, #self.voices do
         self:setActivePulse(i, 1, 1)
@@ -288,29 +286,55 @@ function sequencer:playNote(voiceIndex, pulse)
         return
     end
 
+    local transport = self.lattice.transport
     if pulse.gateType ~= 'rest' then
-        self:addEvent('noteOff', pulse, voiceIndex, self.lattice.transport)
-        self:noteOn(voiceIndex, pulse)
+        if pulse.ratchetCount > 1 then
+            self:addRatchets(voiceIndex, pulse, transport)
+        else
+            local ppqnPerWhole = self.lattice.ppqn * 4
+            local division = self.voices[voiceIndex].division
+            local ppqnPulseLength = pulse.gateLength * ppqnPerWhole * division * pulse.duration
+            local ppqnNoteOff = math.ceil(transport + ppqnPulseLength) - 1
+
+            self:addEvent('noteOff', pulse, voiceIndex, ppqnNoteOff)
+            self:noteOn(voiceIndex, pulse)
+        end
     end
 
 end
 
-function sequencer:addEvent(type, pulse, voiceIndex, ppqnNow)
+function sequencer:addRatchets(voiceIndex, pulse, transport)
+    local ratchetCount = pulse.ratchetCount
     local ppqnPerWhole = self.lattice.ppqn * 4
     local division = self.voices[voiceIndex].division
-    local ppqnEventLength = pulse.gateLength * ppqnPerWhole * division * pulse.duration
-    local ppqnEvent = math.ceil(ppqnNow + ppqnEventLength) - 1
+    local ppqnRatchetLength = ppqnPerWhole * division * pulse.duration / ratchetCount
+    local ppqnPulseLength = pulse.gateLength * ppqnPerWhole * division * pulse.duration
+    local ppqnNoteOff = math.ceil(transport + ppqnRatchetLength) - 1
 
+    -- play first ratchet instantly
+    self:addEvent('noteOff', pulse, voiceIndex, ppqnNoteOff)
+    self:noteOn(voiceIndex, pulse)
+
+    for i = 2, ratchetCount do
+        local ppqnOn = math.ceil(transport + ((i - 1) * ppqnRatchetLength))
+        local ppqnOff = math.ceil(transport + (i * ppqnRatchetLength)) - 1
+
+        self:addEvent('noteOn', pulse, voiceIndex, ppqnOn)
+        self:addEvent('noteOff', pulse, voiceIndex, ppqnOff)
+    end
+end
+
+function sequencer:addEvent(type, pulse, voiceIndex, ppqn)
     local event = {
         type = type,
         voiceIndex = voiceIndex,
         pulse = pulse
     }
 
-    if self.events[ppqnEvent] == nil then
-        self.events[ppqnEvent] = {}
+    if self.events[ppqn] == nil then
+        self.events[ppqn] = {}
     end
-    table.insert(self.events[ppqnEvent], event)
+    table.insert(self.events[ppqn], event)
 end
 
 function sequencer:noteOn(voiceIndex, pulse)
@@ -336,8 +360,10 @@ function sequencer:handleEvents(transport)
     for k, event in pairs(events) do
         local pulse, type = event.pulse, event.type
 
-        if (type == 'noteOff') then
-            self:noteOff(pulse, event.voiceIndex)
+        if type == 'noteOff' then
+            self:noteOff(event.voiceIndex, pulse)
+        elseif type == 'noteOn' then
+            self:noteOn(event.voiceIndex, pulse)
         end
 
         if DEBUG then
@@ -347,7 +373,7 @@ function sequencer:handleEvents(transport)
     self.events[transport] = nil
 end
 
-function sequencer:noteOff(pulse, voiceIndex, transport)
+function sequencer:noteOff(voiceIndex, pulse, transport)
     m:note_off(pulse.midiNote, 127, voiceIndex)
     engine.noteOff(voiceIndex)
 
@@ -357,11 +383,10 @@ function sequencer:noteOff(pulse, voiceIndex, transport)
 end
 
 function sequencer:noteOffAll()
-    tab.print(self.events)
     for k1, events in pairs(self.events) do
         for k2, event in pairs(events) do
             if event.type == 'noteOff' then
-                self:noteOff(event.pulse, event.voiceIndex, k1)
+                self:noteOff(event.voiceIndex, event.pulse, k1)
             end
             self.events[k1] = nil
         end
