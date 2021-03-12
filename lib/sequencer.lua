@@ -1,8 +1,8 @@
 lattice = require('lattice')
 voice = include('lib/voice')
 
-local DEBUG = true
-local DEBUG_MUTE_VOICE = 1
+local DEBUG = false
+local DEBUG_MUTE_VOICE = 2
 
 m = midi.connect()
 
@@ -308,16 +308,17 @@ function sequencer:addRatchets(voiceIndex, pulse, transport)
     local ppqnPerWhole = self.lattice.ppqn * 4
     local division = self.voices[voiceIndex].division
     local ppqnRatchetLength = ppqnPerWhole * division * pulse.duration / ratchetCount
-    local ppqnPulseLength = pulse.gateLength * ppqnPerWhole * division * pulse.duration
-    local ppqnNoteOff = math.ceil(transport + ppqnRatchetLength) - 1
+    local ppqnPulseLength = ppqnPerWhole * division * pulse.duration
+    local ppqnGateLength = pulse.gateLength * ppqnPulseLength
 
     -- play first ratchet instantly
+    local ppqnNoteOff = math.ceil(transport + math.min(ppqnRatchetLength, ppqnGateLength)) - 1
     self:addEvent('noteOff', pulse, voiceIndex, ppqnNoteOff)
     self:noteOn(voiceIndex, pulse)
 
     for i = 2, ratchetCount do
         local ppqnOn = math.ceil(transport + ((i - 1) * ppqnRatchetLength))
-        local ppqnOff = math.ceil(transport + (i * ppqnRatchetLength)) - 1
+        local ppqnOff = math.ceil(ppqnOn + math.min(ppqnRatchetLength, ppqnGateLength)) - 1
 
         self:addEvent('noteOn', pulse, voiceIndex, ppqnOn)
         self:addEvent('noteOff', pulse, voiceIndex, ppqnOff)

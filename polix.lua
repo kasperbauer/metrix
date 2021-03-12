@@ -448,6 +448,7 @@ function g.key(x, y, z)
     if selectedPage == 3 and on then
         if y >= 3 and y <= 10 then
             local ratchetCount = 11 - y
+            print(ratchetCount)
             if altIsHeld() then
                 voice:setAll('ratchetCount', ratchetCount)
             else
@@ -550,7 +551,6 @@ function loadPreset(presetIndex)
     for i, voice in pairs(data.voices) do
         seq:addVoice(voice)
     end
-
     selectedPreset = presetIndex
     requestGridRedraw()
 end
