@@ -270,7 +270,6 @@ function sequencer:playNote(voiceIndex, pulse)
 end
 
 function sequencer:noteOn(voiceIndex, pulse)
-    clock.sleep(0.5)
     self:setPreviousPulse(voiceIndex, pulse)
 
     if DEBUG then
@@ -290,6 +289,7 @@ function sequencer:noteOff(voiceIndex)
     local previousPulse = self.previousPulses[voiceIndex]
     if previousPulse.midiNote then
         m:note_off(previousPulse.midiNote, 127, voiceIndex)
+        self:setPreviousPulse(voiceIndex)
 
         if DEBUG then
             print(self.lattice.transport, voiceIndex, 'noteOff', previousPulse.midiNote, previousPulse.noteName, 127)
