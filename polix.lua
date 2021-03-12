@@ -39,7 +39,6 @@ local voiceWasSelected = false
 
 -- presets
 local preset = preset:new()
-local presets = {}
 local selectedPreset = nil
 
 -- sequencer
@@ -58,6 +57,7 @@ local screenIsDirty = false
 
 function init()
     initEngine()
+    loadPreset(1)
     clock.run(redrawClock)
 end
 
