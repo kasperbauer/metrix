@@ -1,11 +1,12 @@
 lattice = require('lattice')
 voice = include('lib/voice')
 
+local DEBUG = true
+local DEBUG_MUTE_VOICE = 2
+
 m = midi.connect()
 
 local sequencer = {}
-
-local DEBUG = false
 
 local scales = {};
 for i = 1, #musicUtil.SCALES do
@@ -37,7 +38,8 @@ function sequencer:new(onPulseAdvance)
     t.direction = directions[1]
     t.alternateDirection = 'forward'
     t.patterns = {}
-    t.previousPulses = {}
+    t.noteOffPattern = nil
+    t.noteOffEvents = {}
 
     -- 0 equals C
     t.rootNote = 0
@@ -62,7 +64,6 @@ function sequencer:addVoice(args)
     table.insert(self.voices, voice)
     local voiceIndex = #self.voices
     self:addPattern(voice.division, voiceIndex)
-    self:setPreviousPulse(voiceIndex)
     self:resetStepIndex(voiceIndex)
     self:resetPulseCount(voiceIndex)
 end
@@ -70,7 +71,7 @@ end
 function sequencer:resetVoices()
     self.voices = {}
     self.patterns = {}
-    self.previousPulses = {}
+    self.noteOffEvents = {}
     self.lattice = lattice:new()
 end
 
@@ -89,22 +90,47 @@ function sequencer:addPattern(division, voiceIndex)
     table.insert(self.patterns, pattern)
 end
 
-function sequencer:setPreviousPulse(voiceIndex, pulse)
-    pulse = pulse or {}
-    self.previousPulses[voiceIndex] = pulse
+function sequencer:addNoteOffPattern()
+    if self.noteOffPattern then
+        return
+    end
+
+    self.noteOffPattern = self.lattice:new_pattern({
+        action = function(t)
+            self:noteOff(t)
+        end,
+        division = 1 / self.lattice.ppqn / 4 -- do every ppqn
+
+    })
 end
 
 function sequencer:playPause()
+    self:addNoteOffPattern()
+
+    if DEBUG then
+        local pattern = self.patterns[DEBUG_MUTE_VOICE]
+        pattern.enabled = false
+    end
+
     if self.lattice.enabled then
         self.lattice:stop()
+        m:stop()
         self:noteOffAll()
     else
         self:refreshProbabilities()
+        if self.lattice.transport == 0 then
+            m:start()
+        else
+            m:continue()
+        end
         self.lattice:start()
     end
 end
 
 function sequencer:reset()
+    print('EVENTS')
+    tab.print(self.noteOffEvents)
+
     self:refreshProbabilities()
     for i = 1, #self.voices do
         self:setActivePulse(i, 1, 1)
@@ -262,16 +288,32 @@ function sequencer:playNote(voiceIndex, pulse)
         return
     end
 
-    self:noteOff(voiceIndex)
-
     if pulse.gateType ~= 'rest' then
         self:noteOn(voiceIndex, pulse)
+
+        local ppqnPerWhole = self.lattice.ppqn * 4
+        local division = self.voices[voiceIndex].division
+        local ppqnGateLength = pulse.gateLength * ppqnPerWhole * division * pulse.duration
+        local ppqnNoteOff = math.ceil(self.lattice.transport + ppqnGateLength) - 1
+        self:addNoteOffEvent(ppqnNoteOff, pulse, voiceIndex)
     end
+
+end
+
+function sequencer:addNoteOffEvent(ppqn, pulse, voiceIndex)
+    if self.noteOffEvents[ppqn] == nil then
+        self.noteOffEvents[ppqn] = {}
+    end
+
+    local event = {
+        voiceIndex = voiceIndex,
+        pulse = pulse
+    }
+
+    table.insert(self.noteOffEvents[ppqn], event)
 end
 
 function sequencer:noteOn(voiceIndex, pulse)
-    self:setPreviousPulse(voiceIndex, pulse)
-
     if DEBUG then
         print(self.lattice.transport, voiceIndex, 'noteOn', pulse.midiNote, pulse.noteName, 127)
     end
@@ -285,25 +327,31 @@ function sequencer:noteOn(voiceIndex, pulse)
     engine.noteOn(voiceIndex, pulse.hz, 100)
 end
 
-function sequencer:noteOff(voiceIndex)
-    local previousPulse = self.previousPulses[voiceIndex]
-    if previousPulse.midiNote then
-        m:note_off(previousPulse.midiNote, 127, voiceIndex)
-        self:setPreviousPulse(voiceIndex)
-
-        if DEBUG then
-            print(self.lattice.transport, voiceIndex, 'noteOff', previousPulse.midiNote, previousPulse.noteName, 127)
-        end
+function sequencer:noteOff(transport)
+    if self.noteOffEvents[transport] == nil then
+        return
     end
 
-    engine.noteOff(voiceIndex)
+    local events = self.noteOffEvents[transport]
+    for k, event in pairs(events) do
+        local pulse = event.pulse
+        m:note_off(pulse.midiNote, 127, event.voiceIndex)
+
+        if DEBUG then
+            print(self.lattice.transport, event.voiceIndex, 'noteOff', pulse.midiNote, pulse.noteName, 127)
+        end
+
+        engine.noteOff(event.voiceIndex)
+    end
+    self.noteOffEvents[transport] = nil
 end
 
 function sequencer:noteOffAll()
-    engine.noteOffAll()
-    for i = 1, #self.voices do
-        self:noteOff(i)
+    for k, v in pairs(self.noteOffEvents) do
+        self:noteOff(k)
     end
+
+    engine.noteOffAll()
 end
 
 return sequencer

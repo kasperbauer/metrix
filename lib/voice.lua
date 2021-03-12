@@ -61,7 +61,7 @@ function voice:new(args)
                 pulseCount = i,
                 ratchetCount = 1,
                 gateType = gateTypes[2],
-                gateLength = gateLengths[3],
+                gateLength = gateLengths[1],
                 note = i,
                 octave = octaves[1],
                 probability = probabilities[1]
