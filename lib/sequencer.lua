@@ -287,7 +287,7 @@ function sequencer:playNote(voiceIndex, pulse)
     end
 
     local voice = self:getVoice(voiceIndex)
-    
+
     if pulse.gateType ~= 'rest' and not voice.mute then
         local transport = self.lattice.transport
 
@@ -349,7 +349,7 @@ function sequencer:noteOn(voiceIndex, pulse)
     m:note_on(pulse.midiNote, 127, voiceIndex)
 
     -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
-    crow.output[(voiceIndex * 2) - 1].action = "{ to(5,0), to(0,0.005) }"
+    crow.output[(voiceIndex * 2) - 1].volts = 5
     crow.output[voiceIndex * 2].volts = pulse.volts
 
     engine.noteOn(voiceIndex, pulse.hz, 100)
@@ -380,7 +380,7 @@ end
 function sequencer:noteOff(voiceIndex, pulse, transport)
     m:note_off(pulse.midiNote, 127, voiceIndex)
     engine.noteOff(voiceIndex)
-
+    crow.output[(voiceIndex * 2) - 1].volts = 0
     if DEBUG then
         print(transport or self.lattice.transport, voiceIndex, 'noteOff', pulse.midiNote, pulse.noteName, 127)
     end
