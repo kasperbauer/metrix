@@ -111,6 +111,8 @@ function sequencer:reset()
         self:resetStepIndex(i)
         self:resetPulseCount(i)
     end
+    -- TODO: activate on next norns release
+    -- self.lattice.hard_restart()
 end
 
 function sequencer:refreshProbabilities()
