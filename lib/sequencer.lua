@@ -213,10 +213,11 @@ function sequencer:prepareNextPulse(voiceIndex, pulse)
 end
 
 function sequencer:advanceToNextStep(voiceIndex, amount)
+    self:refreshProbabilities()
+
     local voice = self:getVoice(voiceIndex)
 
     if self.direction == 'random' then
-        math.randomseed(self.lattice.transport)
         local randomStep = math.random(voice.loop.start, voice.loop.stop)
         self.stepIndex[voiceIndex] = randomStep;
     else
