@@ -270,6 +270,7 @@ function sequencer:playNote(voiceIndex, pulse)
 end
 
 function sequencer:noteOn(voiceIndex, pulse)
+    clock.sleep(0.5)
     self:setPreviousPulse(voiceIndex, pulse)
 
     if DEBUG then
@@ -300,6 +301,9 @@ end
 
 function sequencer:noteOffAll()
     engine.noteOffAll()
+    for i = 1, #self.voices do
+        self:noteOff(i)
+    end
 end
 
 return sequencer
