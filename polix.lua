@@ -369,7 +369,12 @@ function g.key(x, y, z)
 
     -- row 1 & 2: set seq length / loop
     if selectedPage ~= 4 and y <= 2 then
-        if on and altIsHeld() then
+        if shiftIsHeld() then
+            if on then
+                voice = seq:getVoice(y)
+                voice:toggle()
+            end
+        elseif on and altIsHeld() then
             selectVoice(y)
             voice = getSelectedVoice()
             voice:setLoop(1, 8)
@@ -448,7 +453,6 @@ function g.key(x, y, z)
     if selectedPage == 3 and on then
         if y >= 3 and y <= 10 then
             local ratchetCount = 11 - y
-            print(ratchetCount)
             if altIsHeld() then
                 voice:setAll('ratchetCount', ratchetCount)
             else

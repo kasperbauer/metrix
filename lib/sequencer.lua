@@ -286,8 +286,11 @@ function sequencer:playNote(voiceIndex, pulse)
         return
     end
 
-    local transport = self.lattice.transport
-    if pulse.gateType ~= 'rest' then
+    local voice = self:getVoice(voiceIndex)
+    
+    if pulse.gateType ~= 'rest' and not voice.mute then
+        local transport = self.lattice.transport
+
         if pulse.ratchetCount > 1 then
             self:addRatchets(voiceIndex, pulse, transport)
         else

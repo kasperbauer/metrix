@@ -51,6 +51,7 @@ function voice:new(args)
         start = 1,
         stop = 8
     }
+    t.mute = false
 
     if args.steps then
         t.steps = args.steps
@@ -267,6 +268,18 @@ function voice:getVolts(note, scale, octave, rootNote)
 
     local semitones = scale.intervals[note]
     return rootVolts + (semitones * voltsPerSemitone)
+end
+
+function voice:toggle()
+    self.mute = not self.mute
+end
+
+function voice:mute()
+    self.mute = true
+end
+
+function voice:unmute()
+    self.mute = false
 end
 
 return voice
