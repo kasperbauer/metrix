@@ -1,7 +1,7 @@
 lattice = require('lattice')
 voice = include('lib/voice')
 
-local DEBUG = true
+local DEBUG = false
 local DEBUG_MUTE_VOICE = 2
 
 m = midi.connect()
