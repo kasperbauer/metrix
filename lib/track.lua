@@ -63,7 +63,7 @@ function track:new(args)
                 ratchetCount = 1,
                 gateType = gateTypes[2],
                 gateLength = gateLengths[1],
-                note = i,
+                pitch = i,
                 octave = octaves[1],
                 probability = probabilities[1]
             }
@@ -82,8 +82,8 @@ function track:randomize(params)
             if key == 'pulseCount' then
                 self:setPulseCount(step, math.random(1, 8))
             end
-            if key == 'note' then
-                self:setNote(step, math.random(1, 8))
+            if key == 'pitch' then
+                self:setPitch(step, math.random(1, 8))
             end
             if key == 'octave' then
                 self:setOctave(step, octaves[math.random(1, 4)])
@@ -133,8 +133,8 @@ function track:setGateLength(step, gateLength)
     self.steps[step].gateLength = gateLength
 end
 
-function track:setNote(step, note)
-    self.steps[step].note = note
+function track:setPitch(step, pitch)
+    self.steps[step].pitch = pitch
 end
 
 function track:setOctave(step, octave)
@@ -187,15 +187,15 @@ function track:getPulse(stepIndex, pulseCount, scale, rootNote)
     end
 
     local first, last = pulseCount == 1, pulseCount >= step.pulseCount
-    local midiNote = self:getMidiNote(step.note, scale, step.octave, rootNote)
+    local midiNote = self:getMidiNote(step.pitch, scale, step.octave, rootNote)
 
     local pulse = {
-        note = step.note,
+        pitch = step.pitch,
         octave = step.octave,
         midiNote = midiNote,
         hz = self:getHz(midiNote),
-        volts = self:getVolts(step.note, scale, step.octave, rootNote),
-        noteName = self:getNoteName(midiNote),
+        volts = self:getVolts(step.pitch, scale, step.octave, rootNote),
+        pitchName = self:getNoteName(midiNote),
         gateType = step.gateType,
         gateLength = step.gateLength,
         probability = step.probability,
@@ -243,10 +243,10 @@ function track:getPulse(stepIndex, pulseCount, scale, rootNote)
     end
 end
 
-function track:getMidiNote(note, scale, octave, rootNote)
+function track:getMidiNote(pitch, scale, octave, rootNote)
     local rootNoteInOctave = rootNote + (12 * octave)
     local midiScale = musicUtil.generate_scale_of_length(rootNoteInOctave, scale.name, 8)
-    return midiScale[note]
+    return midiScale[pitch]
 end
 
 function track:getHz(midiNote)
@@ -257,16 +257,16 @@ function track:getNoteName(midiNote)
     return musicUtil.note_num_to_name(midiNote)
 end
 
-function track:getVolts(note, scale, octave, rootNote)
+function track:getVolts(pitch, scale, octave, rootNote)
     local voltsPerSemitone = 1 / 12
     local rootVolts = octave + (rootNote * voltsPerSemitone)
 
-    if (note > #scale.intervals) then
-        local factor = math.floor(note / #scale.intervals)
-        note = note - (factor * #scale.intervals)
+    if (pitch > #scale.intervals) then
+        local factor = math.floor(pitch / #scale.intervals)
+        pitch = pitch - (factor * #scale.intervals)
     end
 
-    local semitones = scale.intervals[note]
+    local semitones = scale.intervals[pitch]
     return rootVolts + (semitones * voltsPerSemitone)
 end
 

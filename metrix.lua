@@ -116,7 +116,7 @@ function redrawGrid()
             drawBottomMatrix('gateType', track:getGateTypes())
         end
     elseif selectedPage == 2 then
-        drawTopMatrix('note', false)
+        drawTopMatrix('pitch', false)
         drawBottomMatrix('octave', track:getOctaves())
     elseif selectedPage == 3 then
         drawTopMatrix('ratchetCount', true)
@@ -425,14 +425,14 @@ function g.key(x, y, z)
         end
     end
 
-    -- row 3-10: note & octave matrix
+    -- row 3-10: pitch & octave matrix
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
-            local note = 11 - y
+            local pitch = 11 - y
             if altIsHeld() then
-                track:setAll('note', note)
+                track:setAll('pitch', pitch)
             else
-                track:setNote(stepIndex, note)
+                track:setPitch(stepIndex, pitch)
             end
         elseif y >= 12 and y <= 15 then
             local octaves = track:getOctaves()
@@ -474,7 +474,7 @@ function g.key(x, y, z)
             if x == 1 then
                 track:randomize({'pulseCount', 'gateType', 'gateLength'})
             elseif x == 2 then
-                track:randomize({'note', 'octave'})
+                track:randomize({'pitch', 'octave'})
             elseif x == 3 then
                 track:randomize({'ratchetCount', 'probability'})
             end
