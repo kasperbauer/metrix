@@ -17,13 +17,6 @@ for i = 1, #musicUtil.SCALES do
     end
 end
 
-local playbackOrders = {
-    [1] = 'forward',
-    [2] = 'reverse',
-    [3] = 'alternate',
-    [4] = 'random'
-}
-
 function sequencer:new(onPulseAdvance)
     local t = setmetatable({}, {
         __index = sequencer
@@ -37,8 +30,6 @@ function sequencer:new(onPulseAdvance)
     t.stepIndex = {}
     t.pulseCount = {}
     t.activePulse = {}
-    t.playbackOrder = playbackOrders[1]
-    t.alternatePlaybackOrder = 'forward'
     t.patterns = {}
     t.noteOffPattern = nil
     t.events = {}
@@ -100,6 +91,10 @@ function sequencer:addPattern(division, trackIndex)
         division = division
     })
     table.insert(self.patterns, pattern)
+end
+
+function sequencer:getPattern(patternIndex)
+    return self.patterns[patternIndex]
 end
 
 function sequencer:addEventPattern()
@@ -166,11 +161,11 @@ end
 
 function sequencer:resetStepIndex(trackIndex)
     local track = self:getTrack(trackIndex)
-    if (self.playbackOrder == 'forward') then
+    if (track.playbackOrder == 'forward') then
         self.stepIndex[trackIndex] = track.loop.start
-    elseif (self.playbackOrder == 'reverse') then
+    elseif (track.playbackOrder == 'reverse') then
         self.stepIndex[trackIndex] = track.loop.stop
-    elseif (self.playbackOrder == 'alternate') then
+    elseif (track.playbackOrder == 'alternate') then
         if self.alternatePlaybackOrder == 'forward' then
             self.stepIndex[trackIndex] = track.loop.start
         elseif self.alternatePlaybackOrder == 'forward' then
@@ -220,13 +215,13 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
     else
         self:resetPulseCount(trackIndex)
 
-        if self.playbackOrder == 'forward' then
+        if track.playbackOrder == 'forward' then
             self:advanceToNextStep(trackIndex, 1)
 
-        elseif self.playbackOrder == 'reverse' then
+        elseif track.playbackOrder == 'reverse' then
             self:advanceToNextStep(trackIndex, -1)
 
-        elseif self.playbackOrder == 'alternate' then
+        elseif track.playbackOrder == 'alternate' then
             local stepIndex = self.stepIndex[trackIndex]
 
             if stepIndex == track.loop.stop then
@@ -241,7 +236,7 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
                 self:advanceToNextStep(trackIndex, -1)
             end
 
-        elseif self.playbackOrder == 'random' then
+        elseif track.playbackOrder == 'random' then
             self:advanceToNextStep(trackIndex)
         end
     end
@@ -252,7 +247,7 @@ function sequencer:advanceToNextStep(trackIndex, amount)
 
     local track = self:getTrack(trackIndex)
 
-    if self.playbackOrder == 'random' then
+    if track.playbackOrder == 'random' then
         local randomStep = math.random(track.loop.start, track.loop.stop)
         self.stepIndex[trackIndex] = randomStep;
     else
@@ -274,14 +269,6 @@ function sequencer:setActivePulse(trackIndex, x, y)
         x = x,
         y = y
     }
-end
-
-function sequencer:getPlaybackOrders()
-    return playbackOrders
-end
-
-function sequencer:setPlaybackOrder(playbackOrder)
-    self.playbackOrder = playbackOrder
 end
 
 function sequencer:getScales()

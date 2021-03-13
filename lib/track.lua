@@ -39,6 +39,13 @@ local divisions = {
     [8] = 1 / 32
 }
 
+local playbackOrders = {
+    [1] = 'forward',
+    [2] = 'reverse',
+    [3] = 'alternate',
+    [4] = 'random'
+}
+
 function track:new(args)
     local t = setmetatable({}, {
         __index = track
@@ -52,6 +59,8 @@ function track:new(args)
         stop = 8
     }
     t.mute = false
+    t.playbackOrder = playbackOrders[1]
+    t.alternatePlaybackOrder = 'forward'
 
     if args.steps then
         t.steps = args.steps
@@ -280,6 +289,14 @@ end
 
 function track:unmute()
     self.mute = false
+end
+
+function track.getPlaybackOrders()
+    return playbackOrders
+end
+
+function track:setPlaybackOrder(playbackOrder)
+    self.playbackOrder = playbackOrder
 end
 
 return track

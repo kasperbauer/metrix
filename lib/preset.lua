@@ -29,8 +29,7 @@ function preset:load(id)
     self.current = id
 
     return {
-        tracks = tracks,
-        playbackOrder = data.playbackOrder
+        tracks = tracks
     };
 end
 

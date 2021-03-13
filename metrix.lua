@@ -124,7 +124,7 @@ function redrawGrid()
     elseif selectedPage == 4 then
         drawPresetPicker()
         drawScalePicker()
-        drawDivisionPicker()
+        drawTrackOptions()
     end
 
     if selectedPage ~= 4 then
@@ -139,22 +139,7 @@ end
 function drawBottomRow()
     local y = 16
 
-    if shiftIsHeld() then
-        local playbackOrders = seq:getPlaybackOrders()
-        for x = 1, #playbackOrders do
-            g:led(x, y, 3)
-
-            if seq.playbackOrder == playbackOrders[1] and x == 1 then
-                g:led(x, y, 15)
-            elseif seq.playbackOrder == playbackOrders[2] and x == 2 then
-                g:led(x, y, 15)
-            elseif seq.playbackOrder == playbackOrders[3] and x == 3 then
-                g:led(x, y, 15)
-            elseif seq.playbackOrder == playbackOrders[4] and x == 4 then
-                g:led(x, y, 15)
-            end
-        end
-    elseif modIsHeld() then
+    if modIsHeld() then
         for x = 1, 3 do
             g:led(x, y, 3)
         end
@@ -167,19 +152,11 @@ function drawBottomRow()
 end
 
 function drawShift()
-    if shiftIsHeld() then
-        g:led(8, 16, 15)
-    else
-        g:led(8, 16, 3)
-    end
+    g:led(8, 16, 3)
 end
 
 function drawAlt()
-    if modIsHeld() then
-        g:led(7, 16, 15)
-    else
-        g:led(7, 16, 3)
-    end
+    g:led(7, 16, 3)
 end
 
 function drawLoopPicker()
@@ -312,16 +289,38 @@ function drawScalePicker()
     end
 end
 
-function drawDivisionPicker()
-    for y = 13, 14 do
+function drawTrackOptions()
+    local playbackOrders = track.getPlaybackOrders()
+    local y = 12
+
+    for trackIndex = 1, #seq.tracks do
+        local track = seq:getTrack(trackIndex)
+
+        -- rows 12 & 15: playback orders
+        for x = 1, #playbackOrders do
+            g:led(x, y, 3)
+
+            if track.playbackOrder == playbackOrders[1] and x == 1 then
+                g:led(x, y, 15)
+            elseif track.playbackOrder == playbackOrders[2] and x == 2 then
+                g:led(x, y, 15)
+            elseif track.playbackOrder == playbackOrders[3] and x == 3 then
+                g:led(x, y, 15)
+            elseif track.playbackOrder == playbackOrders[4] and x == 4 then
+                g:led(x, y, 15)
+            end
+        end
+        y = y + 1
+
         for x = 1, 8 do
-            local track = seq.tracks[y - 12];
+            -- rows 13 & 15: divisions
             if x == track:getDivisionIndex() then
                 g:led(x, y, 15)
             else
                 g:led(x, y, 3)
             end
         end
+        y = y + 1
     end
 end
 
@@ -468,10 +467,7 @@ function g.key(x, y, z)
 
     -- row 16: select page
     if on and y == 16 and x <= maxPages then
-        if shiftIsHeld() then
-            local playbackOrders = seq:getPlaybackOrders()
-            seq:setPlaybackOrder(playbackOrders[x])
-        elseif modIsHeld() then
+        if modIsHeld() then
             if x == 1 then
                 track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'gateLength'})
             elseif x == 2 then
@@ -484,8 +480,8 @@ function g.key(x, y, z)
         end
     end
 
-    -- row 1-4: load presets
     if selectedPage == 4 and on then
+        -- row 1-4: load presets
         if y >= 1 and y <= 4 then
             local presetIndex = (y - 1) * 8 + x
             if shiftIsHeld() and modIsHeld() then
@@ -499,15 +495,32 @@ function g.key(x, y, z)
 
         local scaleRows, scaleIndex = math.ceil(#scales / 8), (y - 6) * 8 + x
 
+        -- rows 6 - ?
         if y >= 6 and y <= 6 + scaleRows and scaleIndex <= #scales then
             selectScale(scaleIndex)
         end
 
-        if y == 13 or y == 14 then
+        -- rows 12 & 14: playback order
+        if (y == 12 or y == 14) and x <= 4 then
+            local trackIndex = 1
+            if y == 14 then
+                trackIndex = 2
+            end
+            local track = seq:getTrack(trackIndex)
+            local playbackOrders = track:getPlaybackOrders()
+            track:setPlaybackOrder(playbackOrders[x])
+        end
+
+        -- rows 13 & 15: divisions
+        if y == 13 or y == 15 then
+            local trackIndex = 1
+            if y == 15 then
+                trackIndex = 2
+            end
             local divisions = track:getDivisions()
             local division = divisions[x]
-            local track = seq.tracks[y - 12]
-            local pattern = seq.patterns[y - 12];
+            local track = seq:getTrack(trackIndex)
+            local pattern = seq:getPattern(trackIndex)
             track:setDivision(division)
             pattern:set_division(division)
         end
@@ -548,7 +561,6 @@ function loadPreset(presetIndex)
     end
 
     seq:resetTracks()
-    seq:setPlaybackOrder(data.playbackOrder)
 
     for i, track in pairs(data.tracks) do
         seq:addTrack(track)
@@ -560,8 +572,7 @@ end
 
 function savePreset(presetIndex)
     local data = {
-        tracks = seq.tracks,
-        playbackOrder = seq.playbackOrder
+        tracks = seq.tracks
     }
     pre:save(presetIndex, data)
 end
