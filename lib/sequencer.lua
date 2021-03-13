@@ -17,7 +17,7 @@ for i = 1, #musicUtil.SCALES do
     end
 end
 
-local directions = {
+local playbackOrders = {
     [1] = 'forward',
     [2] = 'reverse',
     [3] = 'alternate',
@@ -36,7 +36,7 @@ function sequencer:new(onPulseAdvance)
     t.stepIndex = {}
     t.pulseCount = {}
     t.activePulse = {}
-    t.direction = directions[1]
+    t.playbackOrder = playbackOrders[1]
     t.alternateDirection = 'forward'
     t.patterns = {}
     t.noteOffPattern = nil
@@ -155,11 +155,11 @@ end
 
 function sequencer:resetStepIndex(trackIndex)
     local track = self:getVoice(trackIndex)
-    if (self.direction == 'forward') then
+    if (self.playbackOrder == 'forward') then
         self.stepIndex[trackIndex] = track.loop.start
-    elseif (self.direction == 'reverse') then
+    elseif (self.playbackOrder == 'reverse') then
         self.stepIndex[trackIndex] = track.loop.stop
-    elseif (self.direction == 'alternate') then
+    elseif (self.playbackOrder == 'alternate') then
         if self.alternateDirection == 'forward' then
             self.stepIndex[trackIndex] = track.loop.start
         elseif self.alternateDirection == 'forward' then
@@ -209,13 +209,13 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
     else
         self:resetPulseCount(trackIndex)
 
-        if self.direction == 'forward' then
+        if self.playbackOrder == 'forward' then
             self:advanceToNextStep(trackIndex, 1)
 
-        elseif self.direction == 'reverse' then
+        elseif self.playbackOrder == 'reverse' then
             self:advanceToNextStep(trackIndex, -1)
 
-        elseif self.direction == 'alternate' then
+        elseif self.playbackOrder == 'alternate' then
             local stepIndex = self.stepIndex[trackIndex]
 
             if stepIndex == track.loop.stop then
@@ -230,7 +230,7 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
                 self:advanceToNextStep(trackIndex, -1)
             end
 
-        elseif self.direction == 'random' then
+        elseif self.playbackOrder == 'random' then
             self:advanceToNextStep(trackIndex)
         end
     end
@@ -241,7 +241,7 @@ function sequencer:advanceToNextStep(trackIndex, amount)
 
     local track = self:getVoice(trackIndex)
 
-    if self.direction == 'random' then
+    if self.playbackOrder == 'random' then
         local randomStep = math.random(track.loop.start, track.loop.stop)
         self.stepIndex[trackIndex] = randomStep;
     else
@@ -266,11 +266,11 @@ function sequencer:setActivePulse(trackIndex, x, y)
 end
 
 function sequencer:getDirections()
-    return directions
+    return playbackOrders
 end
 
-function sequencer:setDirection(direction)
-    self.direction = direction
+function sequencer:setDirection(playbackOrder)
+    self.playbackOrder = playbackOrder
 end
 
 function sequencer:getScales()

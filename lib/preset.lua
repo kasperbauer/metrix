@@ -27,7 +27,7 @@ function preset:load(id)
 
     return {
         tracks = tracks,
-        direction = data.direction
+        playbackOrder = data.playbackOrder
     };
 end
 

@@ -144,17 +144,17 @@ function drawBottomRow()
     local y = 16
 
     if shiftIsHeld() then
-        local directions = seq:getDirections()
-        for x = 1, #directions do
+        local playbackOrders = seq:getDirections()
+        for x = 1, #playbackOrders do
             g:led(x, y, 3)
 
-            if seq.direction == directions[1] and x == 1 then
+            if seq.playbackOrder == playbackOrders[1] and x == 1 then
                 g:led(x, y, 15)
-            elseif seq.direction == directions[2] and x == 2 then
+            elseif seq.playbackOrder == playbackOrders[2] and x == 2 then
                 g:led(x, y, 15)
-            elseif seq.direction == directions[3] and x == 3 then
+            elseif seq.playbackOrder == playbackOrders[3] and x == 3 then
                 g:led(x, y, 15)
-            elseif seq.direction == directions[4] and x == 4 then
+            elseif seq.playbackOrder == playbackOrders[4] and x == 4 then
                 g:led(x, y, 15)
             end
         end
@@ -472,8 +472,8 @@ function g.key(x, y, z)
     -- row 16: select page
     if on and y == 16 and x <= maxPages then
         if shiftIsHeld() then
-            local directions = seq:getDirections()
-            seq:setDirection(directions[x])
+            local playbackOrders = seq:getDirections()
+            seq:setDirection(playbackOrders[x])
         elseif altIsHeld() then
             if x == 1 then
                 track:randomize({'pulseCount', 'gateType', 'gateLength'})
@@ -555,7 +555,7 @@ function loadPreset(presetIndex)
     end
 
     seq:resetVoices()
-    seq:setDirection(data.direction)
+    seq:setDirection(data.playbackOrder)
 
     for i, track in pairs(data.tracks) do
         seq:addVoice(track)
@@ -567,7 +567,7 @@ end
 function savePreset(presetIndex)
     local data = {
         tracks = seq.tracks,
-        direction = seq.direction
+        playbackOrder = seq.playbackOrder
     }
     selectedPreset = presetIndex
     preset:save(presetIndex, data)
