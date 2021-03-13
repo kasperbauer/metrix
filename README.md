@@ -1,2 +1,2 @@
-# polix
+# metrix
 metropolix for norns

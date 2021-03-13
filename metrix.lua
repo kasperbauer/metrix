@@ -1,8 +1,8 @@
 --
 --
--- polix v0.1
+-- metrix v0.1
 -- metropolix for norns
--- github.com/kasperbauer/polix
+-- github.com/kasperbauer/metrix
 --
 --
 musicUtil = require('lib/musicutil')
@@ -71,7 +71,7 @@ end
 function redraw()
     screen.clear()
     screen.move(0, 8)
-    screen.text('POLIX')
+    screen.text('METRIX')
     screen.move(0, 48)
     if seq then
         screen.text(seq.lattice.transport)

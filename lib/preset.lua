@@ -6,7 +6,7 @@ function preset:new()
         __index = preset
     })
 
-    t.path = _path.code .. 'polix/presets/'
+    t.path = _path.code .. 'metrix/presets/'
     util.make_dir(t.path)
 
     return t
