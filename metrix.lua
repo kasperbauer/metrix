@@ -473,11 +473,11 @@ function g.key(x, y, z)
             seq:setPlaybackOrder(playbackOrders[x])
         elseif modIsHeld() then
             if x == 1 then
-                track:randomize({'pulseCount', 'gateType', 'gateLength'})
+                track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'gateLength'})
             elseif x == 2 then
                 track:randomize({'pitch', 'octave'})
             elseif x == 3 then
-                track:randomize({'ratchetCount', 'probability'})
+                track:randomize({'probability'})
             end
         else
             selectPage(x)
