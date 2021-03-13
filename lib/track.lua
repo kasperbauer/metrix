@@ -1,3 +1,5 @@
+include('lib/helpers')
+
 local track = {}
 
 local gateTypes = {
@@ -89,7 +91,7 @@ function track:randomize(params)
         local key = params[i]
         for step = 1, 8 do
             if key == 'pulseCount' then
-                self:setPulseCount(step, math.random(1, 8))
+                self:setPulseCount(step, math.lowerRandom(1, 8))
             end
             if key == 'pitch' then
                 self:setPitch(step, math.random(1, 8))
@@ -104,7 +106,7 @@ function track:randomize(params)
                 self:setGateLength(step, gateLengths[math.random(1, 4)])
             end
             if key == 'ratchetCount' then
-                self:setRatchetCount(step, math.random(1, 8))
+                self:setRatchetCount(step, math.lowerRandom(1, 8))
             end
             if key == 'probability' then
                 self:setProbability(step, probabilities[math.random(1, 4)])
