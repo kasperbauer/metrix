@@ -30,9 +30,6 @@ for x = 1, 8 do
     end
 end
 
--- tracks data
-local selectedTrack = 1
-
 -- grid state helpers
 local loopWasSelected = false
 local trackWasSelected = false
@@ -41,7 +38,7 @@ local trackWasSelected = false
 pre = preset:new()
 
 -- sequencer
-local seq = sequencer:new(function()
+seq = sequencer:new(function()
     requestGridRedraw()
     requestScreenRedraw()
 end)
@@ -189,7 +186,7 @@ function drawLoopPicker()
     for y = 1, 2 do
         for x = 1, 8 do
             local track = seq:getTrack(y);
-            local isSelected, start, stop = selectedTrack == y, track.loop.start, track.loop.stop
+            local isSelected, start, stop = seq.currentTrack == y, track.loop.start, track.loop.stop
 
             if (x >= start and x <= stop) then
                 if (isSelected) then
@@ -209,7 +206,7 @@ function drawLoopPicker()
 end
 
 function drawTopMatrix(paramName, filled)
-    local track = getSelectedTrack()
+    local track = seq:getCurrentTrack()
 
     for x = 1, 8 do
         for y = 3, 10 do
@@ -243,7 +240,7 @@ function drawTopMatrix(paramName, filled)
 end
 
 function drawBottomMatrix(param, options)
-    local track = getSelectedTrack()
+    local track = seq:getCurrentTrack()
 
     for x = 1, 8 do
         local value = track.steps[x][param]
@@ -339,9 +336,9 @@ function drawMomentary()
 end
 
 function drawActivePulse()
-    if seq.activePulse[selectedTrack] then
-        local x = seq.activePulse[selectedTrack].x
-        local y = 11 - seq.activePulse[selectedTrack].y
+    if seq.activePulse[seq.currentTrack] then
+        local x = seq.activePulse[seq.currentTrack].x
+        local y = 11 - seq.activePulse[seq.currentTrack].y
         g:led(x, y, 15);
     end
 end
@@ -360,7 +357,7 @@ end
 
 function g.key(x, y, z)
     local on, off = z == 1, z == 0
-    local stepIndex, track = x, getSelectedTrack()
+    local stepIndex, track = x, seq:getCurrentTrack()
     local step = track.steps[stepIndex]
     local held, tapped = getMomentariesInRow(y), x
 
@@ -375,9 +372,9 @@ function g.key(x, y, z)
             end
         elseif on and altIsHeld() then
             selectTrack(y)
-            track = getSelectedTrack()
+            track = seq:getCurrentTrack()
             track:setLoop(1, 8)
-        elseif selectedTrack ~= y then
+        elseif seq.currentTrack ~= y then
             selectTrack(y)
         else
             local pushed = getMomentariesInRow(y)
@@ -538,10 +535,6 @@ function altIsHeld()
     return momentary[7][16];
 end
 
-function getSelectedTrack()
-    return seq:getTrack(selectedTrack)
-end
-
 function selectPage(pageNumber)
     selectedPage = pageNumber or 1
 end
@@ -559,6 +552,8 @@ function loadPreset(presetIndex)
     for i, track in pairs(data.tracks) do
         seq:addTrack(track)
     end
+    seq:changeTrack(1)
+
     requestGridRedraw()
 end
 
@@ -570,8 +565,8 @@ function savePreset(presetIndex)
     pre:save(presetIndex, data)
 end
 
-function selectTrack(trackNumber)
-    selectedTrack = trackNumber
+function selectTrack(trackIndex)
+    seq:changeTrack(trackIndex)
     trackWasSelected = true
 end
 

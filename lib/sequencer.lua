@@ -32,6 +32,7 @@ function sequencer:new(onPulseAdvance)
     t.lattice = lattice:new()
     t.lattice.ppqn = 192
     t.tracks = {}
+    t.currentTrack = 0
     t.probabilities = {}
     t.stepIndex = {}
     t.pulseCount = {}
@@ -58,6 +59,7 @@ function sequencer:addTracks(trackCount)
     for i = 1, trackCount do
         self:addTrack()
     end
+    self.currentTrack = 1
 end
 
 function sequencer:addTrack(args)
@@ -67,6 +69,7 @@ function sequencer:addTrack(args)
     self:addPattern(track.division, trackIndex)
     self:resetStepIndex(trackIndex)
     self:resetPulseCount(trackIndex)
+    self.currentTrack = trackIndex
 end
 
 function sequencer:resetTracks()
@@ -76,8 +79,16 @@ function sequencer:resetTracks()
     self.lattice = lattice:new()
 end
 
+function sequencer:getCurrentTrack()
+    return self.tracks[self.currentTrack]
+end
+
 function sequencer:getTrack(trackIndex)
     return self.tracks[trackIndex]
+end
+
+function sequencer:changeTrack(trackIndex)
+    self.currentTrack = trackIndex
 end
 
 function sequencer:addPattern(division, trackIndex)
