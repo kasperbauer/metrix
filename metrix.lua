@@ -113,11 +113,11 @@ function redrawGrid()
             drawTopMatrix('ratchetCount', true)
             drawBottomMatrix('gateLength', track:getGateLengths())
         else
-            drawTopMatrix('pulseCount', true)
+            drawPulseCountMatrix()
             drawBottomMatrix('gateType', track:getGateTypes())
         end
     elseif selectedPage == 2 then
-        drawTopMatrix('pitch', false)
+        drawTopMatrix('pitch')
         drawBottomMatrix('octave', track:getOctaves())
     elseif selectedPage == 3 then
         drawBottomMatrix('probability', track:getProbabilities())
@@ -183,6 +183,8 @@ function drawLoopPicker()
 end
 
 function drawTopMatrix(paramName, filled)
+    filled = filled or false
+
     local track = seq:getCurrentTrack()
 
     for x = 1, 8 do
@@ -254,6 +256,36 @@ end
 
 function stepInLoop(stepIndex, track)
     return stepIndex >= track.loop.start and stepIndex <= track.loop.stop
+end
+
+function drawPulseCountMatrix()
+    drawTopMatrix('pulseCount')
+
+    local track = seq:getCurrentTrack()
+
+    for x = 1, 8 do
+        local step = track:getStep(x)
+
+        if step.gateType == 'rest' or step.gateType == 'single' or step.gateType == 'hold' then
+            for i = 1, step.pulseCount do
+                g:led(x, 11 - i, 7)
+            end
+        end
+
+        if step.gateType == 'hold' then
+            g:led(x, 11 - step.pulseCount, 11)
+        end
+
+        if step.gateType == 'single' then
+            g:led(x, 10, 11)
+        end
+
+        if step.gateType == 'multiple' then
+            for i = 1, step.pulseCount do
+                g:led(x, 11 - i, 11)
+            end
+        end
+    end
 end
 
 function drawPresetPicker()
