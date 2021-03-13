@@ -54,13 +54,13 @@ function sequencer:new(onPulseAdvance)
     return t
 end
 
-function sequencer:addVoices(trackCount)
+function sequencer:addTracks(trackCount)
     for i = 1, trackCount do
-        self:addVoice()
+        self:addTrack()
     end
 end
 
-function sequencer:addVoice(args)
+function sequencer:addTrack(args)
     local track = track:new(args)
     table.insert(self.tracks, track)
     local trackIndex = #self.tracks
@@ -69,14 +69,14 @@ function sequencer:addVoice(args)
     self:resetPulseCount(trackIndex)
 end
 
-function sequencer:resetVoices()
+function sequencer:resetTracks()
     self.tracks = {}
     self.patterns = {}
     self.events = {}
     self.lattice = lattice:new()
 end
 
-function sequencer:getVoice(trackIndex)
+function sequencer:getTrack(trackIndex)
     return self.tracks[trackIndex]
 end
 
@@ -154,7 +154,7 @@ function sequencer:refreshProbabilities()
 end
 
 function sequencer:resetStepIndex(trackIndex)
-    local track = self:getVoice(trackIndex)
+    local track = self:getTrack(trackIndex)
     if (self.playbackOrder == 'forward') then
         self.stepIndex[trackIndex] = track.loop.start
     elseif (self.playbackOrder == 'reverse') then
@@ -169,14 +169,14 @@ function sequencer:resetStepIndex(trackIndex)
 end
 
 function sequencer:resetPulseCount(trackIndex)
-    local track = self:getVoice(trackIndex)
+    local track = self:getTrack(trackIndex)
     self.pulseCount[trackIndex] = 1
 end
 
 function sequencer:advanceToNextPulse(trackIndex)
     self:setActivePulse(trackIndex)
 
-    local track = self:getVoice(trackIndex)
+    local track = self:getTrack(trackIndex)
     local stepIndex = self.stepIndex[trackIndex]
     local pulseCount = self.pulseCount[trackIndex]
     local pulse = track:getPulse(stepIndex, pulseCount, self.scale, self.rootNote)
@@ -199,7 +199,7 @@ function sequencer:advanceToNextPulse(trackIndex)
 end
 
 function sequencer:prepareNextPulse(trackIndex, pulse)
-    local track = self:getVoice(trackIndex)
+    local track = self:getTrack(trackIndex)
 
     if pulse and not pulse.last then
         self.pulseCount[trackIndex] = self.pulseCount[trackIndex] + 1
@@ -239,7 +239,7 @@ end
 function sequencer:advanceToNextStep(trackIndex, amount)
     self:refreshProbabilities()
 
-    local track = self:getVoice(trackIndex)
+    local track = self:getTrack(trackIndex)
 
     if self.playbackOrder == 'random' then
         local randomStep = math.random(track.loop.start, track.loop.stop)
@@ -286,7 +286,7 @@ function sequencer:playNote(trackIndex, pulse)
         return
     end
 
-    local track = self:getVoice(trackIndex)
+    local track = self:getTrack(trackIndex)
 
     if pulse.gateType ~= 'rest' and not track.mute then
         local transport = self.lattice.transport
