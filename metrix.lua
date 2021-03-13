@@ -192,14 +192,14 @@ function drawTopMatrix(paramName, filled)
             local value = track.steps[x][paramName]
 
             if stepInLoop(x, track) then
-                if y == 10 then
-                    g:led(x, y, 11)
-                elseif 11 - y == value then
+                if 11 - y == value then
                     g:led(x, y, 7)
                 elseif 11 - y < value and filled then
                     g:led(x, y, 7)
                 elseif 11 - y < value and filled == false then
                     g:led(x, y, 3)
+                elseif y == 10 then
+                    g:led(x, y, 11)
                 else
                     g:led(x, y, 0)
                 end
