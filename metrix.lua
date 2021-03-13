@@ -154,7 +154,7 @@ function drawBottomRow()
                 g:led(x, y, 15)
             end
         end
-    elseif altIsHeld() then
+    elseif modIsHeld() then
         for x = 1, 3 do
             g:led(x, y, 3)
         end
@@ -175,7 +175,7 @@ function drawShift()
 end
 
 function drawAlt()
-    if altIsHeld() then
+    if modIsHeld() then
         g:led(7, 16, 15)
     else
         g:led(7, 16, 3)
@@ -370,7 +370,7 @@ function g.key(x, y, z)
                 track = seq:getTrack(y)
                 track:toggle()
             end
-        elseif on and altIsHeld() then
+        elseif on and modIsHeld() then
             selectTrack(y)
             track = seq:getCurrentTrack()
             track:setLoop(1, 8)
@@ -399,14 +399,14 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             if shiftIsHeld() then
                 local ratchetCount = 11 - y
-                if altIsHeld() then
+                if modIsHeld() then
                     track:setAll('ratchetCount', ratchetCount)
                 else
                     track:setRatchetCount(stepIndex, ratchetCount)
                 end
             else
                 local pulseCount = 11 - y
-                if altIsHeld() then
+                if modIsHeld() then
                     track:setAll('pulseCount', pulseCount)
                 else
                     track:setPulseCount(stepIndex, pulseCount)
@@ -416,7 +416,7 @@ function g.key(x, y, z)
             if shiftIsHeld() then
                 local gateLengths = track:getGateLengths()
                 local gateLength = gateLengths[math.abs(11 - y)]
-                if altIsHeld() then
+                if modIsHeld() then
                     track:setAll('gateLength', gateLength)
                 else
                     track:setGateLength(stepIndex, gateLength)
@@ -424,7 +424,7 @@ function g.key(x, y, z)
             else
                 local gateTypes = track:getGateTypes()
                 local gateType = gateTypes[math.abs(11 - y)]
-                if altIsHeld() then
+                if modIsHeld() then
                     track:setAll('gateType', gateType)
                 else
                     track:setGateType(stepIndex, gateType)
@@ -437,7 +437,7 @@ function g.key(x, y, z)
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
             local pitch = 11 - y
-            if altIsHeld() then
+            if modIsHeld() then
                 track:setAll('pitch', pitch)
             else
                 track:setPitch(stepIndex, pitch)
@@ -445,7 +445,7 @@ function g.key(x, y, z)
         elseif y >= 12 and y <= 15 then
             local octaves = track:getOctaves()
             local octave = octaves[y - 11]
-            if altIsHeld() then
+            if modIsHeld() then
                 track:setAll('octave', octave)
             else
                 track:setOctave(stepIndex, octave)
@@ -458,7 +458,7 @@ function g.key(x, y, z)
         if y >= 12 and y <= 15 then
             local probabilities = track:getProbabilities()
             local probability = probabilities[y - 11]
-            if altIsHeld() then
+            if modIsHeld() then
                 track:setAll('probability', probability)
             else
                 track:setProbability(stepIndex, probability)
@@ -471,7 +471,7 @@ function g.key(x, y, z)
         if shiftIsHeld() then
             local playbackOrders = seq:getPlaybackOrders()
             seq:setPlaybackOrder(playbackOrders[x])
-        elseif altIsHeld() then
+        elseif modIsHeld() then
             if x == 1 then
                 track:randomize({'pulseCount', 'gateType', 'gateLength'})
             elseif x == 2 then
@@ -488,7 +488,7 @@ function g.key(x, y, z)
     if selectedPage == 4 and on then
         if y >= 1 and y <= 4 then
             local presetIndex = (y - 1) * 8 + x
-            if shiftIsHeld() and altIsHeld() then
+            if shiftIsHeld() and modIsHeld() then
                 pre:delete(presetIndex)
             elseif shiftIsHeld() then
                 savePreset(presetIndex)
@@ -532,7 +532,7 @@ function shiftIsHeld()
     return momentary[8][16];
 end
 
-function altIsHeld()
+function modIsHeld()
     return momentary[7][16];
 end
 
