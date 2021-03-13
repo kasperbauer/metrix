@@ -158,10 +158,6 @@ function track:setDivision(division)
     self.division = division
 end
 
-function track:getStep(stepIndex)
-    return self.steps[stepIndex]
-end
-
 function track:getGateTypes()
     return gateTypes
 end
