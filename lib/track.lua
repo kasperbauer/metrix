@@ -1,4 +1,4 @@
-local voice = {}
+local track = {}
 
 local gateTypes = {
     [1] = 'hold',
@@ -39,9 +39,9 @@ local divisions = {
     [8] = 1 / 32
 }
 
-function voice:new(args)
+function track:new(args)
     local t = setmetatable({}, {
-        __index = voice
+        __index = track
     })
 
     args = args or {}
@@ -74,7 +74,7 @@ function voice:new(args)
     return t
 end
 
-function voice:randomize(params)
+function track:randomize(params)
     math.randomseed(util.time())
     for i = 1, #params do
         local key = params[i]
@@ -105,7 +105,7 @@ function voice:randomize(params)
 
 end
 
-function voice:setLoop(start, stop)
+function track:setLoop(start, stop)
     -- switch start / stop values if start > stop
     if start > stop then
         local temp = start
@@ -117,69 +117,69 @@ function voice:setLoop(start, stop)
     self.loop.stop = stop or 8
 end
 
-function voice:setPulseCount(step, pulseCount)
+function track:setPulseCount(step, pulseCount)
     self.steps[step].pulseCount = pulseCount
 end
 
-function voice:setRatchetCount(step, ratchetCount)
+function track:setRatchetCount(step, ratchetCount)
     self.steps[step].ratchetCount = ratchetCount
 end
 
-function voice:setGateType(step, gateType)
+function track:setGateType(step, gateType)
     self.steps[step].gateType = gateType
 end
 
-function voice:setGateLength(step, gateLength)
+function track:setGateLength(step, gateLength)
     self.steps[step].gateLength = gateLength
 end
 
-function voice:setNote(step, note)
+function track:setNote(step, note)
     self.steps[step].note = note
 end
 
-function voice:setOctave(step, octave)
+function track:setOctave(step, octave)
     self.steps[step].octave = octave
 end
 
-function voice:setProbability(step, probability)
+function track:setProbability(step, probability)
     self.steps[step].probability = probability
 end
 
-function voice:setDivision(division)
+function track:setDivision(division)
     self.division = division
 end
 
-function voice:getGateTypes()
+function track:getGateTypes()
     return gateTypes
 end
 
-function voice:getGateLengths()
+function track:getGateLengths()
     return gateLengths
 end
 
-function voice:getProbabilities()
+function track:getProbabilities()
     return probabilities
 end
 
-function voice:getOctaves()
+function track:getOctaves()
     return octaves
 end
 
-function voice:getDivisions()
+function track:getDivisions()
     return divisions
 end
 
-function voice:getDivisionIndex()
+function track:getDivisionIndex()
     return tab.key(divisions, self.division)
 end
 
-function voice:setAll(param, value)
+function track:setAll(param, value)
     for i = 1, 8 do
         self.steps[i][param] = value
     end
 end
 
-function voice:getPulse(stepIndex, pulseCount, scale, rootNote)
+function track:getPulse(stepIndex, pulseCount, scale, rootNote)
     local step = self.steps[stepIndex]
 
     if pulseCount > step.pulseCount then
@@ -243,21 +243,21 @@ function voice:getPulse(stepIndex, pulseCount, scale, rootNote)
     end
 end
 
-function voice:getMidiNote(note, scale, octave, rootNote)
+function track:getMidiNote(note, scale, octave, rootNote)
     local rootNoteInOctave = rootNote + (12 * octave)
     local midiScale = musicUtil.generate_scale_of_length(rootNoteInOctave, scale.name, 8)
     return midiScale[note]
 end
 
-function voice:getHz(midiNote)
+function track:getHz(midiNote)
     return musicUtil.note_num_to_freq(midiNote)
 end
 
-function voice:getNoteName(midiNote)
+function track:getNoteName(midiNote)
     return musicUtil.note_num_to_name(midiNote)
 end
 
-function voice:getVolts(note, scale, octave, rootNote)
+function track:getVolts(note, scale, octave, rootNote)
     local voltsPerSemitone = 1 / 12
     local rootVolts = octave + (rootNote * voltsPerSemitone)
 
@@ -270,16 +270,16 @@ function voice:getVolts(note, scale, octave, rootNote)
     return rootVolts + (semitones * voltsPerSemitone)
 end
 
-function voice:toggle()
+function track:toggle()
     self.mute = not self.mute
 end
 
-function voice:mute()
+function track:mute()
     self.mute = true
 end
 
-function voice:unmute()
+function track:unmute()
     self.mute = false
 end
 
-return voice
+return track

@@ -1,5 +1,5 @@
 lattice = require('lattice')
-voice = include('lib/voice')
+track = include('lib/track')
 
 local DEBUG = false
 local DEBUG_MUTE_VOICE = 2
@@ -31,7 +31,7 @@ function sequencer:new(onPulseAdvance)
 
     t.lattice = lattice:new()
     t.lattice.ppqn = 192
-    t.voices = {}
+    t.tracks = {}
     t.probabilities = {}
     t.stepIndex = {}
     t.pulseCount = {}
@@ -54,36 +54,36 @@ function sequencer:new(onPulseAdvance)
     return t
 end
 
-function sequencer:addVoices(voiceCount)
-    for i = 1, voiceCount do
+function sequencer:addVoices(trackCount)
+    for i = 1, trackCount do
         self:addVoice()
     end
 end
 
 function sequencer:addVoice(args)
-    local voice = voice:new(args)
-    table.insert(self.voices, voice)
-    local voiceIndex = #self.voices
-    self:addPattern(voice.division, voiceIndex)
-    self:resetStepIndex(voiceIndex)
-    self:resetPulseCount(voiceIndex)
+    local track = track:new(args)
+    table.insert(self.tracks, track)
+    local trackIndex = #self.tracks
+    self:addPattern(track.division, trackIndex)
+    self:resetStepIndex(trackIndex)
+    self:resetPulseCount(trackIndex)
 end
 
 function sequencer:resetVoices()
-    self.voices = {}
+    self.tracks = {}
     self.patterns = {}
     self.events = {}
     self.lattice = lattice:new()
 end
 
-function sequencer:getVoice(voiceIndex)
-    return self.voices[voiceIndex]
+function sequencer:getVoice(trackIndex)
+    return self.tracks[trackIndex]
 end
 
-function sequencer:addPattern(division, voiceIndex)
+function sequencer:addPattern(division, trackIndex)
     local pattern = self.lattice:new_pattern({
         action = function()
-            self:advanceToNextPulse(voiceIndex)
+            self:advanceToNextPulse(trackIndex)
             self.onPulseAdvance()
         end,
         division = division
@@ -130,7 +130,7 @@ end
 
 function sequencer:reset()
     self:refreshProbabilities()
-    for i = 1, #self.voices do
+    for i = 1, #self.tracks do
         self:setActivePulse(i, 1, 1)
         self:resetStepIndex(i)
         self:resetPulseCount(i)
@@ -142,124 +142,124 @@ end
 function sequencer:refreshProbabilities()
     math.randomseed(self.lattice.transport)
 
-    for voiceIndex = 1, #self.voices do
+    for trackIndex = 1, #self.tracks do
         local probabilities = {}
         for i = 1, 8 do
             table.insert(probabilities, math.random(1, 100) / 100)
         end
-        self.probabilities[voiceIndex] = probabilities
+        self.probabilities[trackIndex] = probabilities
     end
 
     local prob = self.probabilities[1]
 end
 
-function sequencer:resetStepIndex(voiceIndex)
-    local voice = self:getVoice(voiceIndex)
+function sequencer:resetStepIndex(trackIndex)
+    local track = self:getVoice(trackIndex)
     if (self.direction == 'forward') then
-        self.stepIndex[voiceIndex] = voice.loop.start
+        self.stepIndex[trackIndex] = track.loop.start
     elseif (self.direction == 'reverse') then
-        self.stepIndex[voiceIndex] = voice.loop.stop
+        self.stepIndex[trackIndex] = track.loop.stop
     elseif (self.direction == 'alternate') then
         if self.alternateDirection == 'forward' then
-            self.stepIndex[voiceIndex] = voice.loop.start
+            self.stepIndex[trackIndex] = track.loop.start
         elseif self.alternateDirection == 'forward' then
-            self.stepIndex[voiceIndex] = voice.loop.stop
+            self.stepIndex[trackIndex] = track.loop.stop
         end
     end
 end
 
-function sequencer:resetPulseCount(voiceIndex)
-    local voice = self:getVoice(voiceIndex)
-    self.pulseCount[voiceIndex] = 1
+function sequencer:resetPulseCount(trackIndex)
+    local track = self:getVoice(trackIndex)
+    self.pulseCount[trackIndex] = 1
 end
 
-function sequencer:advanceToNextPulse(voiceIndex)
-    self:setActivePulse(voiceIndex)
+function sequencer:advanceToNextPulse(trackIndex)
+    self:setActivePulse(trackIndex)
 
-    local voice = self:getVoice(voiceIndex)
-    local stepIndex = self.stepIndex[voiceIndex]
-    local pulseCount = self.pulseCount[voiceIndex]
-    local pulse = voice:getPulse(stepIndex, pulseCount, self.scale, self.rootNote)
+    local track = self:getVoice(trackIndex)
+    local stepIndex = self.stepIndex[trackIndex]
+    local pulseCount = self.pulseCount[trackIndex]
+    local pulse = track:getPulse(stepIndex, pulseCount, self.scale, self.rootNote)
 
-    if pulse == nil or stepIndex < voice.loop.start or stepIndex > voice.loop.stop then
-        self:prepareNextPulse(voiceIndex, pulse)
-        self:advanceToNextPulse(voiceIndex)
+    if pulse == nil or stepIndex < track.loop.start or stepIndex > track.loop.stop then
+        self:prepareNextPulse(trackIndex, pulse)
+        self:advanceToNextPulse(trackIndex)
         return
     end
 
     local pulseProbability = pulse.probability or 1
-    local stepProbability = self.probabilities[voiceIndex][stepIndex]
+    local stepProbability = self.probabilities[trackIndex][stepIndex]
     local skip = pulseProbability < stepProbability
 
     if not skip then
-        self:playNote(voiceIndex, pulse)
+        self:playNote(trackIndex, pulse)
     end
 
-    self:prepareNextPulse(voiceIndex, pulse)
+    self:prepareNextPulse(trackIndex, pulse)
 end
 
-function sequencer:prepareNextPulse(voiceIndex, pulse)
-    local voice = self:getVoice(voiceIndex)
+function sequencer:prepareNextPulse(trackIndex, pulse)
+    local track = self:getVoice(trackIndex)
 
     if pulse and not pulse.last then
-        self.pulseCount[voiceIndex] = self.pulseCount[voiceIndex] + 1
-    elseif voice.loop.start == voice.loop.stop then
-        self.stepIndex[voiceIndex] = voice.loop.start
-        self:resetPulseCount(voiceIndex)
+        self.pulseCount[trackIndex] = self.pulseCount[trackIndex] + 1
+    elseif track.loop.start == track.loop.stop then
+        self.stepIndex[trackIndex] = track.loop.start
+        self:resetPulseCount(trackIndex)
     else
-        self:resetPulseCount(voiceIndex)
+        self:resetPulseCount(trackIndex)
 
         if self.direction == 'forward' then
-            self:advanceToNextStep(voiceIndex, 1)
+            self:advanceToNextStep(trackIndex, 1)
 
         elseif self.direction == 'reverse' then
-            self:advanceToNextStep(voiceIndex, -1)
+            self:advanceToNextStep(trackIndex, -1)
 
         elseif self.direction == 'alternate' then
-            local stepIndex = self.stepIndex[voiceIndex]
+            local stepIndex = self.stepIndex[trackIndex]
 
-            if stepIndex == voice.loop.stop then
+            if stepIndex == track.loop.stop then
                 self.alternateDirection = 'reverse'
-            elseif stepIndex == voice.loop.start then
+            elseif stepIndex == track.loop.start then
                 self.alternateDirection = 'forward'
             end
 
             if self.alternateDirection == 'forward' then
-                self:advanceToNextStep(voiceIndex, 1)
+                self:advanceToNextStep(trackIndex, 1)
             elseif self.alternateDirection == 'reverse' then
-                self:advanceToNextStep(voiceIndex, -1)
+                self:advanceToNextStep(trackIndex, -1)
             end
 
         elseif self.direction == 'random' then
-            self:advanceToNextStep(voiceIndex)
+            self:advanceToNextStep(trackIndex)
         end
     end
 end
 
-function sequencer:advanceToNextStep(voiceIndex, amount)
+function sequencer:advanceToNextStep(trackIndex, amount)
     self:refreshProbabilities()
 
-    local voice = self:getVoice(voiceIndex)
+    local track = self:getVoice(trackIndex)
 
     if self.direction == 'random' then
-        local randomStep = math.random(voice.loop.start, voice.loop.stop)
-        self.stepIndex[voiceIndex] = randomStep;
+        local randomStep = math.random(track.loop.start, track.loop.stop)
+        self.stepIndex[trackIndex] = randomStep;
     else
-        self.stepIndex[voiceIndex] = self.stepIndex[voiceIndex] + amount;
+        self.stepIndex[trackIndex] = self.stepIndex[trackIndex] + amount;
     end
 
-    if self.stepIndex[voiceIndex] > voice.loop.stop then
-        self:resetStepIndex(voiceIndex)
-    elseif self.stepIndex[voiceIndex] < voice.loop.start then
-        self:resetStepIndex(voiceIndex)
+    if self.stepIndex[trackIndex] > track.loop.stop then
+        self:resetStepIndex(trackIndex)
+    elseif self.stepIndex[trackIndex] < track.loop.start then
+        self:resetStepIndex(trackIndex)
     end
 end
 
-function sequencer:setActivePulse(voiceIndex, x, y)
-    x = x or self.stepIndex[voiceIndex]
-    y = y or self.pulseCount[voiceIndex]
+function sequencer:setActivePulse(trackIndex, x, y)
+    x = x or self.stepIndex[trackIndex]
+    y = y or self.pulseCount[trackIndex]
 
-    self.activePulse[voiceIndex] = {
+    self.activePulse[trackIndex] = {
         x = x,
         y = y
     }
@@ -281,57 +281,57 @@ function sequencer:setScale(scaleIndex)
     self.scale = scales[scaleIndex]
 end
 
-function sequencer:playNote(voiceIndex, pulse)
+function sequencer:playNote(trackIndex, pulse)
     if pulse.gateType == 'void' then
         return
     end
 
-    local voice = self:getVoice(voiceIndex)
+    local track = self:getVoice(trackIndex)
 
-    if pulse.gateType ~= 'rest' and not voice.mute then
+    if pulse.gateType ~= 'rest' and not track.mute then
         local transport = self.lattice.transport
 
         if pulse.ratchetCount > 1 then
-            self:addRatchets(voiceIndex, pulse, transport)
+            self:addRatchets(trackIndex, pulse, transport)
         else
             local ppqnPerWhole = self.lattice.ppqn * 4
-            local division = self.voices[voiceIndex].division
+            local division = self.tracks[trackIndex].division
             local ppqnPulseLength = pulse.gateLength * ppqnPerWhole * division * pulse.duration
             local ppqnNoteOff = math.ceil(transport + ppqnPulseLength) - 1
 
-            self:addEvent('noteOff', pulse, voiceIndex, ppqnNoteOff)
-            self:noteOn(voiceIndex, pulse)
+            self:addEvent('noteOff', pulse, trackIndex, ppqnNoteOff)
+            self:noteOn(trackIndex, pulse)
         end
     end
 
 end
 
-function sequencer:addRatchets(voiceIndex, pulse, transport)
+function sequencer:addRatchets(trackIndex, pulse, transport)
     local ratchetCount = pulse.ratchetCount
     local ppqnPerWhole = self.lattice.ppqn * 4
-    local division = self.voices[voiceIndex].division
+    local division = self.tracks[trackIndex].division
     local ppqnRatchetLength = ppqnPerWhole * division * pulse.duration / ratchetCount
     local ppqnPulseLength = ppqnPerWhole * division * pulse.duration
     local ppqnGateLength = pulse.gateLength * ppqnPulseLength
 
     -- play first ratchet instantly
     local ppqnNoteOff = math.ceil(transport + math.min(ppqnRatchetLength, ppqnGateLength)) - 1
-    self:addEvent('noteOff', pulse, voiceIndex, ppqnNoteOff)
-    self:noteOn(voiceIndex, pulse)
+    self:addEvent('noteOff', pulse, trackIndex, ppqnNoteOff)
+    self:noteOn(trackIndex, pulse)
 
     for i = 2, ratchetCount do
         local ppqnOn = math.ceil(transport + ((i - 1) * ppqnRatchetLength))
         local ppqnOff = math.ceil(ppqnOn + math.min(ppqnRatchetLength, ppqnGateLength)) - 1
 
-        self:addEvent('noteOn', pulse, voiceIndex, ppqnOn)
-        self:addEvent('noteOff', pulse, voiceIndex, ppqnOff)
+        self:addEvent('noteOn', pulse, trackIndex, ppqnOn)
+        self:addEvent('noteOff', pulse, trackIndex, ppqnOff)
     end
 end
 
-function sequencer:addEvent(type, pulse, voiceIndex, ppqn)
+function sequencer:addEvent(type, pulse, trackIndex, ppqn)
     local event = {
         type = type,
-        voiceIndex = voiceIndex,
+        trackIndex = trackIndex,
         pulse = pulse
     }
 
@@ -341,18 +341,18 @@ function sequencer:addEvent(type, pulse, voiceIndex, ppqn)
     table.insert(self.events[ppqn], event)
 end
 
-function sequencer:noteOn(voiceIndex, pulse)
+function sequencer:noteOn(trackIndex, pulse)
     if DEBUG then
-        print(self.lattice.transport, voiceIndex, 'noteOn', pulse.midiNote, pulse.noteName, 127)
+        print(self.lattice.transport, trackIndex, 'noteOn', pulse.midiNote, pulse.noteName, 127)
     end
 
-    m:note_on(pulse.midiNote, 127, voiceIndex)
+    m:note_on(pulse.midiNote, 127, trackIndex)
 
     -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
-    crow.output[(voiceIndex * 2) - 1].volts = 5
-    crow.output[voiceIndex * 2].volts = pulse.volts
+    crow.output[(trackIndex * 2) - 1].volts = 5
+    crow.output[trackIndex * 2].volts = pulse.volts
 
-    engine.noteOn(voiceIndex, pulse.hz, 100)
+    engine.noteOn(trackIndex, pulse.hz, 100)
 end
 
 function sequencer:handleEvents(transport)
@@ -365,24 +365,24 @@ function sequencer:handleEvents(transport)
         local pulse, type = event.pulse, event.type
 
         if type == 'noteOff' then
-            self:noteOff(event.voiceIndex, pulse)
+            self:noteOff(event.trackIndex, pulse)
         elseif type == 'noteOn' then
-            self:noteOn(event.voiceIndex, pulse)
+            self:noteOn(event.trackIndex, pulse)
         end
 
         if DEBUG then
-            print(self.lattice.transport, event.voiceIndex, type, pulse.midiNote, pulse.noteName, 127)
+            print(self.lattice.transport, event.trackIndex, type, pulse.midiNote, pulse.noteName, 127)
         end
     end
     self.events[transport] = nil
 end
 
-function sequencer:noteOff(voiceIndex, pulse, transport)
-    m:note_off(pulse.midiNote, 127, voiceIndex)
-    engine.noteOff(voiceIndex)
-    crow.output[(voiceIndex * 2) - 1].volts = 0
+function sequencer:noteOff(trackIndex, pulse, transport)
+    m:note_off(pulse.midiNote, 127, trackIndex)
+    engine.noteOff(trackIndex)
+    crow.output[(trackIndex * 2) - 1].volts = 0
     if DEBUG then
-        print(transport or self.lattice.transport, voiceIndex, 'noteOff', pulse.midiNote, pulse.noteName, 127)
+        print(transport or self.lattice.transport, trackIndex, 'noteOff', pulse.midiNote, pulse.noteName, 127)
     end
 end
 
@@ -390,7 +390,7 @@ function sequencer:noteOffAll()
     for k1, events in pairs(self.events) do
         for k2, event in pairs(events) do
             if event.type == 'noteOff' then
-                self:noteOff(event.voiceIndex, event.pulse, k1)
+                self:noteOff(event.trackIndex, event.pulse, k1)
             end
             self.events[k1] = nil
         end

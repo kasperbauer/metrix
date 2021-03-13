@@ -1,5 +1,5 @@
 local preset = {}
-local voice = include('lib/voice')
+local track = include('lib/track')
 
 function preset:new()
     local t = setmetatable({}, {
@@ -13,16 +13,20 @@ function preset:new()
 end
 
 function preset:load(id)
+    if not self:exists(id) then
+        return false
+    end
+
     local data = tab.load(self.path .. id)
 
-    local voices = {}
-    for i = 1, #data.voices do
-        local voice = voice:new(data.voices[i])
-        table.insert(voices, voice)
+    local tracks = {}
+    for i = 1, #data.tracks do
+        local track = track:new(data.tracks[i])
+        table.insert(tracks, track)
     end
 
     return {
-        voices = voices,
+        tracks = tracks,
         direction = data.direction
     };
 end

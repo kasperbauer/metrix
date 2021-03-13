@@ -8,7 +8,7 @@
 musicUtil = require('lib/musicutil')
 preset = include('lib/preset')
 sequencer = include('lib/sequencer')
-voice = include('lib/voice')
+track = include('lib/track')
 
 g = grid.connect()
 g:rotation(45)
@@ -30,12 +30,12 @@ for x = 1, 8 do
     end
 end
 
--- voices data
+-- tracks data
 local selectedVoice = 1
 
 -- grid state helpers
 local loopWasSelected = false
-local voiceWasSelected = false
+local trackWasSelected = false
 
 -- presets
 local preset = preset:new()
@@ -115,16 +115,16 @@ function redrawGrid()
     if selectedPage == 1 then
         drawTopMatrix('pulseCount', true)
         if shiftIsHeld() then
-            drawBottomMatrix('gateLength', voice:getGateLengths())
+            drawBottomMatrix('gateLength', track:getGateLengths())
         else
-            drawBottomMatrix('gateType', voice:getGateTypes())
+            drawBottomMatrix('gateType', track:getGateTypes())
         end
     elseif selectedPage == 2 then
         drawTopMatrix('note', false)
-        drawBottomMatrix('octave', voice:getOctaves())
+        drawBottomMatrix('octave', track:getOctaves())
     elseif selectedPage == 3 then
         drawTopMatrix('ratchetCount', true)
-        drawBottomMatrix('probability', voice:getProbabilities())
+        drawBottomMatrix('probability', track:getProbabilities())
     elseif selectedPage == 4 then
         drawPresetPicker()
         drawScalePicker()
@@ -189,8 +189,8 @@ end
 function drawLoopPicker()
     for y = 1, 2 do
         for x = 1, 8 do
-            local voice = seq:getVoice(y);
-            local isSelected, start, stop = selectedVoice == y, voice.loop.start, voice.loop.stop
+            local track = seq:getVoice(y);
+            local isSelected, start, stop = selectedVoice == y, track.loop.start, track.loop.stop
 
             if (x >= start and x <= stop) then
                 if (isSelected) then
@@ -210,13 +210,13 @@ function drawLoopPicker()
 end
 
 function drawTopMatrix(paramName, filled)
-    local voice = getSelectedVoice()
+    local track = getSelectedVoice()
 
     for x = 1, 8 do
         for y = 3, 10 do
-            local value = voice.steps[x][paramName]
+            local value = track.steps[x][paramName]
 
-            if stepInLoop(x, voice) then
+            if stepInLoop(x, track) then
                 if y == 10 then
                     g:led(x, y, 11)
                 elseif 11 - y == value then
@@ -244,13 +244,13 @@ function drawTopMatrix(paramName, filled)
 end
 
 function drawBottomMatrix(param, options)
-    local voice = getSelectedVoice()
+    local track = getSelectedVoice()
 
     for x = 1, 8 do
-        local value = voice.steps[x][param]
+        local value = track.steps[x][param]
 
         for y = 12, 15 do
-            if stepInLoop(x, voice) then
+            if stepInLoop(x, track) then
                 if value == options[1] and y == 12 then
                     g:led(x, y, 11)
                 elseif value == options[2] and y == 13 then
@@ -279,8 +279,8 @@ function drawBottomMatrix(param, options)
     end
 end
 
-function stepInLoop(stepIndex, voice)
-    return stepIndex >= voice.loop.start and stepIndex <= voice.loop.stop
+function stepInLoop(stepIndex, track)
+    return stepIndex >= track.loop.start and stepIndex <= track.loop.stop
 end
 
 function drawPresetPicker()
@@ -319,8 +319,8 @@ end
 function drawDivisionPicker()
     for y = 13, 14 do
         for x = 1, 8 do
-            local voice = seq.voices[y - 12];
-            if x == voice:getDivisionIndex() then
+            local track = seq.tracks[y - 12];
+            if x == track:getDivisionIndex() then
                 g:led(x, y, 15)
             else
                 g:led(x, y, 3)
@@ -361,8 +361,8 @@ end
 
 function g.key(x, y, z)
     local on, off = z == 1, z == 0
-    local stepIndex, voice = x, getSelectedVoice()
-    local step = voice.steps[stepIndex]
+    local stepIndex, track = x, getSelectedVoice()
+    local step = track.steps[stepIndex]
     local held, tapped = getMomentariesInRow(y), x
 
     momentary[x][y] = z == 1 and true or false
@@ -371,29 +371,29 @@ function g.key(x, y, z)
     if selectedPage ~= 4 and y <= 2 then
         if shiftIsHeld() then
             if on then
-                voice = seq:getVoice(y)
-                voice:toggle()
+                track = seq:getVoice(y)
+                track:toggle()
             end
         elseif on and altIsHeld() then
             selectVoice(y)
-            voice = getSelectedVoice()
-            voice:setLoop(1, 8)
+            track = getSelectedVoice()
+            track:setLoop(1, 8)
         elseif selectedVoice ~= y then
             selectVoice(y)
         else
             local pushed = getMomentariesInRow(y)
             if on then
                 if #pushed == 2 then
-                    voice:setLoop(pushed[1], pushed[2])
+                    track:setLoop(pushed[1], pushed[2])
                     loopWasSelected = true
                 end
             elseif #pushed == 0 then
-                if loopWasSelected == false and voiceWasSelected == false then
-                    voice:setLoop(x, x)
+                if loopWasSelected == false and trackWasSelected == false then
+                    track:setLoop(x, x)
                 end
 
                 loopWasSelected = false
-                voiceWasSelected = false
+                trackWasSelected = false
             end
         end
     end
@@ -404,26 +404,26 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             local pulseCount = 11 - y
             if altIsHeld() then
-                voice:setAll('pulseCount', pulseCount)
+                track:setAll('pulseCount', pulseCount)
             else
-                voice:setPulseCount(stepIndex, pulseCount)
+                track:setPulseCount(stepIndex, pulseCount)
             end
         elseif y >= 12 and y <= 15 then
             if shiftIsHeld() then
-                local gateLengths = voice:getGateLengths()
+                local gateLengths = track:getGateLengths()
                 local gateLength = gateLengths[math.abs(11 - y)]
                 if altIsHeld() then
-                    voice:setAll('gateLength', gateLength)
+                    track:setAll('gateLength', gateLength)
                 else
-                    voice:setGateLength(stepIndex, gateLength)
+                    track:setGateLength(stepIndex, gateLength)
                 end
             else
-                local gateTypes = voice:getGateTypes()
+                local gateTypes = track:getGateTypes()
                 local gateType = gateTypes[math.abs(11 - y)]
                 if altIsHeld() then
-                    voice:setAll('gateType', gateType)
+                    track:setAll('gateType', gateType)
                 else
-                    voice:setGateType(stepIndex, gateType)
+                    track:setGateType(stepIndex, gateType)
                 end
             end
         end
@@ -434,17 +434,17 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             local note = 11 - y
             if altIsHeld() then
-                voice:setAll('note', note)
+                track:setAll('note', note)
             else
-                voice:setNote(stepIndex, note)
+                track:setNote(stepIndex, note)
             end
         elseif y >= 12 and y <= 15 then
-            local octaves = voice:getOctaves()
+            local octaves = track:getOctaves()
             local octave = octaves[y - 11]
             if altIsHeld() then
-                voice:setAll('octave', octave)
+                track:setAll('octave', octave)
             else
-                voice:setOctave(stepIndex, octave)
+                track:setOctave(stepIndex, octave)
             end
         end
     end
@@ -454,17 +454,17 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             local ratchetCount = 11 - y
             if altIsHeld() then
-                voice:setAll('ratchetCount', ratchetCount)
+                track:setAll('ratchetCount', ratchetCount)
             else
-                voice:setRatchetCount(stepIndex, ratchetCount)
+                track:setRatchetCount(stepIndex, ratchetCount)
             end
         elseif y >= 12 and y <= 15 then
-            local probabilities = voice:getProbabilities()
+            local probabilities = track:getProbabilities()
             local probability = probabilities[y - 11]
             if altIsHeld() then
-                voice:setAll('probability', probability)
+                track:setAll('probability', probability)
             else
-                voice:setProbability(stepIndex, probability)
+                track:setProbability(stepIndex, probability)
             end
         end
     end
@@ -476,11 +476,11 @@ function g.key(x, y, z)
             seq:setDirection(directions[x])
         elseif altIsHeld() then
             if x == 1 then
-                voice:randomize({'pulseCount', 'gateType', 'gateLength'})
+                track:randomize({'pulseCount', 'gateType', 'gateLength'})
             elseif x == 2 then
-                voice:randomize({'note', 'octave'})
+                track:randomize({'note', 'octave'})
             elseif x == 3 then
-                voice:randomize({'ratchetCount', 'probability'})
+                track:randomize({'ratchetCount', 'probability'})
             end
         else
             selectPage(x)
@@ -507,11 +507,11 @@ function g.key(x, y, z)
         end
 
         if y == 13 or y == 14 then
-            local divisions = voice:getDivisions()
+            local divisions = track:getDivisions()
             local division = divisions[x]
-            local voice = seq.voices[y - 12]
+            local track = seq.tracks[y - 12]
             local pattern = seq.patterns[y - 12];
-            voice:setDivision(division)
+            track:setDivision(division)
             pattern:set_division(division)
         end
     end
@@ -549,11 +549,16 @@ end
 
 function loadPreset(presetIndex)
     local data = preset:load(presetIndex)
+
+    if not data then
+        return
+    end
+
     seq:resetVoices()
     seq:setDirection(data.direction)
 
-    for i, voice in pairs(data.voices) do
-        seq:addVoice(voice)
+    for i, track in pairs(data.tracks) do
+        seq:addVoice(track)
     end
     selectedPreset = presetIndex
     requestGridRedraw()
@@ -561,16 +566,16 @@ end
 
 function savePreset(presetIndex)
     local data = {
-        voices = seq.voices,
+        tracks = seq.tracks,
         direction = seq.direction
     }
     selectedPreset = presetIndex
     preset:save(presetIndex, data)
 end
 
-function selectVoice(voiceNumber)
-    selectedVoice = voiceNumber
-    voiceWasSelected = true
+function selectVoice(trackNumber)
+    selectedVoice = trackNumber
+    trackWasSelected = true
 end
 
 function selectScale(scaleIndex)
