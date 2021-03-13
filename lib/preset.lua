@@ -7,6 +7,7 @@ function preset:new()
     })
 
     t.path = _path.code .. 'metrix/presets/'
+    t.current = nil
     util.make_dir(t.path)
 
     return t
@@ -25,6 +26,8 @@ function preset:load(id)
         table.insert(tracks, track)
     end
 
+    self.current = id
+
     return {
         tracks = tracks,
         playbackOrder = data.playbackOrder
@@ -33,6 +36,7 @@ end
 
 function preset:save(id, data)
     tab.save(data, self.path .. id)
+    self.current = id
 end
 
 function preset:exists(id)

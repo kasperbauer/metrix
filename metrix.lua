@@ -38,8 +38,7 @@ local loopWasSelected = false
 local trackWasSelected = false
 
 -- presets
-local preset = preset:new()
-local selectedPreset = nil
+pre = preset:new()
 
 -- sequencer
 local seq = sequencer:new(function()
@@ -287,9 +286,9 @@ function drawPresetPicker()
     for y = 1, 4 do
         for x = 1, 8 do
             local presetIndex = (y - 1) * 8 + x
-            if (selectedPreset == presetIndex) then
+            if (pre.current == presetIndex) then
                 g:led(x, y, 15)
-            elseif preset:exists(presetIndex) then
+            elseif pre:exists(presetIndex) then
                 g:led(x, y, 7)
             else
                 g:led(x, y, 3)
@@ -492,10 +491,10 @@ function g.key(x, y, z)
         if y >= 1 and y <= 4 then
             local presetIndex = (y - 1) * 8 + x
             if shiftIsHeld() and altIsHeld() then
-                preset:delete(presetIndex)
+                pre:delete(presetIndex)
             elseif shiftIsHeld() then
                 savePreset(presetIndex)
-            elseif preset:exists(presetIndex) then
+            elseif pre:exists(presetIndex) then
                 loadPreset(presetIndex)
             end
         end
@@ -548,7 +547,7 @@ function selectPage(pageNumber)
 end
 
 function loadPreset(presetIndex)
-    local data = preset:load(presetIndex)
+    local data = pre:load(presetIndex)
 
     if not data then
         return
@@ -560,7 +559,6 @@ function loadPreset(presetIndex)
     for i, track in pairs(data.tracks) do
         seq:addTrack(track)
     end
-    selectedPreset = presetIndex
     requestGridRedraw()
 end
 
@@ -569,8 +567,7 @@ function savePreset(presetIndex)
         tracks = seq.tracks,
         playbackOrder = seq.playbackOrder
     }
-    selectedPreset = presetIndex
-    preset:save(presetIndex, data)
+    pre:save(presetIndex, data)
 end
 
 function selectTrack(trackNumber)
