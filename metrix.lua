@@ -144,7 +144,7 @@ function drawBottomRow()
     local y = 16
 
     if shiftIsHeld() then
-        local playbackOrders = seq:getDirections()
+        local playbackOrders = seq:getPlaybackOrders()
         for x = 1, #playbackOrders do
             g:led(x, y, 3)
 
@@ -472,8 +472,8 @@ function g.key(x, y, z)
     -- row 16: select page
     if on and y == 16 and x <= maxPages then
         if shiftIsHeld() then
-            local playbackOrders = seq:getDirections()
-            seq:setDirection(playbackOrders[x])
+            local playbackOrders = seq:getPlaybackOrders()
+            seq:setPlaybackOrder(playbackOrders[x])
         elseif altIsHeld() then
             if x == 1 then
                 track:randomize({'pulseCount', 'gateType', 'gateLength'})
@@ -555,7 +555,7 @@ function loadPreset(presetIndex)
     end
 
     seq:resetTracks()
-    seq:setDirection(data.playbackOrder)
+    seq:setPlaybackOrder(data.playbackOrder)
 
     for i, track in pairs(data.tracks) do
         seq:addTrack(track)

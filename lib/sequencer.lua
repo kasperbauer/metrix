@@ -37,7 +37,7 @@ function sequencer:new(onPulseAdvance)
     t.pulseCount = {}
     t.activePulse = {}
     t.playbackOrder = playbackOrders[1]
-    t.alternateDirection = 'forward'
+    t.alternatePlaybackOrder = 'forward'
     t.patterns = {}
     t.noteOffPattern = nil
     t.events = {}
@@ -160,9 +160,9 @@ function sequencer:resetStepIndex(trackIndex)
     elseif (self.playbackOrder == 'reverse') then
         self.stepIndex[trackIndex] = track.loop.stop
     elseif (self.playbackOrder == 'alternate') then
-        if self.alternateDirection == 'forward' then
+        if self.alternatePlaybackOrder == 'forward' then
             self.stepIndex[trackIndex] = track.loop.start
-        elseif self.alternateDirection == 'forward' then
+        elseif self.alternatePlaybackOrder == 'forward' then
             self.stepIndex[trackIndex] = track.loop.stop
         end
     end
@@ -219,14 +219,14 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
             local stepIndex = self.stepIndex[trackIndex]
 
             if stepIndex == track.loop.stop then
-                self.alternateDirection = 'reverse'
+                self.alternatePlaybackOrder = 'reverse'
             elseif stepIndex == track.loop.start then
-                self.alternateDirection = 'forward'
+                self.alternatePlaybackOrder = 'forward'
             end
 
-            if self.alternateDirection == 'forward' then
+            if self.alternatePlaybackOrder == 'forward' then
                 self:advanceToNextStep(trackIndex, 1)
-            elseif self.alternateDirection == 'reverse' then
+            elseif self.alternatePlaybackOrder == 'reverse' then
                 self:advanceToNextStep(trackIndex, -1)
             end
 
@@ -265,11 +265,11 @@ function sequencer:setActivePulse(trackIndex, x, y)
     }
 end
 
-function sequencer:getDirections()
+function sequencer:getPlaybackOrders()
     return playbackOrders
 end
 
-function sequencer:setDirection(playbackOrder)
+function sequencer:setPlaybackOrder(playbackOrder)
     self.playbackOrder = playbackOrder
 end
 
