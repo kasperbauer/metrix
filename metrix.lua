@@ -109,17 +109,17 @@ function redrawGrid()
 
     -- pulse matrix
     if selectedPage == 1 then
-        drawTopMatrix('pulseCount', true)
         if shiftIsHeld() then
+            drawTopMatrix('ratchetCount', true)
             drawBottomMatrix('gateLength', track:getGateLengths())
         else
+            drawTopMatrix('pulseCount', true)
             drawBottomMatrix('gateType', track:getGateTypes())
         end
     elseif selectedPage == 2 then
         drawTopMatrix('pitch', false)
         drawBottomMatrix('octave', track:getOctaves())
     elseif selectedPage == 3 then
-        drawTopMatrix('ratchetCount', true)
         drawBottomMatrix('probability', track:getProbabilities())
     elseif selectedPage == 4 then
         drawPresetPicker()
@@ -396,13 +396,21 @@ function g.key(x, y, z)
 
     -- row 3-10: pulse & gate type matrix
     if selectedPage == 1 and on then
-
         if y >= 3 and y <= 10 then
-            local pulseCount = 11 - y
-            if altIsHeld() then
-                track:setAll('pulseCount', pulseCount)
+            if shiftIsHeld() then
+                local ratchetCount = 11 - y
+                if altIsHeld() then
+                    track:setAll('ratchetCount', ratchetCount)
+                else
+                    track:setRatchetCount(stepIndex, ratchetCount)
+                end
             else
-                track:setPulseCount(stepIndex, pulseCount)
+                local pulseCount = 11 - y
+                if altIsHeld() then
+                    track:setAll('pulseCount', pulseCount)
+                else
+                    track:setPulseCount(stepIndex, pulseCount)
+                end
             end
         elseif y >= 12 and y <= 15 then
             if shiftIsHeld() then
@@ -447,14 +455,7 @@ function g.key(x, y, z)
 
     -- row 3-10: ratchet & probability matrix
     if selectedPage == 3 and on then
-        if y >= 3 and y <= 10 then
-            local ratchetCount = 11 - y
-            if altIsHeld() then
-                track:setAll('ratchetCount', ratchetCount)
-            else
-                track:setRatchetCount(stepIndex, ratchetCount)
-            end
-        elseif y >= 12 and y <= 15 then
+        if y >= 12 and y <= 15 then
             local probabilities = track:getProbabilities()
             local probability = probabilities[y - 11]
             if altIsHeld() then
