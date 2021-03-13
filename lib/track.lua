@@ -106,7 +106,7 @@ function track:randomize(params)
                 self:setGateLength(step, gateLengths[math.random(1, 4)])
             end
             if key == 'ratchetCount' then
-                self:setRatchetCount(step, math.lowerRandom(1, 8))
+                self:setRatchetCount(step, math.lowerRandom(1, 8, 4))
             end
             if key == 'probability' then
                 self:setProbability(step, probabilities[math.random(1, 4)])
