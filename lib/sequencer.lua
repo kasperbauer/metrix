@@ -168,7 +168,7 @@ function sequencer:resetStepIndex(trackIndex)
     elseif (track.playbackOrder == 'alternate') then
         if self.alternatePlaybackOrder == 'forward' then
             self.stepIndex[trackIndex] = track.loop.start
-        elseif self.alternatePlaybackOrder == 'forward' then
+        elseif self.alternatePlaybackOrder == 'reverse' then
             self.stepIndex[trackIndex] = track.loop.stop
         end
     end
