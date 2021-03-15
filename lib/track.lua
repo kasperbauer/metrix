@@ -114,7 +114,7 @@ function track:randomize(params)
                 self:setProbability(step, probabilities[math.random(1, 4)])
             end
             if key == 'transposition' then
-                self:setTransposition(step, math.lowerRandom(1, 8, 4))
+                self:setTransposition(step, math.lowerRandom(0, 7, 4))
             end
         end
     end
