@@ -86,7 +86,6 @@ function track:new(args)
 end
 
 function track:randomize(params)
-    math.randomseed(util.time())
     for i = 1, #params do
         local key = params[i]
         for step = 1, 8 do

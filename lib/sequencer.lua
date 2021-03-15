@@ -146,8 +146,6 @@ function sequencer:reset()
 end
 
 function sequencer:refreshProbabilities()
-    math.randomseed(self.lattice.transport)
-
     for trackIndex = 1, #self.tracks do
         local probabilities = {}
         for i = 1, 8 do

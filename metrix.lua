@@ -55,6 +55,7 @@ function init()
     initEngine()
     loadPreset(1)
     clock.run(redrawClock)
+    math.randomseed(util.time())
 end
 
 function initEngine()
