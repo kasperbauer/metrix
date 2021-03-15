@@ -76,7 +76,7 @@ function track:new(args)
                 gateLength = gateLengths[1],
                 pitch = i,
                 octave = octaves[1],
-                probability = probabilities[1]
+                probability = probabilities[1],
             }
         end
         t.steps = steps

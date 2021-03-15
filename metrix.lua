@@ -102,7 +102,7 @@ function redrawGrid()
     g:all(0)
     drawBottomRow()
     drawShift()
-    drawAlt()
+    drawMod()
 
     if selectedPage >= 1 and selectedPage <= 3 then
         drawLoopPicker()
@@ -111,17 +111,17 @@ function redrawGrid()
     -- pulse matrix
     if selectedPage == 1 then
         if shiftIsHeld() then
-            drawTopMatrix('ratchetCount', true)
-            drawBottomMatrix('gateLength', track:getGateLengths())
+            drawMatrix('ratchetCount', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10, true)
+            drawMatrix('gateLength', track:getGateLengths(), 12, 15)
         else
-            drawTopMatrix('pulseCount', true)
-            drawBottomMatrix('gateType', track:getGateTypes())
+            drawMatrix('pulseCount', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10, true)
+            drawMatrix('gateType', track:getGateTypes(), 12, 15)
         end
     elseif selectedPage == 2 then
-        drawTopMatrix('pitch', false)
-        drawBottomMatrix('octave', track:getOctaves())
+        drawMatrix('pitch', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10)
+        drawMatrix('octave', track:getOctaves(), 12, 15)
     elseif selectedPage == 3 then
-        drawBottomMatrix('probability', track:getProbabilities())
+        drawMatrix('probability', track:getProbabilities(), 12, 15)
     elseif selectedPage == 4 then
         drawPresetPicker()
         drawScalePicker()
@@ -156,7 +156,7 @@ function drawShift()
     g:led(8, 16, 3)
 end
 
-function drawAlt()
+function drawMod()
     g:led(7, 16, 3)
 end
 
@@ -183,67 +183,31 @@ function drawLoopPicker()
     end
 end
 
-function drawTopMatrix(paramName, filled)
+function drawMatrix(paramName, options, from, to, filled)
+    filled = filled or false
+
     local track = seq:getCurrentTrack()
 
     for x = 1, 8 do
-        for y = 3, 10 do
-            local value = track.steps[x][paramName]
+        local value = track.steps[x][paramName]
+        local offset = from - 1;
+
+        for y = from, to do
+            local i = y - offset;
+            local key = tab.key(options, value)
 
             if stepInLoop(x, track) then
-                if 11 - y == value then
-                    g:led(x, y, 7)
-                elseif 11 - y < value and filled then
-                    g:led(x, y, 7)
-                elseif 11 - y < value and filled == false then
-                    g:led(x, y, 3)
-                elseif y == 10 then
+                if value == options[i] then
                     g:led(x, y, 11)
-                else
+                elseif key <= i and filled then
+                    g:led(x, y, 11)
+                elseif key > i and filled then
                     g:led(x, y, 0)
-                end
-            else
-                if 11 - y == value then
-                    g:led(x, y, 3)
-                elseif 11 - y < value and filled then
-                    g:led(x, y, 3)
-                elseif 11 - y < value and filled == false then
-                    g:led(x, y, 3)
-                else
-                    g:led(x, y, 0)
-                end
-            end
-        end
-    end
-end
-
-function drawBottomMatrix(param, options)
-    local track = seq:getCurrentTrack()
-
-    for x = 1, 8 do
-        local value = track.steps[x][param]
-
-        for y = 12, 15 do
-            if stepInLoop(x, track) then
-                if value == options[1] and y == 12 then
-                    g:led(x, y, 11)
-                elseif value == options[2] and y == 13 then
-                    g:led(x, y, 11)
-                elseif value == options[3] and y == 14 then
-                    g:led(x, y, 11)
-                elseif value == options[4] and y == 15 then
-                    g:led(x, y, 11)
                 else
                     g:led(x, y, 3)
                 end
             else
-                if value == options[1] and y == 12 then
-                    g:led(x, y, 3)
-                elseif value == options[2] and y == 13 then
-                    g:led(x, y, 3)
-                elseif value == options[3] and y == 14 then
-                    g:led(x, y, 3)
-                elseif value == options[4] and y == 15 then
+                if value == options[i] then
                     g:led(x, y, 3)
                 else
                     g:led(x, y, 0)
