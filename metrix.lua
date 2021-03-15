@@ -19,7 +19,7 @@ engine.name = "MollyThePoly"
 
 -- page selector
 local maxPages = 4
-local selectedPage = 1
+local selectedPage = 2
 
 -- momentary pressed keys
 local momentary = {}
@@ -118,7 +118,11 @@ function redrawGrid()
             drawMatrix('gateType', track:getGateTypes(), 12, 15)
         end
     elseif selectedPage == 2 then
-        drawMatrix('pitch', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10)
+        if shiftIsHeld() then
+            drawMatrix('transposition', {7, 6, 5, 4, 3, 2, 1, 0}, 3, 10)
+        else
+            drawMatrix('pitch', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10)
+        end
         drawMatrix('octave', track:getOctaves(), 12, 15)
     elseif selectedPage == 3 then
         drawMatrix('probability', track:getProbabilities(), 12, 15)
@@ -199,9 +203,9 @@ function drawMatrix(paramName, options, from, to, filled)
             if stepInLoop(x, track) then
                 if value == options[i] then
                     g:led(x, y, 11)
-                elseif key <= i and filled then
+                elseif filled and key <= i then
                     g:led(x, y, 11)
-                elseif key > i and filled then
+                elseif filled and key > i then
                     g:led(x, y, 0)
                 else
                     g:led(x, y, 3)
@@ -401,7 +405,9 @@ function g.key(x, y, z)
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
             local pitch = 11 - y
-            if modIsHeld() then
+            if shiftIsHeld() then
+                track:setTransposition(stepIndex, pitch - 1)
+            elseif modIsHeld() then
                 track:setAll('pitch', pitch)
             else
                 track:setPitch(stepIndex, pitch)

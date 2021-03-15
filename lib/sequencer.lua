@@ -33,12 +33,8 @@ function sequencer:new(onPulseAdvance)
     t.patterns = {}
     t.noteOffPattern = nil
     t.events = {}
-
-    -- 0 equals C
-    t.rootNote = 0
-
-    -- 1 equals major
-    t.scale = scales[1]
+    t.rootNote = 0 -- 0 equals C
+    t.scale = scales[1] -- 1 equals major
 
     t.onPulseAdvance = onPulseAdvance or function()
     end
@@ -140,6 +136,7 @@ function sequencer:reset()
         self:setActivePulse(i, 1, 1)
         self:resetStepIndex(i)
         self:resetPulseCount(i)
+        self.tracks[i]:resetPitches()
     end
     -- TODO: activate on next norns release
     -- self.lattice.hard_restart()

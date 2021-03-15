@@ -63,6 +63,7 @@ function track:new(args)
     t.mute = false
     t.playbackOrder = playbackOrders[1]
     t.alternatePlaybackOrder = 'forward'
+    t.transpositionLimit = 1 -- in octaves
 
     if args.steps then
         t.steps = args.steps
@@ -77,6 +78,8 @@ function track:new(args)
                 pitch = i,
                 octave = octaves[1],
                 probability = probabilities[1],
+                transposition = 0,
+                accumulatedPitch = i
             }
         end
         t.steps = steps
@@ -109,6 +112,9 @@ function track:randomize(params)
             end
             if key == 'probability' then
                 self:setProbability(step, probabilities[math.random(1, 4)])
+            end
+            if key == 'transposition' then
+                self:setTransposition(step, math.lowerRandom(1, 8, 4))
             end
         end
     end
@@ -145,6 +151,13 @@ end
 
 function track:setPitch(step, pitch)
     self.steps[step].pitch = pitch
+    self.steps[step].accumulatedPitch = pitch
+end
+
+function track:resetPitches()
+    for step = 1, #self.steps do
+        self.steps[step].accumulatedPitch = self.steps[step].pitch
+    end
 end
 
 function track:setOctave(step, octave)
@@ -197,14 +210,14 @@ function track:getPulse(stepIndex, pulseCount, scale, rootNote)
     end
 
     local first, last = pulseCount == 1, pulseCount >= step.pulseCount
-    local midiNote = self:getMidiNote(step.pitch, scale, step.octave, rootNote)
+    local midiNote = self:getMidiNote(stepIndex, scale, rootNote)
 
     local pulse = {
         pitch = step.pitch,
         octave = step.octave,
         midiNote = midiNote,
         hz = self:getHz(midiNote),
-        volts = self:getVolts(step.pitch, scale, step.octave, rootNote),
+        volts = self:getVolts(stepIndex, scale, rootNote),
         pitchName = self:getNoteName(midiNote),
         gateType = step.gateType,
         gateLength = step.gateLength,
@@ -214,18 +227,22 @@ function track:getPulse(stepIndex, pulseCount, scale, rootNote)
         last = last,
         duration = 1
     }
+
     local rest = {
         gateType = 'rest',
         first = first,
         last = last,
         duration = 1
     }
+
     local void = {
         gateType = 'void',
         first = first,
         last = last,
         duration = 1
     }
+
+    self:accumulatePitch(stepIndex, scale)
 
     if step.gateType == 'rest' then
         return rest
@@ -253,10 +270,23 @@ function track:getPulse(stepIndex, pulseCount, scale, rootNote)
     end
 end
 
-function track:getMidiNote(pitch, scale, octave, rootNote)
-    local rootNoteInOctave = rootNote + (12 * octave)
-    local midiScale = musicUtil.generate_scale_of_length(rootNoteInOctave, scale.name, 8)
+function track:getMidiNote(stepIndex, scale, rootNote)
+    local step = self.steps[stepIndex]
+    local rootNoteInOctave = rootNote + (12 * step.octave)
+    local pitch = step.accumulatedPitch
+    local midiScale = musicUtil.generate_scale_of_length(rootNoteInOctave, scale.name, pitch)
     return midiScale[pitch]
+end
+
+function track:accumulatePitch(stepIndex, scale)
+    local step = self.steps[stepIndex]
+    local pitch = step.accumulatedPitch + step.transposition
+    print(#scale.intervals)
+    if (pitch > step.pitch + (#scale.intervals * self.transpositionLimit)) then
+        self:setAccumulatedPitch(stepIndex, step.pitch)
+    else
+        self:setAccumulatedPitch(stepIndex, pitch)
+    end
 end
 
 function track:getHz(midiNote)
@@ -267,10 +297,11 @@ function track:getNoteName(midiNote)
     return musicUtil.note_num_to_name(midiNote)
 end
 
-function track:getVolts(pitch, scale, octave, rootNote)
+function track:getVolts(stepIndex, scale, rootNote)
+    local step = self.steps[stepIndex]
     local voltsPerSemitone = 1 / 12
-    local rootVolts = octave + (rootNote * voltsPerSemitone)
-
+    local rootVolts = step.octave + (rootNote * voltsPerSemitone)
+    local pitch = step.accumulatedPitch
     if (pitch > #scale.intervals) then
         local factor = math.floor(pitch / #scale.intervals)
         pitch = pitch - (factor * #scale.intervals)
@@ -298,6 +329,14 @@ end
 
 function track:setPlaybackOrder(playbackOrder)
     self.playbackOrder = playbackOrder
+end
+
+function track:setTransposition(stepIndex, transposition)
+    self.steps[stepIndex].transposition = transposition
+end
+
+function track:setAccumulatedPitch(stepIndex, pitch)
+    self.steps[stepIndex].accumulatedPitch = pitch
 end
 
 return track
