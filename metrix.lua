@@ -9,6 +9,7 @@ musicUtil = require('lib/musicutil')
 preset = include('lib/preset')
 sequencer = include('lib/sequencer')
 track = include('lib/track')
+include('lib/helpers')
 
 g = grid.connect()
 g:rotation(45)
@@ -53,7 +54,6 @@ local screenIsDirty = false
 
 function init()
     initEngine()
-    loadPreset(1)
     clock.run(redrawClock)
     math.randomseed(util.time())
 end
@@ -203,9 +203,9 @@ function drawMatrix(paramName, options, from, to, filled)
             if stepInLoop(x, track) then
                 if value == options[i] then
                     g:led(x, y, 11)
-                elseif filled and key <= i then
+                elseif filled and isNumeric(key) and key <= i then
                     g:led(x, y, 11)
-                elseif filled and key > i then
+                elseif filled and isNumeric(key) and key > i then
                     g:led(x, y, 0)
                 else
                     g:led(x, y, 3)
@@ -442,7 +442,7 @@ function g.key(x, y, z)
             if x == 1 then
                 track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'gateLength'})
             elseif x == 2 then
-                track:randomize({'pitch', 'octave'})
+                track:randomize({'pitch', 'transposition', 'octave'})
             elseif x == 3 then
                 track:randomize({'probability'})
             end
