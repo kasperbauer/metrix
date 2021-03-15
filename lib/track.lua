@@ -154,9 +154,13 @@ function track:setPitch(step, pitch)
     self.steps[step].accumulatedPitch = pitch
 end
 
+function track:resetPitch(stepIndex)
+    self.steps[stepIndex].accumulatedPitch = self.steps[stepIndex].pitch
+end
+
 function track:resetPitches()
-    for step = 1, #self.steps do
-        self.steps[step].accumulatedPitch = self.steps[step].pitch
+    for stepIndex = 1, #self.steps do
+        self:resetPitch(stepIndex)
     end
 end
 
@@ -332,6 +336,10 @@ end
 
 function track:setTransposition(stepIndex, transposition)
     self.steps[stepIndex].transposition = transposition
+    
+    if transposition == 0 then
+        self:resetPitch(stepIndex)
+    end
 end
 
 function track:setAccumulatedPitch(stepIndex, pitch)
