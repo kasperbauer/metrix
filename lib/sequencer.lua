@@ -35,6 +35,7 @@ function sequencer:new(onPulseAdvance)
     t.events = {}
     t.rootNote = 0 -- 0 equals C
     t.scale = scales[1] -- 1 equals major
+    -- 1 equals major
 
     t.onPulseAdvance = onPulseAdvance or function()
     end
@@ -306,15 +307,16 @@ function sequencer:addRatchets(trackIndex, pulse, transport)
     local ppqnRatchetLength = ppqnPerWhole * division * pulse.duration / ratchetCount
     local ppqnPulseLength = ppqnPerWhole * division * pulse.duration
     local ppqnGateLength = pulse.gateLength * ppqnPulseLength
+    local ppqnNoteLength = math.min(ppqnRatchetLength, ppqnGateLength);
 
     -- play first ratchet instantly
-    local ppqnNoteOff = math.ceil(transport + math.min(ppqnRatchetLength, ppqnGateLength)) - 1
+    local ppqnNoteOff = math.ceil(transport + ppqnNoteLength) - 1
     self:addEvent('noteOff', pulse, trackIndex, ppqnNoteOff)
     self:noteOn(trackIndex, pulse)
 
     for i = 2, ratchetCount do
         local ppqnOn = math.ceil(transport + ((i - 1) * ppqnRatchetLength))
-        local ppqnOff = math.ceil(ppqnOn + math.min(ppqnRatchetLength, ppqnGateLength)) - 1
+        local ppqnOff = math.ceil(ppqnOn + ppqnNoteLength) - 1
 
         self:addEvent('noteOn', pulse, trackIndex, ppqnOn)
         self:addEvent('noteOff', pulse, trackIndex, ppqnOff)
