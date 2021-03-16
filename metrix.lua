@@ -60,7 +60,7 @@ end
 
 function initEngine()
     if engine.name == 'MollyThePoly' then
-        params:add_group("molly the poly", 46)
+        params:add_group("MOLLY THE POLY", 46)
         MollyThePoly.add_params()
     end
 end
