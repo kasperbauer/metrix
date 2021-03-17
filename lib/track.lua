@@ -83,6 +83,11 @@ function track:new(args)
         t.stages = stages
     end
 
+    -- reset accumulation on loading preset
+    for i = 1, 8 do
+        t.stages[i].accumulatedPitch = t.stages[i].pitch
+    end
+
     return t
 end
 
@@ -214,6 +219,7 @@ function track:getPulse(trackIndex, stageIndex, pulseCount, scale, rootNote)
     local midiNote = self:getMidiNote(trackIndex, stageIndex, scale, rootNote)
 
     local pulse = {
+        pulseCount = pulseCount,
         pitch = stage.pitch,
         octave = stage.octave,
         midiNote = midiNote,
@@ -242,8 +248,6 @@ function track:getPulse(trackIndex, stageIndex, pulseCount, scale, rootNote)
         last = last,
         duration = 1
     }
-
-    self:accumulatePitch(trackIndex, stageIndex)
 
     if stage.gateType == 'rest' then
         return rest
@@ -281,6 +285,8 @@ function track:getMidiNote(trackIndex, stageIndex, scale, rootNote)
 end
 
 function track:accumulatePitch(trackIndex, stageIndex)
+    print('TRACK, STAGE', trackIndex, stageIndex)
+    tab.print(self.stages)
     local stage = self.stages[stageIndex]
     local pitch = stage.accumulatedPitch + stage.transposition
     local transposeLimit = params:get("transpose_limit_tr_" .. trackIndex)
