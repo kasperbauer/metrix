@@ -193,14 +193,14 @@ function drawMatrix(paramName, options, from, to, filled)
     local track = seq:getCurrentTrack()
 
     for x = 1, 8 do
-        local value = track.steps[x][paramName]
+        local value = track.stages[x][paramName]
         local offset = from - 1;
 
         for y = from, to do
             local i = y - offset;
             local key = tab.key(options, value)
 
-            if stepInLoop(x, track) then
+            if stageInLoop(x, track) then
                 if value == options[i] then
                     g:led(x, y, 11)
                 elseif filled and isNumeric(key) and key <= i then
@@ -221,8 +221,8 @@ function drawMatrix(paramName, options, from, to, filled)
     end
 end
 
-function stepInLoop(stepIndex, track)
-    return stepIndex >= track.loop.start and stepIndex <= track.loop.stop
+function stageInLoop(stageIndex, track)
+    return stageIndex >= track.loop.start and stageIndex <= track.loop.stop
 end
 
 function drawPresetPicker()
@@ -325,8 +325,8 @@ end
 
 function g.key(x, y, z)
     local on, off = z == 1, z == 0
-    local stepIndex, track = x, seq:getCurrentTrack()
-    local step = track.steps[stepIndex]
+    local stageIndex, track = x, seq:getCurrentTrack()
+    local stage = track.stages[stageIndex]
     local held, tapped = getMomentariesInRow(y), x
 
     momentary[x][y] = z == 1 and true or false
@@ -370,14 +370,14 @@ function g.key(x, y, z)
                 if modIsHeld() then
                     track:setAll('ratchetCount', ratchetCount)
                 else
-                    track:setRatchetCount(stepIndex, ratchetCount)
+                    track:setRatchetCount(stageIndex, ratchetCount)
                 end
             else
                 local pulseCount = 11 - y
                 if modIsHeld() then
                     track:setAll('pulseCount', pulseCount)
                 else
-                    track:setPulseCount(stepIndex, pulseCount)
+                    track:setPulseCount(stageIndex, pulseCount)
                 end
             end
         elseif y >= 12 and y <= 15 then
@@ -387,7 +387,7 @@ function g.key(x, y, z)
                 if modIsHeld() then
                     track:setAll('gateLength', gateLength)
                 else
-                    track:setGateLength(stepIndex, gateLength)
+                    track:setGateLength(stageIndex, gateLength)
                 end
             else
                 local gateTypes = track:getGateTypes()
@@ -395,7 +395,7 @@ function g.key(x, y, z)
                 if modIsHeld() then
                     track:setAll('gateType', gateType)
                 else
-                    track:setGateType(stepIndex, gateType)
+                    track:setGateType(stageIndex, gateType)
                 end
             end
         end
@@ -406,11 +406,11 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             local pitch = 11 - y
             if shiftIsHeld() then
-                track:setTransposition(stepIndex, pitch - 1)
+                track:setTransposition(stageIndex, pitch - 1)
             elseif modIsHeld() then
                 track:setAll('pitch', pitch)
             else
-                track:setPitch(stepIndex, pitch)
+                track:setPitch(stageIndex, pitch)
             end
         elseif y >= 12 and y <= 15 then
             local octaves = track:getOctaves()
@@ -418,7 +418,7 @@ function g.key(x, y, z)
             if modIsHeld() then
                 track:setAll('octave', octave)
             else
-                track:setOctave(stepIndex, octave)
+                track:setOctave(stageIndex, octave)
             end
         end
     end
@@ -431,7 +431,7 @@ function g.key(x, y, z)
             if modIsHeld() then
                 track:setAll('probability', probability)
             else
-                track:setProbability(stepIndex, probability)
+                track:setProbability(stageIndex, probability)
             end
         end
     end

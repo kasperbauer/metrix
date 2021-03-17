@@ -1,7 +1,7 @@
 lattice = require('lattice')
 track = include('lib/track')
 
-local DEBUG = false
+local DEBUG = true
 local DEBUG_MUTE_VOICE = 2
 
 m = midi.connect()
@@ -27,15 +27,16 @@ function sequencer:new(onPulseAdvance)
     t.tracks = {}
     t.currentTrack = 0
     t.probabilities = {}
-    t.stepIndex = {}
+    t.stageIndex = {}
     t.pulseCount = {}
     t.activePulse = {}
     t.patterns = {}
     t.noteOffPattern = nil
     t.events = {}
-    t.rootNote = 0 -- 0 equals C
-    t.scale = scales[1] -- 1 equals major
+    -- 0 equals C
+    t.rootNote = 0
     -- 1 equals major
+    t.scale = scales[1]
 
     t.onPulseAdvance = onPulseAdvance or function()
     end
@@ -55,7 +56,7 @@ function sequencer:addTrack(args)
     table.insert(self.tracks, track)
     local trackIndex = #self.tracks
     self:addPattern(track.division, trackIndex)
-    self:resetStepIndex(trackIndex)
+    self:resetStageIndex(trackIndex)
     self:resetPulseCount(trackIndex)
     self.currentTrack = trackIndex
 end
@@ -110,9 +111,8 @@ end
 function sequencer:playPause()
     self:addEventPattern()
 
-    if DEBUG then
+    if DEBUG and DEBUG_MUTE_VOICE then
         local pattern = self.patterns[DEBUG_MUTE_VOICE]
-        pattern.enabled = false
     end
 
     if self.lattice.enabled then
@@ -135,7 +135,7 @@ function sequencer:reset()
     self:refreshProbabilities()
     for i = 1, #self.tracks do
         self:setActivePulse(i, 1, 1)
-        self:resetStepIndex(i)
+        self:resetStageIndex(i)
         self:resetPulseCount(i)
         self.tracks[i]:resetPitches()
     end
@@ -155,17 +155,17 @@ function sequencer:refreshProbabilities()
     local prob = self.probabilities[1]
 end
 
-function sequencer:resetStepIndex(trackIndex)
+function sequencer:resetStageIndex(trackIndex)
     local track = self:getTrack(trackIndex)
     if (track.playbackOrder == 'forward') then
-        self.stepIndex[trackIndex] = track.loop.start
+        self.stageIndex[trackIndex] = track.loop.start
     elseif (track.playbackOrder == 'reverse') then
-        self.stepIndex[trackIndex] = track.loop.stop
+        self.stageIndex[trackIndex] = track.loop.stop
     elseif (track.playbackOrder == 'alternate') then
         if self.alternatePlaybackOrder == 'forward' then
-            self.stepIndex[trackIndex] = track.loop.start
+            self.stageIndex[trackIndex] = track.loop.start
         elseif self.alternatePlaybackOrder == 'reverse' then
-            self.stepIndex[trackIndex] = track.loop.stop
+            self.stageIndex[trackIndex] = track.loop.stop
         end
     end
 end
@@ -179,19 +179,19 @@ function sequencer:advanceToNextPulse(trackIndex)
     self:setActivePulse(trackIndex)
 
     local track = self:getTrack(trackIndex)
-    local stepIndex = self.stepIndex[trackIndex]
+    local stageIndex = self.stageIndex[trackIndex]
     local pulseCount = self.pulseCount[trackIndex]
-    local pulse = track:getPulse(stepIndex, pulseCount, self.scale, self.rootNote)
+    local pulse = track:getPulse(stageIndex, pulseCount, self.scale, self.rootNote)
 
-    if pulse == nil or stepIndex < track.loop.start or stepIndex > track.loop.stop then
+    if pulse == nil or stageIndex < track.loop.start or stageIndex > track.loop.stop then
         self:prepareNextPulse(trackIndex, pulse)
         self:advanceToNextPulse(trackIndex)
         return
     end
 
     local pulseProbability = pulse.probability or 1
-    local stepProbability = self.probabilities[trackIndex][stepIndex]
-    local skip = pulseProbability < stepProbability
+    local stageProbability = self.probabilities[trackIndex][stageIndex]
+    local skip = pulseProbability < stageProbability
 
     if not skip then
         self:playNote(trackIndex, pulse)
@@ -206,59 +206,59 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
     if pulse and not pulse.last then
         self.pulseCount[trackIndex] = self.pulseCount[trackIndex] + 1
     elseif track.loop.start == track.loop.stop then
-        self.stepIndex[trackIndex] = track.loop.start
+        self.stageIndex[trackIndex] = track.loop.start
         self:resetPulseCount(trackIndex)
     else
         self:resetPulseCount(trackIndex)
 
         if track.playbackOrder == 'forward' then
-            self:advanceToNextStep(trackIndex, 1)
+            self:advanceToNextStage(trackIndex, 1)
 
         elseif track.playbackOrder == 'reverse' then
-            self:advanceToNextStep(trackIndex, -1)
+            self:advanceToNextStage(trackIndex, -1)
 
         elseif track.playbackOrder == 'alternate' then
-            local stepIndex = self.stepIndex[trackIndex]
+            local stageIndex = self.stageIndex[trackIndex]
 
-            if stepIndex == track.loop.stop then
+            if stageIndex == track.loop.stop then
                 self.alternatePlaybackOrder = 'reverse'
-            elseif stepIndex == track.loop.start then
+            elseif stageIndex == track.loop.start then
                 self.alternatePlaybackOrder = 'forward'
             end
 
             if self.alternatePlaybackOrder == 'forward' then
-                self:advanceToNextStep(trackIndex, 1)
+                self:advanceToNextStage(trackIndex, 1)
             elseif self.alternatePlaybackOrder == 'reverse' then
-                self:advanceToNextStep(trackIndex, -1)
+                self:advanceToNextStage(trackIndex, -1)
             end
 
         elseif track.playbackOrder == 'random' then
-            self:advanceToNextStep(trackIndex)
+            self:advanceToNextStage(trackIndex)
         end
     end
 end
 
-function sequencer:advanceToNextStep(trackIndex, amount)
+function sequencer:advanceToNextStage(trackIndex, amount)
     self:refreshProbabilities()
 
     local track = self:getTrack(trackIndex)
 
     if track.playbackOrder == 'random' then
-        local randomStep = math.random(track.loop.start, track.loop.stop)
-        self.stepIndex[trackIndex] = randomStep;
+        local randomStage = math.random(track.loop.start, track.loop.stop)
+        self.stageIndex[trackIndex] = randomStage;
     else
-        self.stepIndex[trackIndex] = self.stepIndex[trackIndex] + amount;
+        self.stageIndex[trackIndex] = self.stageIndex[trackIndex] + amount;
     end
 
-    if self.stepIndex[trackIndex] > track.loop.stop then
-        self:resetStepIndex(trackIndex)
-    elseif self.stepIndex[trackIndex] < track.loop.start then
-        self:resetStepIndex(trackIndex)
+    if self.stageIndex[trackIndex] > track.loop.stop then
+        self:resetStageIndex(trackIndex)
+    elseif self.stageIndex[trackIndex] < track.loop.start then
+        self:resetStageIndex(trackIndex)
     end
 end
 
 function sequencer:setActivePulse(trackIndex, x, y)
-    x = x or self.stepIndex[trackIndex]
+    x = x or self.stageIndex[trackIndex]
     y = y or self.pulseCount[trackIndex]
 
     self.activePulse[trackIndex] = {
@@ -291,7 +291,7 @@ function sequencer:playNote(trackIndex, pulse)
             local ppqnPerWhole = self.lattice.ppqn * 4
             local division = self.tracks[trackIndex].division
             local ppqnPulseLength = pulse.gateLength * ppqnPerWhole * division * pulse.duration
-            local ppqnNoteOff = math.ceil(transport + ppqnPulseLength) - 1
+            local ppqnNoteOff = math.ceil(transport + ppqnPulseLength)
 
             self:addEvent('noteOff', pulse, trackIndex, ppqnNoteOff)
             self:noteOn(trackIndex, pulse)
@@ -310,7 +310,7 @@ function sequencer:addRatchets(trackIndex, pulse, transport)
     local ppqnNoteLength = math.min(ppqnRatchetLength, ppqnGateLength);
 
     -- play first ratchet instantly
-    local ppqnNoteOff = math.ceil(transport + ppqnNoteLength) - 1
+    local ppqnNoteOff = math.ceil(transport + ppqnNoteLength)
     self:addEvent('noteOff', pulse, trackIndex, ppqnNoteOff)
     self:noteOn(trackIndex, pulse)
 
@@ -330,24 +330,31 @@ function sequencer:addEvent(type, pulse, trackIndex, ppqn)
         pulse = pulse
     }
 
+    -- offset for not interfering with next noteOn event
+    if type == 'noteOff' then
+        ppqn = ppqn - 5
+    end
+
     if self.events[ppqn] == nil then
         self.events[ppqn] = {}
     end
+
     table.insert(self.events[ppqn], event)
 end
 
 function sequencer:noteOn(trackIndex, pulse)
-    if DEBUG then
-        print(self.lattice.transport, trackIndex, 'noteOn', pulse.midiNote, pulse.noteName, 127)
-    end
-
-    m:note_on(pulse.midiNote, 127, trackIndex)
+    local midiCh = params:get('midi_ch_tr_' .. trackIndex)
+    m:note_on(pulse.midiNote, 127, midiCh)
 
     -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
     crow.output[(trackIndex * 2) - 1].volts = 5
     crow.output[trackIndex * 2].volts = pulse.volts
 
     engine.noteOn(trackIndex, pulse.hz, 100)
+
+    if DEBUG then
+        print(self.lattice.transport, "Ch." .. midiCh, 'noteOn', pulse.midiNote, pulse.noteName, 127)
+    end
 end
 
 function sequencer:handleEvents(transport)
@@ -364,20 +371,18 @@ function sequencer:handleEvents(transport)
         elseif type == 'noteOn' then
             self:noteOn(event.trackIndex, pulse)
         end
-
-        if DEBUG then
-            print(self.lattice.transport, event.trackIndex, type, pulse.midiNote, pulse.noteName, 127)
-        end
     end
     self.events[transport] = nil
 end
 
 function sequencer:noteOff(trackIndex, pulse, transport)
-    m:note_off(pulse.midiNote, 127, trackIndex)
-    engine.noteOff(trackIndex)
+    local midiCh = params:get('midi_ch_tr_' .. trackIndex)
+    m:note_off(pulse.midiNote, 127, midiCh)
     crow.output[(trackIndex * 2) - 1].volts = 0
+    engine.noteOff(trackIndex)
+
     if DEBUG then
-        print(transport or self.lattice.transport, trackIndex, 'noteOff', pulse.midiNote, pulse.noteName, 127)
+        print(transport or self.lattice.transport, "Ch." .. midiCh, 'noteOff', pulse.midiNote, pulse.noteName, 127)
     end
 end
 
