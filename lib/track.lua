@@ -285,8 +285,6 @@ function track:getMidiNote(trackIndex, stageIndex, scale, rootNote)
 end
 
 function track:accumulatePitch(trackIndex, stageIndex)
-    print('TRACK, STAGE', trackIndex, stageIndex)
-    tab.print(self.stages)
     local stage = self.stages[stageIndex]
     local pitch = stage.accumulatedPitch + stage.transposition
     local transposeLimit = params:get("transpose_limit_tr_" .. trackIndex)
