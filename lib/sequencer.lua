@@ -168,7 +168,7 @@ function sequencer:advanceToNextPulse(trackIndex)
     local track = self:getTrack(trackIndex)
     local stageIndex = self.stageIndex[trackIndex]
     local pulseCount = self.pulseCount[trackIndex]
-    local pulse = track:getPulse(trackIndex, stageIndex, pulseCount, self:getScale())
+    local pulse = track:getPulse(trackIndex, stageIndex, pulseCount)
 
     if pulse == nil or stageIndex < track.loop.start or stageIndex > track.loop.stop then
         self:prepareNextPulse(trackIndex, pulse)
@@ -273,11 +273,6 @@ function sequencer:setActivePulse(trackIndex, x, y)
     }
 end
 
-function sequencer:getScale()
-    local scaleIndex = params:get('scale')
-    return musicUtil.SCALES[scaleIndex]
-end
-
 function sequencer:playNote(trackIndex, pulse)
     if pulse.gateType == 'void' then
         return
@@ -325,7 +320,7 @@ function sequencer:addRatchets(trackIndex, pulse, transport)
     end
 
     for i = 2, ratchetCount do
-        pulse = track:getPulse(trackIndex, stageIndex, pulse.pulseCount, self:getScale())
+        pulse = track:getPulse(trackIndex, stageIndex, pulse.pulseCount)
         local ppqnOn = math.ceil(transport + ((i - 1) * ppqnRatchetLength))
         local ppqnOff = math.ceil(ppqnOn + ppqnNoteLength)
 

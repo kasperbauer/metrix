@@ -74,7 +74,7 @@ function track:new(args)
                 gateType = gateTypes[2],
                 gateLength = gateLengths[1],
                 pitch = i,
-                octave = octaves[1],
+                octave = octaves[4],
                 probability = probabilities[1],
                 transposition = 0,
                 accumulatedPitch = i
@@ -166,8 +166,8 @@ function track:resetPitches()
     end
 end
 
-function track:setOctave(stage, octave)
-    self.stages[stage].octave = octave
+function track:setOctave(stage, octaveIndex)
+    self.stages[stage].octave = octaves[octaveIndex]
 end
 
 function track:setProbability(stage, probability)
@@ -208,24 +208,24 @@ function track:setAll(param, value)
     end
 end
 
-function track:getPulse(trackIndex, stageIndex, pulseCount, scale, rootNote)
+function track:getPulse(trackIndex, stageIndex, pulseCount)
     local stage = self.stages[stageIndex]
 
     if pulseCount > stage.pulseCount then
         return nil
     end
 
-    local rootNote = params:get("root_note")
     local first, last = pulseCount == 1, pulseCount >= stage.pulseCount
-    local midiNote = self:getMidiNote(trackIndex, stageIndex, scale, rootNote)
+    local octave = params:get('octave_range_tr_' .. trackIndex) + stage.octave
+    local midiNote = self:getMidiNote(trackIndex, stageIndex, octave)
 
     local pulse = {
         pulseCount = pulseCount,
         pitch = stage.pitch,
-        octave = stage.octave,
+        octave = octave,
         midiNote = midiNote,
         hz = self:getHz(midiNote),
-        volts = self:getVolts(trackIndex, stageIndex, scale, rootNote),
+        volts = self:getVolts(midiNote, octave),
         pitchName = self:getNoteName(midiNote),
         gateType = stage.gateType,
         gateLength = stage.gateLength,
@@ -276,13 +276,23 @@ function track:getPulse(trackIndex, stageIndex, pulseCount, scale, rootNote)
     end
 end
 
-function track:getMidiNote(trackIndex, stageIndex, scale, rootNote)
+function track:getScale()
+    local scaleIndex = params:get('scale')
+    return musicUtil.SCALES[scaleIndex]
+end
+
+function track:getRootNote()
+    return params:get("root_note")
+end
+
+function track:getMidiNote(trackIndex, stageIndex, octave)
+    local scale = self:getScale()
     local stage = self.stages[stageIndex]
-    local rootOctave = params:get('octave_range_tr_' .. trackIndex) - 1
-    local rootNoteInOctave = rootNote + (12 * (stage.octave + rootOctave))
     local pitch = stage.accumulatedPitch
-    local midiScale = musicUtil.generate_scale_of_length(rootNoteInOctave, scale.name, pitch)
-    return midiScale[pitch]
+    -- 24 == C1
+    local scaleRoot = 24 + (self:getRootNote() - 1)
+    local midiScale = musicUtil.generate_scale_of_length(scaleRoot, scale.name, pitch)
+    return midiScale[pitch] + (octave - 1) * 12
 end
 
 function track:accumulatePitch(trackIndex, stageIndex)
@@ -304,19 +314,14 @@ function track:getNoteName(midiNote)
     return musicUtil.note_num_to_name(midiNote)
 end
 
-function track:getVolts(trackIndex, stageIndex, scale, rootNote)
-    local stage = self.stages[stageIndex]
-    local voltsPerSemitone = 1 / 12
-    local rootOctave = params:get('octave_range_tr_' .. trackIndex) - 1
-    local rootVolts = (rootOctave + stage.octave) + (rootNote * voltsPerSemitone)
-    local pitch = stage.accumulatedPitch
-    if (pitch > #scale.intervals) then
-        local factor = math.floor(pitch / #scale.intervals)
-        pitch = pitch - (factor * #scale.intervals)
+function track:getVolts(midiNote, octave)
+    -- limit eurorack to C4 = 0V
+    if octave < 4 then
+        octave = 4
     end
 
-    local semitones = scale.intervals[pitch]
-    return rootVolts + (semitones * voltsPerSemitone)
+    local offset = 24 + (octave - 1) * 12;
+    return (midiNote - offset) / 12
 end
 
 function track.getPlaybackOrders()
