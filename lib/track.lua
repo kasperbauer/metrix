@@ -88,32 +88,31 @@ function track:new(args)
     return t
 end
 
-function track:randomize(params)
-    for i = 1, #params do
-        local key = params[i]
+function track:randomize(paramNames)
+    for i, name in ipairs(paramNames) do
         for stage = 1, 8 do
-            if key == 'pulseCount' then
+            if name == 'pulseCount' then
                 self:setPulseCount(stage, math.lowerRandom(1, 8))
             end
-            if key == 'pitch' then
+            if name == 'pitch' then
                 self:setPitch(stage, math.random(1, 8))
             end
-            if key == 'octave' then
+            if name == 'octave' then
                 self:setOctave(stage, octaves[math.random(1, 4)])
             end
-            if key == 'gateType' then
+            if name == 'gateType' then
                 self:setGateType(stage, gateTypes[math.random(1, 4)])
             end
-            if key == 'gateLength' then
+            if name == 'gateLength' then
                 self:setGateLength(stage, gateLengths[math.random(1, 4)])
             end
-            if key == 'ratchetCount' then
+            if name == 'ratchetCount' then
                 self:setRatchetCount(stage, math.lowerRandom(1, 8, 4))
             end
-            if key == 'probability' then
+            if name == 'probability' then
                 self:setProbability(stage, probabilities[math.random(1, 4)])
             end
-            if key == 'transposition' then
+            if name == 'transposition' then
                 self:setTransposition(stage, math.lowerRandom(0, 7, 4))
             end
         end
@@ -336,7 +335,7 @@ end
 
 function track:setTransposition(stageIndex, transposition)
     self.stages[stageIndex].transposition = transposition
-    
+
     if transposition == 0 then
         self:resetPitch(stageIndex)
     end
