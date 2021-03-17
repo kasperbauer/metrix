@@ -314,7 +314,7 @@ function sequencer:playNote(trackIndex, pulse)
             local ppqnPerWhole = self.lattice.ppqn * 4
             local division = self.tracks[trackIndex].division
             local ppqnPulseLength = pulse.gateLength * ppqnPerWhole * division * pulse.duration
-            local ppqnNoteOff = math.ceil(transport + ppqnPulseLength)
+            local ppqnNoteOff = transport + ppqnPulseLength
 
             self:addEvent('noteOff', pulse, trackIndex, ppqnNoteOff)
             self:noteOn(trackIndex, pulse)
@@ -335,7 +335,7 @@ function sequencer:addRatchets(trackIndex, pulse, transport)
     local stageIndex = self.stageIndex[trackIndex]
 
     -- play first ratchet instantly
-    local ppqnNoteOff = math.ceil(transport + ppqnNoteLength)
+    local ppqnNoteOff = transport + ppqnNoteLength
     self:addEvent('noteOff', pulse, trackIndex, ppqnNoteOff)
     self:noteOn(trackIndex, pulse)
 
@@ -346,7 +346,7 @@ function sequencer:addRatchets(trackIndex, pulse, transport)
     for i = 2, ratchetCount do
         pulse = track:getPulse(trackIndex, stageIndex, pulse.pulseCount, self.scale, self.rootNote)
         local ppqnOn = math.ceil(transport + ((i - 1) * ppqnRatchetLength))
-        local ppqnOff = math.ceil(ppqnOn + ppqnNoteLength) - 1
+        local ppqnOff = math.ceil(ppqnOn + ppqnNoteLength)
 
         self:addEvent('noteOn', pulse, trackIndex, ppqnOn)
         self:addEvent('noteOff', pulse, trackIndex, ppqnOff)
@@ -366,8 +366,10 @@ function sequencer:addEvent(type, pulse, trackIndex, ppqn)
 
     -- offset for not interfering with next noteOn event
     if type == 'noteOff' then
-        ppqn = ppqn - 5
+        ppqn = ppqn - 2
     end
+
+    ppqn = math.floor(ppqn)
 
     if self.events[ppqn] == nil then
         self.events[ppqn] = {}
