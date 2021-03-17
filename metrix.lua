@@ -53,6 +53,7 @@ local screenIsDirty = false
 function init()
     initEngine()
     addParams()
+    m = midi.connect(params:get('midi_device'))
     clock.run(redrawClock)
     math.randomseed(util.time())
 end
@@ -75,6 +76,9 @@ function addParams()
     params:add_option("scale", "Scale", scaleNames, 1)
     params:add_option("root_note", "Root Note", musicUtil.NOTE_NAMES, 1)
     params:add_number("midi_device", "MIDI Device", 1, #midi.vports, 1)
+    params:set_action("midi_device", function(port)
+        m = midi.connect(port)
+    end)
 
     for i = 1, 2 do
         params:add_group("Track " .. i, 5)
