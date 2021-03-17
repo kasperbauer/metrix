@@ -54,6 +54,7 @@ local screenIsDirty = false
 
 function init()
     initEngine()
+    addParams()
     clock.run(redrawClock)
     math.randomseed(util.time())
 end
@@ -62,6 +63,21 @@ function initEngine()
     if engine.name == 'MollyThePoly' then
         params:add_group("MOLLY THE POLY", 46)
         MollyThePoly.add_params()
+    end
+end
+
+function addParams()
+    for i = 1, #seq.tracks do
+        params:add_group("Metrix: Track " .. i, 9)
+        params:add_separator("General")
+        params:add_binary("mute_tr_" .. i, "Mute Track", "toggle", false)
+        params:add_separator("Pitch")
+        params:add_option("octave_range_tr_" .. i, "Octave Range", {"0 to 4", "1 to 5", "2 to 6", "3 to 7", "4 to 8", "5 to 9"}, 3)
+        params:add_separator("Accumulator")
+        params:add_number("transpose_limit_tr_" .. i, "Acc. Limit", 1, 127, 8)
+        params:add_option("transpost_trigger_tr_" .. i, "Transpose Trigger", {"stage", "pulse", "ratchet"}, 1)
+        params:add_separator("MIDI")
+        params:add_number("midi_ch_tr_" .. i, "MIDI Channel", 1, 127, i)
     end
 end
 
