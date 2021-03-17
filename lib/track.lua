@@ -62,7 +62,6 @@ function track:new(args)
     }
     t.playbackOrder = playbackOrders[1]
     t.alternatePlaybackOrder = 'forward'
-    t.transpositionLimit = 4 -- in notes in scale
 
     if args.stages then
         t.stages = args.stages
@@ -244,7 +243,7 @@ function track:getPulse(trackIndex, stageIndex, pulseCount, scale, rootNote)
         duration = 1
     }
 
-    self:accumulatePitch(stageIndex)
+    self:accumulatePitch(trackIndex, stageIndex)
 
     if stage.gateType == 'rest' then
         return rest
@@ -281,10 +280,11 @@ function track:getMidiNote(trackIndex, stageIndex, scale, rootNote)
     return midiScale[pitch]
 end
 
-function track:accumulatePitch(stageIndex)
+function track:accumulatePitch(trackIndex, stageIndex)
     local stage = self.stages[stageIndex]
     local pitch = stage.accumulatedPitch + stage.transposition
-    if (pitch > stage.pitch + self.transpositionLimit) then
+    local transposeLimit = params:get("transpose_limit_tr_" .. trackIndex)
+    if (pitch > stage.pitch + transposeLimit) then
         self:setAccumulatedPitch(stageIndex, stage.pitch)
     else
         self:setAccumulatedPitch(stageIndex, pitch)
