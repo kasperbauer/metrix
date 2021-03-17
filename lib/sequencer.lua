@@ -364,8 +364,18 @@ function sequencer:noteOn(trackIndex, pulse)
     m:note_on(pulse.midiNote, 127, midiCh)
 
     -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
-    crow.output[(trackIndex * 2) - 1].volts = 5
     crow.output[trackIndex * 2].volts = pulse.volts
+    local crowGateType = params:get("crow_gate_type_tr_" .. trackIndex)
+    if crowGateType == "gate" then
+        crow.output[(trackIndex * 2) - 1].volts = 5
+    elseif crowGateType == "trigger" then
+        crow.output[(trackIndex * 2) - 1].action = "{to(5,0),to(0,0.005)}"
+    elseif crowGateType == "envelope" then
+        local attack, sustain, release = param:get("crow_attack_tr_" .. trackIndex),
+            param:get("crow_sustain_tr_" .. trackIndex), param:get("crow_release_tr_" .. trackIndex)
+        crow.output[(trackIndex * 2) - 1].action = "{to(0,0),to(5," .. attack .. "),to(5," .. sustain .. "),to(0," ..
+                                                       release .. ")}"
+    end
 
     engine.noteOn(trackIndex, pulse.hz, 100)
 
@@ -395,7 +405,12 @@ end
 function sequencer:noteOff(trackIndex, pulse, transport)
     local midiCh = params:get('midi_ch_tr_' .. trackIndex)
     m:note_off(pulse.midiNote, 127, midiCh)
-    crow.output[(trackIndex * 2) - 1].volts = 0
+
+    local crowGateType = params:get("crow_gate_type_tr_" .. trackIndex)
+    if crowGateType == "gate" then
+        crow.output[(trackIndex * 2) - 1].volts = 0
+    end
+
     engine.noteOff(trackIndex)
 
     if DEBUG then
