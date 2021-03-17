@@ -60,7 +60,6 @@ function track:new(args)
         start = 1,
         stop = 8
     }
-    t.mute = false
     t.playbackOrder = playbackOrders[1]
     t.alternatePlaybackOrder = 'forward'
     t.transpositionLimit = 4 -- in notes in scale
@@ -311,18 +310,6 @@ function track:getVolts(stageIndex, scale, rootNote)
 
     local semitones = scale.intervals[pitch]
     return rootVolts + (semitones * voltsPerSemitone)
-end
-
-function track:toggle()
-    self.mute = not self.mute
-end
-
-function track:mute()
-    self.mute = true
-end
-
-function track:unmute()
-    self.mute = false
 end
 
 function track.getPlaybackOrders()

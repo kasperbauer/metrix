@@ -351,8 +351,7 @@ function g.key(x, y, z)
     if selectedPage ~= 4 and y <= 2 then
         if shiftIsHeld() then
             if on then
-                track = seq:getTrack(y)
-                track:toggle()
+                seq:toggleTrack(y)
             end
         elseif on and modIsHeld() then
             selectTrack(y)

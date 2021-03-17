@@ -282,7 +282,8 @@ function sequencer:playNote(trackIndex, pulse)
 
     local track = self:getTrack(trackIndex)
 
-    if pulse.gateType ~= 'rest' and not track.mute then
+    local isMuted = params:get("mute_tr_" .. trackIndex) == 1
+    if pulse.gateType ~= 'rest' and not isMuted then
         local transport = self.lattice.transport
 
         if pulse.ratchetCount > 1 then
@@ -397,6 +398,16 @@ function sequencer:noteOffAll()
     end
 
     engine.noteOffAll()
+end
+
+function sequencer:toggleTrack(trackIndex)
+    local isMuted = params:get("mute_tr_" .. trackIndex) == 1
+    if isMuted then
+        isMuted = 0
+    else
+        isMuted = 1
+    end
+    params:set("mute_tr_" .. trackIndex, isMuted)
 end
 
 return sequencer
