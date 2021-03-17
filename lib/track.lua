@@ -215,6 +215,7 @@ function track:getPulse(trackIndex, stageIndex, pulseCount, scale, rootNote)
         return nil
     end
 
+    local rootNote = params:get("root_note")
     local first, last = pulseCount == 1, pulseCount >= stage.pulseCount
     local midiNote = self:getMidiNote(trackIndex, stageIndex, scale, rootNote)
 

@@ -11,6 +11,7 @@ sequencer = include('lib/sequencer')
 track = include('lib/track')
 include('lib/helpers')
 
+m = midi.connect()
 g = grid.connect()
 g:rotation(45)
 
@@ -45,9 +46,6 @@ seq = sequencer:new(function()
 end)
 seq:addTracks(2)
 
--- scales
-local scales = seq:getScales()
-
 -- redraw
 local gridIsDirty = true
 local screenIsDirty = false
@@ -67,18 +65,25 @@ function initEngine()
 end
 
 function addParams()
-    for i = 1, #seq.tracks do
-        params:add_group("Metrix: Track " .. i, 9)
-        params:add_separator("General")
+    local scaleNames = {}
+    for i = 1, #musicUtil.SCALES do
+        table.insert(scaleNames, string.lower(musicUtil.SCALES[i].name))
+    end
+
+    params:add_separator("METRIX")
+    params:add_group("General", 3)
+    params:add_option("scale", "Scale", scaleNames, 1)
+    params:add_option("root_note", "Root Note", musicUtil.NOTE_NAMES, 1)
+    params:add_number("midi_device", "MIDI Device", 1, #midi.vports, 1)
+
+    for i = 1, 2 do
+        params:add_group("Track " .. i, 5)
         params:add_binary("mute_tr_" .. i, "Mute Track", "toggle", false)
-        params:add_separator("Pitch")
         params:add_option("octave_range_tr_" .. i, "Octave Range",
             {"0 to 3", "1 to 4", "2 to 5", "3 to 6", "4 to 7", "5 to 8", "6 to 9"}, 3)
-        params:add_separator("Accumulator")
         params:add_number("transpose_limit_tr_" .. i, "Acc. Limit", 1, 127, 7)
-        params:add_option("transpose_trigger_tr_" .. i, "Transpose Trigger", seq:getTransposeTriggers(), 1)
-        params:add_separator("MIDI")
-        params:add_number("midi_ch_tr_" .. i, "MIDI Channel", 1, 127, i)
+        params:add_option("transpose_trigger_tr_" .. i, "Transpose Trigger", sequencer:getTransposeTriggers(), 1)
+        params:add_number("midi_ch_tr_" .. i, "Channel", 1, 127, i)
     end
 end
 
@@ -145,7 +150,6 @@ function redrawGrid()
         drawMatrix('probability', track:getProbabilities(), 12, 15)
     elseif selectedPage == 4 then
         drawPresetPicker()
-        drawScalePicker()
         drawTrackOptions()
     end
 
@@ -253,24 +257,6 @@ function drawPresetPicker()
             else
                 g:led(x, y, 3)
             end
-        end
-    end
-end
-
-function drawScalePicker()
-    local rows = math.ceil(#scales / 8)
-
-    scaleIndex = 1
-    for y = 6, 6 + rows do
-        for x = 1, 8 do
-            if (scaleIndex > #scales) then
-                break
-            elseif seq.scale.name == scales[scaleIndex].name then
-                g:led(x, y, 15)
-            else
-                g:led(x, y, 3)
-            end
-            scaleIndex = scaleIndex + 1
         end
     end
 end
@@ -480,13 +466,6 @@ function g.key(x, y, z)
             end
         end
 
-        local scaleRows, scaleIndex = math.ceil(#scales / 8), (y - 6) * 8 + x
-
-        -- rows 6 - ?
-        if y >= 6 and y <= 6 + scaleRows and scaleIndex <= #scales then
-            selectScale(scaleIndex)
-        end
-
         -- rows 12 & 14: playback order
         if (y == 12 or y == 14) and x <= 4 then
             local trackIndex = 1
@@ -567,10 +546,6 @@ end
 function selectTrack(trackIndex)
     seq:changeTrack(trackIndex)
     trackWasSelected = true
-end
-
-function selectScale(scaleIndex)
-    seq:setScale(scaleIndex)
 end
 
 function requestScreenRedraw()

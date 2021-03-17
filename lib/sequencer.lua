@@ -4,19 +4,7 @@ track = include('lib/track')
 local DEBUG = false
 local DEBUG_MUTE_VOICE = 2
 
-m = midi.connect()
-
 local sequencer = {}
-
-local scales = {};
-for i = 1, #musicUtil.SCALES do
-    local scale = musicUtil.SCALES[i]
-    -- get all scales with max 8 notes
-    if #scale.intervals <= 8 then
-        table.insert(scales, scale)
-    end
-end
-
 local transposeTriggers = {"stage", "pulse", "ratchet"}
 
 function sequencer:new(onPulseAdvance)
@@ -35,10 +23,6 @@ function sequencer:new(onPulseAdvance)
     t.patterns = {}
     t.noteOffPattern = nil
     t.events = {}
-    -- 0 equals C
-    t.rootNote = 0
-    -- 1 equals major
-    t.scale = scales[1]
 
     t.onPulseAdvance = onPulseAdvance or function()
     end
@@ -184,7 +168,7 @@ function sequencer:advanceToNextPulse(trackIndex)
     local track = self:getTrack(trackIndex)
     local stageIndex = self.stageIndex[trackIndex]
     local pulseCount = self.pulseCount[trackIndex]
-    local pulse = track:getPulse(trackIndex, stageIndex, pulseCount, self.scale, self.rootNote)
+    local pulse = track:getPulse(trackIndex, stageIndex, pulseCount, self:getScale())
 
     if pulse == nil or stageIndex < track.loop.start or stageIndex > track.loop.stop then
         self:prepareNextPulse(trackIndex, pulse)
@@ -289,12 +273,9 @@ function sequencer:setActivePulse(trackIndex, x, y)
     }
 end
 
-function sequencer:getScales()
-    return scales
-end
-
-function sequencer:setScale(scaleIndex)
-    self.scale = scales[scaleIndex]
+function sequencer:getScale()
+    local scaleIndex = params:get('scale')
+    return musicUtil.SCALES[scaleIndex]
 end
 
 function sequencer:playNote(trackIndex, pulse)
@@ -344,7 +325,7 @@ function sequencer:addRatchets(trackIndex, pulse, transport)
     end
 
     for i = 2, ratchetCount do
-        pulse = track:getPulse(trackIndex, stageIndex, pulse.pulseCount, self.scale, self.rootNote)
+        pulse = track:getPulse(trackIndex, stageIndex, pulse.pulseCount, self:getScale())
         local ppqnOn = math.ceil(transport + ((i - 1) * ppqnRatchetLength))
         local ppqnOff = math.ceil(ppqnOn + ppqnNoteLength)
 
