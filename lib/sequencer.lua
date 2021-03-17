@@ -25,7 +25,7 @@ function sequencer:new(onPulseAdvance)
     })
 
     t.lattice = lattice:new()
-    t.lattice.ppqn = 192
+    t.lattice.ppqn = 256
     t.tracks = {}
     t.currentTrack = 0
     t.probabilities = {}
