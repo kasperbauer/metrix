@@ -181,7 +181,7 @@ function sequencer:advanceToNextPulse(trackIndex)
     local track = self:getTrack(trackIndex)
     local stageIndex = self.stageIndex[trackIndex]
     local pulseCount = self.pulseCount[trackIndex]
-    local pulse = track:getPulse(stageIndex, pulseCount, self.scale, self.rootNote)
+    local pulse = track:getPulse(trackIndex, stageIndex, pulseCount, self.scale, self.rootNote)
 
     if pulse == nil or stageIndex < track.loop.start or stageIndex > track.loop.stop then
         self:prepareNextPulse(trackIndex, pulse)

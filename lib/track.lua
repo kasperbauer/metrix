@@ -24,10 +24,10 @@ local probabilities = {
 }
 
 local octaves = {
-    [1] = 5,
-    [2] = 4,
-    [3] = 3,
-    [4] = 2
+    [1] = 3,
+    [2] = 2,
+    [3] = 1,
+    [4] = 0
 }
 
 local divisions = {
@@ -204,7 +204,7 @@ function track:setAll(param, value)
     end
 end
 
-function track:getPulse(stageIndex, pulseCount, scale, rootNote)
+function track:getPulse(trackIndex, stageIndex, pulseCount, scale, rootNote)
     local stage = self.stages[stageIndex]
 
     if pulseCount > stage.pulseCount then
@@ -212,14 +212,14 @@ function track:getPulse(stageIndex, pulseCount, scale, rootNote)
     end
 
     local first, last = pulseCount == 1, pulseCount >= stage.pulseCount
-    local midiNote = self:getMidiNote(stageIndex, scale, rootNote)
+    local midiNote = self:getMidiNote(trackIndex, stageIndex, scale, rootNote)
 
     local pulse = {
         pitch = stage.pitch,
         octave = stage.octave,
         midiNote = midiNote,
         hz = self:getHz(midiNote),
-        volts = self:getVolts(stageIndex, scale, rootNote),
+        volts = self:getVolts(trackIndex, stageIndex, scale, rootNote),
         pitchName = self:getNoteName(midiNote),
         gateType = stage.gateType,
         gateLength = stage.gateLength,
@@ -272,9 +272,10 @@ function track:getPulse(stageIndex, pulseCount, scale, rootNote)
     end
 end
 
-function track:getMidiNote(stageIndex, scale, rootNote)
+function track:getMidiNote(trackIndex, stageIndex, scale, rootNote)
     local stage = self.stages[stageIndex]
-    local rootNoteInOctave = rootNote + (12 * stage.octave)
+    local rootOctave = params:get('octave_range_tr_' .. trackIndex) - 1
+    local rootNoteInOctave = rootNote + (12 * (stage.octave + rootOctave))
     local pitch = stage.accumulatedPitch
     local midiScale = musicUtil.generate_scale_of_length(rootNoteInOctave, scale.name, pitch)
     return midiScale[pitch]
@@ -298,10 +299,11 @@ function track:getNoteName(midiNote)
     return musicUtil.note_num_to_name(midiNote)
 end
 
-function track:getVolts(stageIndex, scale, rootNote)
+function track:getVolts(trackIndex, stageIndex, scale, rootNote)
     local stage = self.stages[stageIndex]
     local voltsPerSemitone = 1 / 12
-    local rootVolts = stage.octave + (rootNote * voltsPerSemitone)
+    local rootOctave = params:get('octave_range_tr_' .. trackIndex) - 1
+    local rootVolts = (rootOctave + stage.octave) + (rootNote * voltsPerSemitone)
     local pitch = stage.accumulatedPitch
     if (pitch > #scale.intervals) then
         local factor = math.floor(pitch / #scale.intervals)
