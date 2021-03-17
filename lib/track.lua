@@ -216,7 +216,7 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
     end
 
     local first, last = pulseCount == 1, pulseCount >= stage.pulseCount
-    local octave = params:get('octave_range_tr_' .. trackIndex) + stage.octave
+    local octave = self:getOctave(trackIndex, stageIndex)
     local midiNote = self:getMidiNote(trackIndex, stageIndex, octave)
 
     local pulse = {
@@ -226,7 +226,7 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
         midiNote = midiNote,
         hz = self:getHz(midiNote),
         volts = self:getVolts(midiNote, octave),
-        pitchName = self:getNoteName(midiNote),
+        noteName = self:getNoteName(midiNote) .. octave,
         gateType = stage.gateType,
         gateLength = stage.gateLength,
         probability = stage.probability,
@@ -274,6 +274,11 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
             return void
         end
     end
+end
+
+function track:getOctave(trackIndex, stageIndex)
+    local stage = self.stages[stageIndex]
+    return params:get('octave_range_tr_' .. trackIndex) + stage.octave
 end
 
 function track:getScale()
