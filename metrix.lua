@@ -424,8 +424,7 @@ function g.key(x, y, z)
                 track:setPitch(stageIndex, pitch)
             end
         elseif y >= 12 and y <= 15 then
-            local octaves = track:getOctaves()
-            local octave = octaves[y - 11]
+            local octave = track:getOctave(y - 11)
             if modIsHeld() then
                 track:setAll('octave', octave)
             else

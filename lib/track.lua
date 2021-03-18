@@ -194,6 +194,10 @@ function track:getOctaves()
     return octaves
 end
 
+function track:getOctave(octaveIndex)
+    return octaves[octaveIndex]
+end
+
 function track:getDivisions()
     return divisions
 end
@@ -216,7 +220,7 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
     end
 
     local first, last = pulseCount == 1, pulseCount >= stage.pulseCount
-    local octave = self:getOctave(trackIndex, stageIndex)
+    local octave = self:getOctaveByIndex(trackIndex, stageIndex)
     local midiNote = self:getMidiNote(trackIndex, stageIndex, octave)
 
     -- 127 = top of midi range = G9
@@ -279,7 +283,7 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
     end
 end
 
-function track:getOctave(trackIndex, stageIndex)
+function track:getOctaveByIndex(trackIndex, stageIndex)
     local stage = self.stages[stageIndex]
     return params:get('octave_range_tr_' .. trackIndex) + stage.octave
 end
