@@ -370,7 +370,6 @@ function sequencer:noteOn(trackIndex, pulse)
         local a, s, r = params:get("crow_attack_tr_" .. trackIndex), params:get("crow_sustain_tr_" .. trackIndex),
             params:get("crow_release_tr_" .. trackIndex)
         crow.output[(trackIndex * 2) - 1]("{to(5," .. a .. "),to(5," .. s .. "),to(0," .. r .. ")}")
-        print(a, s, r)
     end
 
     engine.noteOn(trackIndex, pulse.hz, 100)
