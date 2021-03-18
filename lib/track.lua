@@ -219,6 +219,9 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
     local octave = self:getOctave(trackIndex, stageIndex)
     local midiNote = self:getMidiNote(trackIndex, stageIndex, octave)
 
+    -- 127 = top of midi range = G9
+    midiNote = util.clamp(midiNote, 0, 127)
+
     local pulse = {
         pulseCount = pulseCount,
         pitch = stage.pitch,
@@ -321,10 +324,7 @@ end
 
 function track:getVolts(midiNote, octave)
     -- limit eurorack to C4 = 0V
-    if octave < 4 then
-        octave = 4
-    end
-
+    octave = util.clamp(octave, 4,9)
     local offset = 24 + (octave - 1) * 12;
     return (midiNote - offset) / 12
 end
