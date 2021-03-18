@@ -6,6 +6,7 @@ local DEBUG_MUTE_VOICE = 2
 
 local sequencer = {}
 local transposeTriggers = {"stage", "pulse", "ratchet"}
+local crowGateTypes = {'gate', 'trigger', 'envelope'}
 
 function sequencer:new(onPulseAdvance)
     local t = setmetatable({}, {
@@ -360,16 +361,16 @@ function sequencer:noteOn(trackIndex, pulse)
 
     -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
     crow.output[trackIndex * 2].volts = pulse.volts
-    local crowGateType = params:get("crow_gate_type_tr_" .. trackIndex)
-    if crowGateType == "gate" then
+    local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
+    if crowGateTypeIndex == 1 then -- gate
         crow.output[(trackIndex * 2) - 1].volts = 5
-    elseif crowGateType == "trigger" then
-        crow.output[(trackIndex * 2) - 1].action = "{to(5,0),to(0,0.005)}"
-    elseif crowGateType == "envelope" then
-        local attack, sustain, release = param:get("crow_attack_tr_" .. trackIndex),
-            param:get("crow_sustain_tr_" .. trackIndex), param:get("crow_release_tr_" .. trackIndex)
-        crow.output[(trackIndex * 2) - 1].action = "{to(0,0),to(5," .. attack .. "),to(5," .. sustain .. "),to(0," ..
-                                                       release .. ")}"
+    elseif crowGateTypeIndex == 2 then -- trigger
+        crow.output[(trackIndex * 2) - 1]("{to(5,0),to(0,0.005)}")
+    elseif crowGateTypeIndex == 3 then -- envelope
+        local a, s, r = params:get("crow_attack_tr_" .. trackIndex), params:get("crow_sustain_tr_" .. trackIndex),
+            params:get("crow_release_tr_" .. trackIndex)
+        crow.output[(trackIndex * 2) - 1]("{to(5," .. a .. "),to(5," .. s .. "),to(0," .. r .. ")}")
+        print(a, s, r)
     end
 
     engine.noteOn(trackIndex, pulse.hz, 100)
@@ -401,8 +402,8 @@ function sequencer:noteOff(trackIndex, pulse, transport)
     local midiCh = params:get('midi_ch_tr_' .. trackIndex)
     m:note_off(pulse.midiNote, 127, midiCh)
 
-    local crowGateType = params:get("crow_gate_type_tr_" .. trackIndex)
-    if crowGateType == "gate" then
+    local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
+    if crowGateTypeIndex == 1 then
         crow.output[(trackIndex * 2) - 1].volts = 0
     end
 
@@ -434,6 +435,14 @@ function sequencer:toggleTrack(trackIndex)
         isMuted = 1
     end
     params:set("mute_tr_" .. trackIndex, isMuted)
+end
+
+function sequencer:getCrowGateTypes()
+    return crowGateTypes
+end
+
+function sequencer:getCrowGateType(index)
+    return crowGateTypes[index]
 end
 
 return sequencer
