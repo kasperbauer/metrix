@@ -126,7 +126,7 @@ Pitch: Acc. Limit | Set the limit over which transpositions are allowed to accum
 Pitch: Transpose Trigger | Apply the accumulation per stage / pulse / ratchet
 Pitch: Slide Time | Sets the amount of time it takes to move from one pitch to the next (Note: Only 'analog' slide type is supported atm.)
 MIDI: Channel | Sets the MIDI channel for sending the track sequence to
-Crow: Gate Type | Sets the signal type crow generates to gate / trigger / envelope type
+Crow: Gate Type | Sets the signal type that crow generates: gate / trigger / envelope
 Crow: Env. Attack | Sets the attack time of the generated envelope
 Crow: Env. Sustain | Sets the sustain time of the generated envelope
 Crow: Env. Release | Sets the release time of the generated envelope
