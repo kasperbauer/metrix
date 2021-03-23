@@ -43,7 +43,9 @@ function track:new(args)
         end
     else
         for i = 1, 8 do
-            stages[i] = stage:new()
+            stages[i] = stage:new({
+                pitch = i
+            })
         end
     end
     t.stages = stages
