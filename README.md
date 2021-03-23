@@ -114,7 +114,7 @@ Connect crow to control your eurorack system:
 [0V translates to C4](https://vcvrack.com/manual/VoltageStandards) as the baseline frequency. Notes lower than that get clamped at 0V minimum. Use your oscillator controls to offset the octave.
 
 ### MIDI
-Connect your MIDI Device via params. Track 1 defaults to Channel 1, Track 2 defaults to Channel 2.
+Connect your MIDI device using the corresponding param. Track 1 defaults to MIDI-Channel 1, Track 2 defaults to MIDI-Channel 2. The Channels can also be assigned in the params.
 
 The possible range for MIDI Note Events is [C1 to G9](https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies). It's theoretically possible to exceed this limitation with setting a high octave range and a little help from the **accumulating transposition** feature. However, metrix caps the pitch at G9. Nice try. :)
 
