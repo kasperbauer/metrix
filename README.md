@@ -49,9 +49,9 @@ The grid layout of **metrix** is strongly influenced by [skylines](https://lllll
 <img src="docs/ui.gif" alt="Grid Layout" width="512" height="512">
 
 ### Track Selector / Loopy
-On pages 1 & 2, use the first two rows to select one of two tracks and to set the loop start and end points:
+On pages 1 & 2, use the first two rows to select one of two tracks and to set the loop's start and end points:
 - Tap on the currently unselected track to **select** it.
-- Tap and hold the start point and select the end point to set the **repeating stages**. This works in any direction.
+- Tap and hold the start point and select the end point to set the **looped stages**. This works in any direction.
 - Tap on a stage on the currently selected track to select only a **single stage**.
 
 ### Page Selector
