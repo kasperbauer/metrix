@@ -1,7 +1,7 @@
 lattice = require('lattice')
 track = include('lib/track')
 
-local DEBUG = true
+local DEBUG = false
 local DEBUG_MUTE_VOICE = 2
 
 local sequencer = {}
