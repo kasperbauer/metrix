@@ -33,7 +33,7 @@ Please look at the manual for further explanations if something is unclear.
 - optional: crow
 
 ## Layout
-The Layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
+The layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
 
 ### Page Selector
 In the bottom left corner, you can choose among the follwing pages:
