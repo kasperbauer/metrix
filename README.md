@@ -115,7 +115,7 @@ Param | Description
 Output: Mute | Mute the selected track
 Output: Audio | Play audio on/off
 Output: MIDI | Send MIDI on/off
-Output: Crow | Send sequence to Crow
+Output: Crow | Send to Crow on/off
 Pitch: Octave Range | Adjust the via grid controlable octave range 
 Pitch: Acc. Limit | Set the limit over which transpositions are allowed to accumulate
 Pitch: Transpose Trigger | Apply the accumulation per stage / pulse / ratchet
