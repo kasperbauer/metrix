@@ -38,7 +38,7 @@ If you're not familiar with the functionality and terms, please have a look at t
 - `K3` Reset and restart
 
 ## Grid Layout
-The layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
+The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
 
 ### Page Selector
 In the bottom left corner, you can choose among the follwing pages:
