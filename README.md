@@ -17,9 +17,11 @@ Please look at the manual for further explanations if something is unclear.
 - Two independent tracks with 8 stages each
 - Control many functions directly via grid (pulse count, gate type, ratchets, pitch, octave, accumulation, slide and accent)
 - Set playback direction (forward, reverse, alternate, random) and clock division (1/1 - 1/32) per track
+- Loop the whole sequence or choose parts of it
 - Quantize to a scale and root note via global params
 - Connect to Crow or via MIDI
 - Save and load up to 64 presets
+- Generate random sequences 
 
 ## Requirements
 - norns (210114)
