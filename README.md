@@ -90,14 +90,14 @@ Connect crow to control your eurorack system:
 ## Params
 
 ### General
-Param | ***
+Param | Description
 ----- | ---
 Scale | Choose on of the provided scales
 RootNote | Choose the root note of that scale
 MIDI Device | Choose a MIDI device to send the sequence data to
 
 ### Track 1/2
-Param | ***
+Param | Description
 ----- | ---
 Output: Mute | Mute the selected track
 Output: Audio | Play audio on/off
@@ -109,6 +109,6 @@ Pitch: Transpose Trigger | Apply the accumulation per stage / pulse / ratchet
 Pitch: Slide Time | Sets the amount of time it takes to move from one pitch to the next (Note: Only 'analog' slide type is supported atm.)
 MIDI: Channel | Sets the MIDI channel for sending the track sequence to
 Crow: Gate Type | Sets the signal type crow generates to gate / trigger / envelope type
-Crow: Envelope Attack | Sets the attack time of the generated envelope
-Crow: Envelope Sustain | Sets the sustain time of the generated envelope
-Crow: Envelope Release | Sets the release time of the generated envelope
+Crow: Env. Attack | Sets the attack time of the generated envelope
+Crow: Env. Sustain | Sets the sustain time of the generated envelope
+Crow: Env. Release | Sets the release time of the generated envelope
