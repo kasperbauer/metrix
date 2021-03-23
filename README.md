@@ -40,6 +40,8 @@ If you're not familiar with it, please have a look at the metropolix manual or d
 ## Grid Layout
 The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
 
+<img src="docs/ui.gif" alt="Grid Layout" width="512" height="512">
+
 ### Page Selector
 In the bottom left corner, you can choose among the follwing pages:
 
