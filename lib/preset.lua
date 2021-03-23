@@ -45,6 +45,7 @@ end
 function preset:delete(id)
     if self:exists(id) then
         os.remove(self.path .. id)
+        self.current = nil
     end
 end
 
