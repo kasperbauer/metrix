@@ -73,6 +73,7 @@ function initEngine()
 end
 
 function addParams()
+    local csMillis = controlspec.new(0, 5, 'lin', 0.05, 0.05, 's')
     local scaleNames = {}
     for i = 1, #musicUtil.SCALES do
         table.insert(scaleNames, string.lower(musicUtil.SCALES[i].name))
@@ -88,21 +89,25 @@ function addParams()
     end)
 
     for i = 1, 2 do
-        params:add_group("Track " .. i, 12)
-        params:add_binary("mute_tr_" .. i, "Mute Track", "toggle", 0)
-        params:add_binary("output_audio_tr_" .. i, "Audio Output", "toggle", 1)
-        params:add_binary("output_midi_tr_" .. i, "MIDI Output", "toggle", 1)
-        params:add_binary("output_crow_tr_" .. i, "Crow Output", "toggle", 1)
+        params:add_group("Track " .. i, 17)
+        params:add_separator('Output')
+        params:add_binary("mute_tr_" .. i, "Mute", "toggle", 0)
+        params:add_binary("output_audio_tr_" .. i, "Audio", "toggle", 1)
+        params:add_binary("output_midi_tr_" .. i, "MIDI", "toggle", 1)
+        params:add_binary("output_crow_tr_" .. i, "Crow", "toggle", 1)
+        params:add_separator('Pitch')
         params:add_option("octave_range_tr_" .. i, "Octave Range",
             {"1 to 4", "2 to 5", "3 to 6", "4 to 7", "5 to 8", "6 to 9"}, 4)
         params:add_number("transpose_limit_tr_" .. i, "Acc. Limit", 1, 127, 7)
         params:add_option("transpose_trigger_tr_" .. i, "Transpose Trigger", sequencer:getTransposeTriggers(), 1)
+        params:add_control("slide_amount_tr_" .. i, "Slide Time", csMillis)
+        params:add_separator('MIDI')
         params:add_number("midi_ch_tr_" .. i, "MIDI Channel", 1, 127, i)
-        params:add_option("crow_gate_type_tr_" .. i, "Crow GateType", sequencer:getCrowGateTypes(), 3)
-        local csMillis = controlspec.new(0, 5, 'lin', 0.05, 0.1, 's')
-        params:add_control("crow_attack_tr_" .. i, "Crow Env. Attack", csMillis)
-        params:add_control("crow_sustain_tr_" .. i, "Crow Env. Sustain", csMillis)
-        params:add_control("crow_release_tr_" .. i, "Crow Env. Release", csMillis)
+        params:add_separator('Crow')
+        params:add_option("crow_gate_type_tr_" .. i, "GateType", sequencer:getCrowGateTypes(), 3)
+        params:add_control("crow_attack_tr_" .. i, "Env. Attack", csMillis)
+        params:add_control("crow_sustain_tr_" .. i, "Env. Sustain", csMillis)
+        params:add_control("crow_release_tr_" .. i, "Env. Release", csMillis)
     end
 end
 
