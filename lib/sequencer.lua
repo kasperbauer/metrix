@@ -364,9 +364,13 @@ function sequencer:noteOn(trackIndex, pulse)
     end
 
     if self:shouldSendToOutput(trackIndex, 'crow') then
-        -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
+        -- output 2/4: pitch
+        crow.output[trackIndex * 2].slew = pulse.slideAmount
         crow.output[trackIndex * 2].volts = pulse.volts
+
+        -- output 1/3: gates / triggers
         local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
+
         if crowGateTypeIndex == 1 then -- gate
             crow.output[(trackIndex * 2) - 1].volts = 5
         elseif crowGateTypeIndex == 2 then -- trigger
@@ -379,6 +383,7 @@ function sequencer:noteOn(trackIndex, pulse)
     end
 
     if self:shouldSendToOutput(trackIndex, 'audio') then
+        engine.glide(pulse.slideAmount)
         engine.noteOn(trackIndex, pulse.hz, 100)
     end
 

@@ -114,6 +114,7 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
     local midiNote = self:getMidiNote(stage.accumulatedPitch, octave)
     local scale = self:getScale()
     local accumulatedOctave = math.floor(((midiNote - 24) / 12) + 1)
+    local slideAmount = stage.slide and params:get('slide_amount_tr_' .. trackIndex) or 0
 
     local pulse = {
         pulseCount = pulseCount,
@@ -129,7 +130,8 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
         ratchetCount = stage.ratchetCount,
         first = first,
         last = last,
-        duration = 1
+        duration = 1,
+        slideAmount = slideAmount
     }
 
     local rest = {

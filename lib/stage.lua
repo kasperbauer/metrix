@@ -37,8 +37,8 @@ function stage:new(args)
     t.probability = args.probability or probabilities[1]
     t.transpose = args.transpose or 0
     t.accumulatedPitch = args.accumulatedPitch or 1
-    t.slide = math.random(0, 1) == 1
-    t.accent = math.random(0, 1) == 1
+    t.slide = args.slide or false
+    t.accent = args.accent or false
 
     return t
 end
