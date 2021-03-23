@@ -1,34 +1,7 @@
 include('lib/math')
+stage = include('lib/stage')
 
 local track = {}
-
-local gateTypes = {
-    [1] = 'hold',
-    [2] = 'multiple',
-    [3] = 'single',
-    [4] = 'rest'
-}
-
-local gateLengths = {
-    [1] = 1,
-    [2] = 0.75,
-    [3] = 0.5,
-    [4] = 0.1
-}
-
-local probabilities = {
-    [1] = 1,
-    [2] = 0.75,
-    [3] = 0.5,
-    [4] = 0.25
-}
-
-local octaves = {
-    [1] = 3,
-    [2] = 2,
-    [3] = 1,
-    [4] = 0
-}
 
 local divisions = {
     [1] = 1 / 1,
@@ -63,25 +36,17 @@ function track:new(args)
     t.playbackOrder = playbackOrders[1]
     t.alternatePlaybackOrder = 'forward'
 
+    local stages = {};
     if args.stages then
-        t.stages = args.stages
-    else
-        local stages = {};
-        for i = 1, 8 do
-            stages[i] = {
-                pulseCount = i,
-                ratchetCount = 1,
-                gateType = gateTypes[2],
-                gateLength = gateLengths[1],
-                pitch = i,
-                octave = octaves[4],
-                probability = probabilities[1],
-                transposition = 0,
-                accumulatedPitch = i
-            }
+        for i, stageData in ipairs(args.stages) do
+            stages[i] = stage:new(stageData)
         end
-        t.stages = stages
+    else
+        for i = 1, 8 do
+            stages[i] = stage:new()
+        end
     end
+    t.stages = stages
 
     -- reset accumulation on loading preset
     for i = 1, 8 do
@@ -92,35 +57,9 @@ function track:new(args)
 end
 
 function track:randomize(paramNames)
-    for i, name in ipairs(paramNames) do
-        for stage = 1, 8 do
-            if name == 'pulseCount' then
-                self:setPulseCount(stage, math.lowerRandom(1, 8))
-            end
-            if name == 'pitch' then
-                self:setPitch(stage, math.random(1, 8))
-            end
-            if name == 'octave' then
-                self:setOctave(stage, octaves[math.random(1, 4)])
-            end
-            if name == 'gateType' then
-                self:setGateType(stage, gateTypes[math.random(1, 4)])
-            end
-            if name == 'gateLength' then
-                self:setGateLength(stage, gateLengths[math.random(1, 4)])
-            end
-            if name == 'ratchetCount' then
-                self:setRatchetCount(stage, math.lowerRandom(1, 8, 4))
-            end
-            if name == 'probability' then
-                self:setProbability(stage, probabilities[math.random(1, 4)])
-            end
-            if name == 'transposition' then
-                self:setTransposition(stage, math.lowerRandom(0, 7, 4))
-            end
-        end
+    for k, stage in pairs(self.stages) do
+        stage:randomize(paramNames)
     end
-
 end
 
 function track:setLoop(start, stop)
@@ -135,67 +74,18 @@ function track:setLoop(start, stop)
     self.loop.stop = stop or 8
 end
 
-function track:setPulseCount(stage, pulseCount)
-    self.stages[stage].pulseCount = pulseCount
-end
-
-function track:setRatchetCount(stage, ratchetCount)
-    self.stages[stage].ratchetCount = ratchetCount
-end
-
-function track:setGateType(stage, gateType)
-    self.stages[stage].gateType = gateType
-end
-
-function track:setGateLength(stage, gateLength)
-    self.stages[stage].gateLength = gateLength
-end
-
-function track:setPitch(stage, pitch)
-    self.stages[stage].pitch = pitch
-    self.stages[stage].accumulatedPitch = pitch
-end
-
-function track:resetPitch(stageIndex)
-    self.stages[stageIndex].accumulatedPitch = self.stages[stageIndex].pitch
+function track:getStageWithIndex(stageIndex)
+    return self.stages[stageIndex]
 end
 
 function track:resetPitches()
-    for stageIndex = 1, #self.stages do
-        self:resetPitch(stageIndex)
+    for k, stage in pairs(self.stages) do
+        stage:resetPitch()
     end
-end
-
-function track:setOctave(stage, octaveIndex)
-    self.stages[stage].octave = octaves[octaveIndex]
-end
-
-function track:setProbability(stage, probability)
-    self.stages[stage].probability = probability
 end
 
 function track:setDivision(division)
     self.division = division
-end
-
-function track:getGateTypes()
-    return gateTypes
-end
-
-function track:getGateLengths()
-    return gateLengths
-end
-
-function track:getProbabilities()
-    return probabilities
-end
-
-function track:getOctaves()
-    return octaves
-end
-
-function track:getOctave(octaveIndex)
-    return octaves[octaveIndex]
 end
 
 function track:getDivisions()
@@ -206,14 +96,14 @@ function track:getDivisionIndex()
     return tab.key(divisions, self.division)
 end
 
-function track:setAll(param, value)
-    for i = 1, 8 do
-        self.stages[i][param] = value
+function track:setAll(paramName, value)
+    for k, stage in pairs(self.stages) do
+        stage:setParam(paramName, value)
     end
 end
 
 function track:getPulse(trackIndex, stageIndex, pulseCount)
-    local stage = self.stages[stageIndex]
+    local stage = self:getStageWithIndex(stageIndex)
 
     if pulseCount > stage.pulseCount then
         return nil
@@ -221,19 +111,18 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
 
     local first, last = pulseCount == 1, pulseCount >= stage.pulseCount
     local octave = self:getOctaveByIndex(trackIndex, stageIndex)
-    local midiNote = self:getMidiNote(trackIndex, stageIndex, octave)
-
-    -- 127 = top of midi range = G9
-    midiNote = util.clamp(midiNote, 0, 127)
+    local midiNote = self:getMidiNote(stage.accumulatedPitch, octave)
+    local scale = self:getScale()
+    local accumulatedOctave = math.floor(((midiNote - 24) / 12) + 1)
 
     local pulse = {
         pulseCount = pulseCount,
-        pitch = stage.pitch,
+        pitch = stage.accumulatedPitch,
         octave = octave,
         midiNote = midiNote,
         hz = self:getHz(midiNote),
         volts = self:getVolts(midiNote, octave),
-        noteName = self:getNoteName(midiNote) .. octave,
+        noteName = self:getNoteName(midiNote) .. accumulatedOctave,
         gateType = stage.gateType,
         gateLength = stage.gateLength,
         probability = stage.probability,
@@ -297,25 +186,14 @@ function track:getRootNote()
     return params:get("root_note")
 end
 
-function track:getMidiNote(trackIndex, stageIndex, octave)
+function track:getMidiNote(pitch, octave)
     local scale = self:getScale()
-    local stage = self.stages[stageIndex]
-    local pitch = stage.accumulatedPitch
+    local pitch = pitch
     -- 24 == C1
     local scaleRoot = 24 + (self:getRootNote() - 1)
     local midiScale = musicUtil.generate_scale_of_length(scaleRoot, scale.name, pitch)
-    return midiScale[pitch] + (octave - 1) * 12
-end
-
-function track:accumulatePitch(trackIndex, stageIndex)
-    local stage = self.stages[stageIndex]
-    local pitch = stage.accumulatedPitch + stage.transposition
-    local transposeLimit = params:get("transpose_limit_tr_" .. trackIndex)
-    if (pitch > stage.pitch + transposeLimit) then
-        self:setAccumulatedPitch(stageIndex, stage.pitch)
-    else
-        self:setAccumulatedPitch(stageIndex, pitch)
-    end
+    local midiNote = midiScale[pitch] + (octave - 1) * 12;
+    return util.clamp(midiNote, 0, 127)
 end
 
 function track:getHz(midiNote)
@@ -341,16 +219,8 @@ function track:setPlaybackOrder(playbackOrder)
     self.playbackOrder = playbackOrder
 end
 
-function track:setTransposition(stageIndex, transposition)
-    self.stages[stageIndex].transposition = transposition
-
-    if transposition == 0 then
-        self:resetPitch(stageIndex)
-    end
-end
-
-function track:setAccumulatedPitch(stageIndex, pitch)
-    self.stages[stageIndex].accumulatedPitch = pitch
+function track:stageIsInLoop(stageIndex)
+    return stageIndex >= self.loop.start and stageIndex <= self.loop.stop
 end
 
 return track

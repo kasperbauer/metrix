@@ -1,12 +1,12 @@
 lattice = require('lattice')
 track = include('lib/track')
 
-local DEBUG = false
+local DEBUG = true
 local DEBUG_MUTE_VOICE = 2
 
 local sequencer = {}
 local transposeTriggers = {"stage", "pulse", "ratchet"}
-local crowGateTypes = {'gate', 'trigger', 'envelope'}
+local crowGateTypes = {"gate", "trigger", "envelope"}
 
 function sequencer:new(onPulseAdvance)
     local t = setmetatable({}, {
@@ -189,12 +189,14 @@ function sequencer:advanceToNextPulse(trackIndex)
 
     local transposeTrigger = self:getTransposeTrigger(trackIndex);
     if transposeTrigger == 'pulse' then
-        track:accumulatePitch(trackIndex, stageIndex)
+        local stage = track:getStageWithIndex(stageIndex)
+        stage:accumulatePitch(trackIndex)
     end
 end
 
 function sequencer:prepareNextPulse(trackIndex, pulse)
     local track = self:getTrack(trackIndex)
+    local stageIndex = self.stageIndex[trackIndex];
 
     if pulse and not pulse.last then
         self.pulseCount[trackIndex] = self.pulseCount[trackIndex] + 1
@@ -202,7 +204,6 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
         self.stageIndex[trackIndex] = track.loop.start
         self:resetPulseCount(trackIndex)
     else
-        local stageIndex = self.stageIndex[trackIndex];
         self:resetPulseCount(trackIndex)
 
         if track.playbackOrder == 'forward' then
@@ -230,7 +231,8 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
 
         local transposeTrigger = self:getTransposeTrigger(trackIndex);
         if transposeTrigger == 'stage' then
-            track:accumulatePitch(trackIndex, stageIndex)
+            local stage = track:getStageWithIndex(stageIndex)
+            stage:accumulatePitch(trackIndex)
         end
     end
 end
@@ -310,6 +312,7 @@ function sequencer:addRatchets(trackIndex, pulse, transport)
     local ppqnNoteLength = math.min(ppqnRatchetLength, ppqnGateLength);
     local transposeTrigger = self:getTransposeTrigger(trackIndex);
     local stageIndex = self.stageIndex[trackIndex]
+    local stage = track:getStageWithIndex(stageIndex)
 
     -- play first ratchet instantly
     local ppqnNoteOff = transport + ppqnNoteLength
@@ -317,7 +320,7 @@ function sequencer:addRatchets(trackIndex, pulse, transport)
     self:noteOn(trackIndex, pulse)
 
     if transposeTrigger == 'ratchet' then
-        track:accumulatePitch(trackIndex, stageIndex)
+        stage:accumulatePitch(trackIndex)
     end
 
     for i = 2, ratchetCount do
@@ -329,7 +332,7 @@ function sequencer:addRatchets(trackIndex, pulse, transport)
         self:addEvent('noteOff', pulse, trackIndex, ppqnOff)
 
         if transposeTrigger == 'ratchet' then
-            track:accumulatePitch(trackIndex, stageIndex)
+            stage:accumulatePitch(trackIndex)
         end
     end
 end

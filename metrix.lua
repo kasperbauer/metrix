@@ -143,20 +143,20 @@ function redrawGrid()
     if selectedPage == 1 then
         if shiftIsHeld() then
             drawMatrix('ratchetCount', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10, true)
-            drawMatrix('gateLength', track:getGateLengths(), 12, 15)
+            drawMatrix('gateLength', stage:getGateLengths(), 12, 15)
         else
             drawMatrix('pulseCount', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10, true)
-            drawMatrix('gateType', track:getGateTypes(), 12, 15)
+            drawMatrix('gateType', stage:getGateTypes(), 12, 15)
         end
     elseif selectedPage == 2 then
         if shiftIsHeld() then
-            drawMatrix('transposition', {7, 6, 5, 4, 3, 2, 1, 0}, 3, 10)
+            drawMatrix('transpose', {7, 6, 5, 4, 3, 2, 1, 0}, 3, 10)
         else
             drawMatrix('pitch', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10)
         end
-        drawMatrix('octave', track:getOctaves(), 12, 15)
+        drawMatrix('octave', {3, 2, 1, 0}, 12, 15)
     elseif selectedPage == 3 then
-        drawMatrix('probability', track:getProbabilities(), 12, 15)
+        drawMatrix('probability', stage:getProbabilities(), 12, 15)
     elseif selectedPage == 4 then
         drawPresetPicker()
         drawTrackOptions()
@@ -225,12 +225,13 @@ function drawMatrix(paramName, options, from, to, filled)
     for x = 1, 8 do
         local value = track.stages[x][paramName]
         local offset = from - 1;
+        local stageIndex = x
 
         for y = from, to do
             local i = y - offset;
             local key = tab.key(options, value)
 
-            if stageInLoop(x, track) then
+            if track:stageIsInLoop(stageIndex) then
                 if value == options[i] then
                     g:led(x, y, 11)
                 elseif filled and isNumeric(key) and key <= i then
@@ -249,10 +250,6 @@ function drawMatrix(paramName, options, from, to, filled)
             end
         end
     end
-end
-
-function stageInLoop(stageIndex, track)
-    return stageIndex >= track.loop.start and stageIndex <= track.loop.stop
 end
 
 function drawPresetPicker()
@@ -337,8 +334,8 @@ end
 
 function g.key(x, y, z)
     local on, off = z == 1, z == 0
-    local stageIndex, track = x, seq:getCurrentTrack()
-    local stage = track.stages[stageIndex]
+    local track = seq:getCurrentTrack()
+    local stage = track:getStageWithIndex(x)
     local held, tapped = getMomentariesInRow(y), x
 
     momentary[x][y] = z == 1 and true or false
@@ -378,36 +375,20 @@ function g.key(x, y, z)
         if y >= 3 and y <= 10 then
             if shiftIsHeld() then
                 local ratchetCount = 11 - y
-                if modIsHeld() then
-                    track:setAll('ratchetCount', ratchetCount)
-                else
-                    track:setRatchetCount(stageIndex, ratchetCount)
-                end
+                setParam(stage, 'ratchetCount', ratchetCount)
             else
                 local pulseCount = 11 - y
-                if modIsHeld() then
-                    track:setAll('pulseCount', pulseCount)
-                else
-                    track:setPulseCount(stageIndex, pulseCount)
-                end
+                setParam(stage, 'pulseCount', pulseCount)
             end
         elseif y >= 12 and y <= 15 then
             if shiftIsHeld() then
-                local gateLengths = track:getGateLengths()
+                local gateLengths = stage:getGateLengths()
                 local gateLength = gateLengths[math.abs(11 - y)]
-                if modIsHeld() then
-                    track:setAll('gateLength', gateLength)
-                else
-                    track:setGateLength(stageIndex, gateLength)
-                end
+                setParam(stage, 'gateLength', gateLength)
             else
-                local gateTypes = track:getGateTypes()
+                local gateTypes = stage:getGateTypes()
                 local gateType = gateTypes[math.abs(11 - y)]
-                if modIsHeld() then
-                    track:setAll('gateType', gateType)
-                else
-                    track:setGateType(stageIndex, gateType)
-                end
+                setParam(stage, 'gateType', gateType)
             end
         end
     end
@@ -415,34 +396,26 @@ function g.key(x, y, z)
     -- row 3-10: pitch & octave matrix
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
-            local pitch = 11 - y
             if shiftIsHeld() then
-                track:setTransposition(stageIndex, pitch - 1)
-            elseif modIsHeld() then
-                track:setAll('pitch', pitch)
+                local transpose = 10 - y
+                setParam(stage, 'transpose', transpose)
             else
-                track:setPitch(stageIndex, pitch)
+                local pitch = 11 - y
+                setParam(stage, 'pitch', pitch)
+                setParam(stage, 'accumulatedPitch', pitch)
             end
         elseif y >= 12 and y <= 15 then
-            local octave = track:getOctave(y - 11)
-            if modIsHeld() then
-                track:setAll('octave', octave)
-            else
-                track:setOctave(stageIndex, octave)
-            end
+            local octave = 15 - y
+            setParam(stage, 'octave', octave)
         end
     end
 
     -- row 3-10: ratchet & probability matrix
     if selectedPage == 3 and on then
         if y >= 12 and y <= 15 then
-            local probabilities = track:getProbabilities()
+            local probabilities = stage:getProbabilities()
             local probability = probabilities[y - 11]
-            if modIsHeld() then
-                track:setAll('probability', probability)
-            else
-                track:setProbability(stageIndex, probability)
-            end
+            setParam(stage, 'probability', probability)
         end
     end
 
@@ -452,7 +425,7 @@ function g.key(x, y, z)
             if x == 1 then
                 track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'gateLength'})
             elseif x == 2 then
-                track:randomize({'pitch', 'transposition', 'octave'})
+                track:randomize({'pitch', 'transpose', 'octave'})
             elseif x == 3 then
                 track:randomize({'probability'})
             end
@@ -501,6 +474,15 @@ function g.key(x, y, z)
     end
 
     requestGridRedraw()
+end
+
+function setParam(stage, paramName, value)
+    if modIsHeld() then
+        local track = seq:getCurrentTrack()
+        track:setAll(paramName, value)
+    else
+        stage:setParam(paramName, value)
+    end
 end
 
 function getMomentariesInRow(y)
