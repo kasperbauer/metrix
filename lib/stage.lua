@@ -37,6 +37,8 @@ function stage:new(args)
     t.probability = args.probability or probabilities[1]
     t.transpose = args.transpose or 0
     t.accumulatedPitch = args.accumulatedPitch or 1
+    t.slide = math.random(0, 1) == 1
+    t.accent = math.random(0, 1) == 1
 
     return t
 end
@@ -47,6 +49,10 @@ function stage:setParam(paramName, value)
     if paramName == 'transpose' and value == 0 then
         self:resetPitch()
     end
+end
+
+function stage:toggleParam(paramName)
+    self[paramName] = not self[paramName]
 end
 
 function stage:randomize(paramNames)

@@ -161,10 +161,12 @@ function redrawGrid()
     elseif selectedPage == 2 then
         if shiftIsHeld() then
             drawMatrix('transpose', {7, 6, 5, 4, 3, 2, 1, 0}, 3, 10)
+            drawBooleanMatrix('slide', 12)
+            drawBooleanMatrix('accent', 14)
         else
             drawMatrix('pitch', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10)
+            drawMatrix('octave', {3, 2, 1, 0}, 12, 15)
         end
-        drawMatrix('octave', {3, 2, 1, 0}, 12, 15)
     elseif selectedPage == 3 then
         drawMatrix('probability', stage:getProbabilities(), 12, 15)
     elseif selectedPage == 4 then
@@ -266,6 +268,19 @@ function drawMatrix(paramName, options, from, to, filled)
                     g:led(x, y, ledLevels.off)
                 end
             end
+        end
+    end
+end
+
+function drawBooleanMatrix(paramName, y)
+    local track = seq:getCurrentTrack()
+
+    for x = 1, 8 do
+        local value = track.stages[x][paramName]
+        if value then
+            g:led(x, y, ledLevels.high)
+        else
+            g:led(x, y, ledLevels.low)
         end
     end
 end
@@ -419,8 +434,14 @@ function g.key(x, y, z)
                 setParam(stage, 'accumulatedPitch', pitch)
             end
         elseif y >= 12 and y <= 15 then
-            local octave = 15 - y
-            setParam(stage, 'octave', octave)
+            if shiftIsHeld() and y == 12 then
+                stage:toggleParam('slide')
+            elseif shiftIsHeld() and y == 14 then
+                stage:toggleParam('accent')
+            else
+                local octave = 15 - y
+                setParam(stage, 'octave', octave)
+            end
         end
     end
 
