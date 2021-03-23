@@ -279,12 +279,17 @@ end
 
 function drawBooleanMatrix(paramName, y)
     local track = seq:getCurrentTrack()
-
+    
     for x = 1, 8 do
+        local stageIndex = x
         local value = track.stages[x][paramName]
-        if value then
-            g:led(x, y, ledLevels.high)
-        else
+        if track:stageIsInLoop(stageIndex) then
+            if value then
+                g:led(x, y, ledLevels.high)
+            else
+                g:led(x, y, ledLevels.low)
+            end
+        elseif value then
             g:led(x, y, ledLevels.low)
         end
     end
