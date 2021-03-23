@@ -66,7 +66,10 @@ Hold these keys for secondary functions and shortcuts.
 
 #### _shift_
 Hold the `[shift]` key to switch to the secondary functions of a page. 
-More on that on the corresponding sections.
+More on that on the corresponding sections. Also:
+
+- `[shift] + [page 1] / [page 2]` 
+**mute / unmute** tracks 1 and 2
 
 #### _mod_
 Hold the `[mod]` key to access some shortcuts:
