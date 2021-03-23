@@ -295,7 +295,7 @@ function drawBooleanMatrix(paramName, y)
 end
 
 function drawPresetPicker()
-    for y = 1, 4 do
+    for y = 1, 8 do
         for x = 1, 8 do
             local presetIndex = (y - 1) * 8 + x
             if (pre.current == presetIndex) then
@@ -459,7 +459,7 @@ function g.key(x, y, z)
 
     if selectedPage == 3 and on then
         -- row 1-4: load presets
-        if y >= 1 and y <= 4 then
+        if y >= 1 and y <= 8 then
             local presetIndex = (y - 1) * 8 + x
             if shiftIsHeld() and modIsHeld() then
                 pre:delete(presetIndex)
