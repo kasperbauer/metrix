@@ -42,18 +42,18 @@ The grid layout of **metrix** is strongly influenced by [skylines](https://lllll
 
 <img src="docs/ui.gif" alt="Grid Layout" width="512" height="512">
 
+### Track Selector / Loopy
+On pages 1 & 2, use the first two rows to select one of two tracks and to set the loop start and end points:
+- Tap on the currently unselected track to select it.
+- Hold the start point and select the end point to set the repeating stages.
+- Tap on a stage on the currently selected track to select only a single stage.
+
 ### Page Selector
 In the bottom left corner, you can choose among the follwing pages:
 
 1. pulses and gates
 2. pitch
 3. presets and track settings
-
-### Track Selector / Loopy
-On pages 1 & 2, use the first two rows to select one of two tracks and to set the loop start and end points:
-- Tap on the currently unselected track to select it.
-- Hold the start point and select the end point to set the repeating stages.
-- Tap on a stage on the currently selected track to select only a single stage.
 
 ### Modifier Keys
 In the bottom right corner, the `[shift]` and `[mod]` keys are located.
@@ -78,10 +78,14 @@ Set loopy to repeat all stages of the track
 - Use the bottom matrix to choose the gate type for each stage.
 - Press and hold `[shift]` to access the matrices for ratchets (top) and probability (bottom).
 
+<img src="docs/page1.gif" alt="Page 1: Pulses and gates" width="512" height="512">
+
 ## Page 2: Pitch
 - Use the top matrix to choose the pitch for each stage. 
 - Use the bottom matrix to choose the octave for each stage.
-- Press and hold `[shift]` to access the matrices for accumulating transposition (top) and slide on/off.
+- Press and hold `[shift]` to access the matrices for accumulating transposition (top), slide on/off and accent on/off (bottom).
+
+<img src="docs/page2.gif" alt="Page 2: Pitch" width="512" height="512">
 
 ## Page 3: Presets and track settings
 - Save a preset by holding `[shift]` and selecting on of the 64 preset slots on the top.
