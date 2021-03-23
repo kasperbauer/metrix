@@ -78,10 +78,14 @@ Set loopy to repeat all stages of the track
 - Use the bottom matrix to choose the gate type for each stage.
 - Press and hold `[shift]` to access the matrices for ratchets (top) and probability (bottom).
 
+<img src="docs/page1.gif" alt="Page 1: Pulses and gates" width="512" height="512">
+
 ## Page 2: Pitch
 - Use the top matrix to choose the pitch for each stage. 
 - Use the bottom matrix to choose the octave for each stage.
 - Press and hold `[shift]` to access the matrices for accumulating transposition (top) and slide on/off.
+
+<img src="docs/page2.gif" alt="Page 2: Pitch" width="512" height="512">
 
 ## Page 3: Presets and track settings
 - Save a preset by holding `[shift]` and selecting on of the 64 preset slots on the top.
