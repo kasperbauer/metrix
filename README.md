@@ -82,4 +82,33 @@ Set loopy to repeat all stages of the track
 - Delete a preset by holding `[shift]` and `[mod]` and select a preset slot.
 - Choose the playback order and clock division for the corresponding track
 
+## Crow
+Connect crow to control your eurorack system:
+- Outputs 1 and 3 send gates, triggers or envelopes (adjustable in the params) for each pulse
+- Outputs 2 and 4 send 1v/octave pitch voltage
+
 ## Params
+
+### General
+Param | ***
+----- | ---
+Scale | Choose on of the provided scales
+RootNote | Choose the root note of that scale
+MIDI Device | Choose a MIDI device to send the sequence data to
+
+### Track 1/2
+Param | ***
+----- | ---
+Output: Mute | Mute the selected track
+Output: Audio | Play audio on/off
+Output: MIDI | Send MIDI on/off
+Output: Crow | Send sequence to Crow
+Pitch: Octave Range | Adjust the via grid controlable octave range 
+Pitch: Acc. Limit | Set the limit over which transpositions are allowed to accumulate
+Pitch: Transpose Trigger | Apply the accumulation per stage / pulse / ratchet
+Pitch: Slide Time | Sets the amount of time it takes to move from one pitch to the next (Note: Only 'analog' slide type is supported atm.)
+MIDI: Channel | Sets the MIDI channel for sending the track sequence to
+Crow: Gate Type | Sets the signal type crow generates to gate / trigger / envelope type
+Crow: Envelope Attack | Sets the attack time of the generated envelope
+Crow: Envelope Sustain | Sets the sustain time of the generated envelope
+Crow: Envelope Release | Sets the release time of the generated envelope
