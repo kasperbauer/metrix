@@ -8,13 +8,14 @@ If you're not familiar with the functionality and terms, please have a look at t
 **TOC**
 1. [Features](#features)
 2. [Requirements](#requirements)
-3. [Layout](#layout)
+3. [Norns Keys/Encoders](#norns-keys-and-encoders)
+4. [Grid Layout](#grid-layout)
     - [Pages](#pages)
     - [Modifier Keys](#modifier-keys)
-4. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
-5. [Page 2: Pitch](#page-2-pitch)
-6. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
-7. [Params](#params)
+5. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
+6. [Page 2: Pitch](#page-2-pitch)
+7. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
+8. [Params](#params)
 
 ## Features
 - Two independent tracks with 8 stages each
@@ -31,7 +32,12 @@ If you're not familiar with the functionality and terms, please have a look at t
 - grid
 - optional: crow
 
-## Layout
+## Norns Keys and Encoders
+**WIP;**
+- `K2` Play / Pause
+- `K3` Reset and restart
+
+## Grid Layout
 The layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
 
 ### Page Selector
