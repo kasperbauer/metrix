@@ -191,7 +191,7 @@ function drawBottomRow()
     local y = 16
 
     if modIsHeld() then
-        for x = 1, 3 do
+        for x = 1, (maxPages - 1) do
             g:led(x, y, ledLevels.mid)
         end
     elseif shiftIsHeld() then
@@ -498,15 +498,13 @@ function g.key(x, y, z)
 
     -- row 16: select page / randomize / mute
     if on and y == 16 and x <= maxPages then
-        if shiftIsHeld() and x <= 2 then
+        if shiftIsHeld() and not modIsHeld() and x <= 2 then
             seq:toggleTrack(x)
         elseif modIsHeld() then
             if x == 1 then
-                track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'gateLength'})
+                track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'probability'})
             elseif x == 2 then
-                track:randomize({'pitch', 'transpose', 'octave'})
-            elseif x == 3 then
-                track:randomize({'probability'})
+                track:randomize({'pitch', 'transpose', 'octave', 'slide', 'accent'})
             end
         else
             selectPage(x)

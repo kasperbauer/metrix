@@ -81,6 +81,12 @@ function stage:randomize(paramNames)
         if name == 'transpose' then
             self.transpose = math.lowerRandom(0, 7, 4)
         end
+        if name == 'slide' then
+            self.slide = math.random() > 0.5
+        end
+        if name == 'accent' then
+            self.accent = math.random() > 0.5
+        end
     end
 end
 
