@@ -4,7 +4,7 @@ Please consider this when filing issues.
 
 # metrix
 
-[intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns. 🤖💞
+[intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns. 🤖❤️
 
 All functionality and terms are directly adopted from metropolix. 
 If you're not familiar with it, please have a look at the metropolix manual or do some binge watching on [yt](https://youtu.be/niP5hVB43_8). 
