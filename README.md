@@ -2,14 +2,24 @@
 
 [intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns.
 
-All terms used here are directly adopted from the metropolix manual. Look there
-for further explanations, if something is unclear.
+All functionality and terms are directly adopted from metropolix.
+Have a look on yt or the Metropolix website for a general functional overview of the sequencer.
+Please look at the manual for further explanations if something is unclear.
 
 **TOC**
-1. [Requirements](#requirements)
-2. [Layout](#layout)
+1. [Features](#features)
+2. [Requirements](#requirements)
+3. [Layout](#layout)
     - [Pages](#pages)
     - [Modifier Keys](#modifier-keys)
+
+## Features
+- Two independent tracks with 8 stages each
+- Control many functions directly via grid (pulse count, gate type, ratchets, pitch, octave, accumulation, slide and accent)
+- Set playback direction (forward, reverse, alternate, random) and clock division (1/1 - 1/32) per track
+- Quantize to a scale and root note via global params
+- Connect to Crow or via MIDI
+- Save and load up to 64 presets
 
 ## Requirements
 - norns (210114)
