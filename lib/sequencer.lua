@@ -359,26 +359,35 @@ function sequencer:addEvent(type, pulse, trackIndex, ppqn)
 end
 
 function sequencer:noteOn(trackIndex, pulse)
-    local midiCh = params:get('midi_ch_tr_' .. trackIndex)
-    m:note_on(pulse.midiNote, 127, midiCh)
-
-    -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
-    crow.output[trackIndex * 2].volts = pulse.volts
-    local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
-    if crowGateTypeIndex == 1 then -- gate
-        crow.output[(trackIndex * 2) - 1].volts = 5
-    elseif crowGateTypeIndex == 2 then -- trigger
-        crow.output[(trackIndex * 2) - 1]("{to(5,0),to(0,0.005)}")
-    elseif crowGateTypeIndex == 3 then -- envelope
-        local a, s, r = params:get("crow_attack_tr_" .. trackIndex), params:get("crow_sustain_tr_" .. trackIndex),
-            params:get("crow_release_tr_" .. trackIndex)
-        crow.output[(trackIndex * 2) - 1]("{to(5," .. a .. "),to(5," .. s .. "),to(0," .. r .. ")}")
+    if self:shouldSendToOutput(trackIndex, 'midi') then
+        print('midi')
+        local midiCh = params:get('midi_ch_tr_' .. trackIndex)
+        m:note_on(pulse.midiNote, 127, midiCh)
     end
 
-    engine.noteOn(trackIndex, pulse.hz, 100)
+    if self:shouldSendToOutput(trackIndex, 'crow') then
+        print('crow')
+        -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
+        crow.output[trackIndex * 2].volts = pulse.volts
+        local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
+        if crowGateTypeIndex == 1 then -- gate
+            crow.output[(trackIndex * 2) - 1].volts = 5
+        elseif crowGateTypeIndex == 2 then -- trigger
+            crow.output[(trackIndex * 2) - 1]("{to(5,0),to(0,0.005)}")
+        elseif crowGateTypeIndex == 3 then -- envelope
+            local a, s, r = params:get("crow_attack_tr_" .. trackIndex), params:get("crow_sustain_tr_" .. trackIndex),
+                params:get("crow_release_tr_" .. trackIndex)
+            crow.output[(trackIndex * 2) - 1]("{to(5," .. a .. "),to(5," .. s .. "),to(0," .. r .. ")}")
+        end
+    end
+
+    if self:shouldSendToOutput(trackIndex, 'audio') then
+        print('audio')
+        engine.noteOn(trackIndex, pulse.hz, 100)
+    end
 
     if DEBUG then
-        print(self.lattice.transport, "Ch." .. midiCh, 'noteOn', pulse.midiNote, pulse.noteName, 127)
+        print(self.lattice.transport, 'noteOn', pulse.midiNote, pulse.noteName, 127)
     end
 end
 
@@ -402,17 +411,23 @@ end
 
 function sequencer:noteOff(trackIndex, pulse, transport)
     local midiCh = params:get('midi_ch_tr_' .. trackIndex)
-    m:note_off(pulse.midiNote, 127, midiCh)
-
-    local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
-    if crowGateTypeIndex == 1 then
-        crow.output[(trackIndex * 2) - 1].volts = 0
+    if self:shouldSendToOutput(trackIndex, 'midi') then
+        m:note_off(pulse.midiNote, 127, midiCh)
     end
 
-    engine.noteOff(trackIndex)
+    if self:shouldSendToOutput(trackIndex, 'crow') then
+        local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
+        if crowGateTypeIndex == 1 then
+            crow.output[(trackIndex * 2) - 1].volts = 0
+        end
+    end
+
+    if self:shouldSendToOutput(trackIndex, 'audio') then
+        engine.noteOff(trackIndex)
+    end
 
     if DEBUG then
-        print(transport or self.lattice.transport, "Ch." .. midiCh, 'noteOff', pulse.midiNote, pulse.noteName, 127)
+        print(transport or self.lattice.transport, 'noteOff', pulse.midiNote, pulse.noteName, 127)
     end
 end
 
@@ -430,6 +445,7 @@ function sequencer:noteOffAll()
 end
 
 function sequencer:toggleTrack(trackIndex)
+    print(params:get("mute_tr_" .. trackIndex))
     local isMuted = params:get("mute_tr_" .. trackIndex) == 1
     if isMuted then
         isMuted = 0
@@ -445,6 +461,10 @@ end
 
 function sequencer:getCrowGateType(index)
     return crowGateTypes[index]
+end
+
+function sequencer:shouldSendToOutput(trackIndex, type) -- type: audio, midi, crow
+    return params:get("output_" .. type .. "_tr_" .. trackIndex) == 1
 end
 
 return sequencer

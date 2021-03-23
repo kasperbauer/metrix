@@ -81,8 +81,11 @@ function addParams()
     end)
 
     for i = 1, 2 do
-        params:add_group("Track " .. i, 9)
-        params:add_binary("mute_tr_" .. i, "Mute Track", "toggle", false)
+        params:add_group("Track " .. i, 12)
+        params:add_binary("mute_tr_" .. i, "Mute Track", "toggle", 0)
+        params:add_binary("output_audio_tr_" .. i, "Audio Output", "toggle", 1)
+        params:add_binary("output_midi_tr_" .. i, "MIDI Output", "toggle", 1)
+        params:add_binary("output_crow_tr_" .. i, "Crow Output", "toggle", 1)
         params:add_option("octave_range_tr_" .. i, "Octave Range",
             {"1 to 4", "2 to 5", "3 to 6", "4 to 7", "5 to 8", "6 to 9"}, 4)
         params:add_number("transpose_limit_tr_" .. i, "Acc. Limit", 1, 127, 7)
