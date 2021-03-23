@@ -65,5 +65,19 @@ Randomize the values related to that page
 Set all stages to the selected value. Use the shift key additionally to access the secondary functions.
 
 ## Page 1: Pulses and gates
+- Use the top matrix to choose the pulse count for each stage. 
+- Use the bottom matrix to choose the gate type for each stage.
+- Press and hold _shift_ to access the matrices for ratchets (top) and probability (bottom).
+
 ## Page 2: Pitch
+- Use the top matrix to choose the pitch for each stage. 
+- Use the bottom matrix to choose the octave for each stage.
+- Press and hold _shift_ to access the matrices for accumulating transposition (top) and slide on/off.
+
 ## Page 3: Presets and track settings
+- Save a preset by holding _shift_ and selecting on of the 64 preset slots on the top.
+- Load a preset by tapping one of the preset slots.
+- Delete a preset by holding _shift_ and _mod_ and select a preset slot.
+- Choose the playback order and clock division for the corresponding track
+
+## Params
