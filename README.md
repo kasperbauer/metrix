@@ -45,7 +45,7 @@ In the bottom left corner, you can choose among the follwing pages:
 ### Track Selector / Loopy
 On pages 1 & 2, use the first two rows to select one of two tracks and to set the loop start and end points:
 - Tap on the currently unselected track to select it.
-- Hold the start point and select the end point while holding down sets the looping stages.
+- Hold the start point and select the end point to set the repeating stages.
 - Tap on a stage on the currently selected track to select only a single stage.
 
 ### Modifier Keys
