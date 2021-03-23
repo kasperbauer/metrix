@@ -111,7 +111,7 @@ Connect crow to control your eurorack system:
 - Outputs 1 and 3 send **gates, triggers or envelopes** (adjustable in the params) for each pulse
 - Outputs 2 and 4 send **1v/octave** pitch voltage
 
-[0V translates to C4](https://vcvrack.com/manual/VoltageStandards) as the baseline frequency. Use your oscillator controls to offset the octave.
+[0V translates to C4](https://vcvrack.com/manual/VoltageStandards) as the baseline frequency. Notes lower than that get clamped at 0V minimum. Use your oscillator controls to offset the octave.
 
 ### MIDI
 Connect your MIDI Device via params. Track 1 defaults to Channel 1, Track 2 defaults to Channel 2.
