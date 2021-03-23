@@ -283,8 +283,7 @@ function sequencer:playNote(trackIndex, pulse)
 
     local track = self:getTrack(trackIndex)
 
-    local isMuted = params:get("mute_tr_" .. trackIndex) == 1
-    if pulse.gateType ~= 'rest' and not isMuted then
+    if pulse.gateType ~= 'rest' and not self:isMuted(trackIndex) then
         local transport = self.lattice.transport
 
         if pulse.ratchetCount > 1 then
@@ -445,14 +444,11 @@ function sequencer:noteOffAll()
 end
 
 function sequencer:toggleTrack(trackIndex)
-    print(params:get("mute_tr_" .. trackIndex))
-    local isMuted = params:get("mute_tr_" .. trackIndex) == 1
-    if isMuted then
-        isMuted = 0
+    if self:isMuted(trackIndex) then
+        params:set("mute_tr_" .. trackIndex, 0)
     else
-        isMuted = 1
+        params:set("mute_tr_" .. trackIndex, 1)
     end
-    params:set("mute_tr_" .. trackIndex, isMuted)
 end
 
 function sequencer:getCrowGateTypes()
@@ -465,6 +461,10 @@ end
 
 function sequencer:shouldSendToOutput(trackIndex, type) -- type: audio, midi, crow
     return params:get("output_" .. type .. "_tr_" .. trackIndex) == 1
+end
+
+function sequencer:isMuted(trackIndex)
+    return params:get("mute_tr_" .. trackIndex) == 1
 end
 
 return sequencer

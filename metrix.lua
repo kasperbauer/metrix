@@ -32,6 +32,13 @@ for x = 1, 8 do
     end
 end
 
+local ledLevels = {
+    off = 0,
+    low = 4,
+    mid = 9,
+    high = 15
+}
+
 -- grid state helpers
 local loopWasSelected = false
 local trackWasSelected = false
@@ -179,11 +186,19 @@ function drawBottomRow()
 
     if modIsHeld() then
         for x = 1, 3 do
-            g:led(x, y, 3)
+            g:led(x, y, ledLevels.mid)
+        end
+    elseif shiftIsHeld() then
+        for x = 1, #seq.tracks do
+            if not seq:isMuted(x) then
+                g:led(x, y, ledLevels.high)
+            else
+                g:led(x, y, ledLevels.low)
+            end
         end
     else
         for x = 1, maxPages do
-            g:led(x, y, 3)
+            g:led(x, y, ledLevels.low)
         end
         g:led(selectedPage, 16, 15)
     end
@@ -205,15 +220,15 @@ function drawLoopPicker()
 
             if (x >= start and x <= stop) then
                 if (isSelected) then
-                    g:led(x, y, 15)
+                    g:led(x, y, ledLevels.high)
                 else
-                    g:led(x, y, 7)
+                    g:led(x, y, ledLevels.mid)
                 end
             else
                 if (isSelected) then
-                    g:led(x, y, 3)
+                    g:led(x, y, ledLevels.low)
                 else
-                    g:led(x, y, 0)
+                    g:led(x, y, ledLevels.off)
                 end
             end
         end
@@ -240,15 +255,15 @@ function drawMatrix(paramName, options, from, to, filled)
                 elseif filled and isNumeric(key) and key <= i then
                     g:led(x, y, 11)
                 elseif filled and isNumeric(key) and key > i then
-                    g:led(x, y, 0)
+                    g:led(x, y, ledLevels.off)
                 else
-                    g:led(x, y, 3)
+                    g:led(x, y, ledLevels.low)
                 end
             else
                 if value == options[i] then
-                    g:led(x, y, 3)
+                    g:led(x, y, ledLevels.low)
                 else
-                    g:led(x, y, 0)
+                    g:led(x, y, ledLevels.off)
                 end
             end
         end
@@ -260,11 +275,11 @@ function drawPresetPicker()
         for x = 1, 8 do
             local presetIndex = (y - 1) * 8 + x
             if (pre.current == presetIndex) then
-                g:led(x, y, 15)
+                g:led(x, y, ledLevels.high)
             elseif pre:exists(presetIndex) then
-                g:led(x, y, 7)
+                g:led(x, y, ledLevels.mid)
             else
-                g:led(x, y, 3)
+                g:led(x, y, ledLevels.low)
             end
         end
     end
@@ -279,16 +294,16 @@ function drawTrackOptions()
 
         -- rows 12 & 15: playback orders
         for x = 1, #playbackOrders do
-            g:led(x, y, 3)
+            g:led(x, y, ledLevels.low)
 
             if track.playbackOrder == playbackOrders[1] and x == 1 then
-                g:led(x, y, 15)
+                g:led(x, y, ledLevels.high)
             elseif track.playbackOrder == playbackOrders[2] and x == 2 then
-                g:led(x, y, 15)
+                g:led(x, y, ledLevels.high)
             elseif track.playbackOrder == playbackOrders[3] and x == 3 then
-                g:led(x, y, 15)
+                g:led(x, y, ledLevels.high)
             elseif track.playbackOrder == playbackOrders[4] and x == 4 then
-                g:led(x, y, 15)
+                g:led(x, y, ledLevels.high)
             end
         end
         y = y + 1
@@ -296,9 +311,9 @@ function drawTrackOptions()
         for x = 1, 8 do
             -- rows 13 & 15: divisions
             if x == track:getDivisionIndex() then
-                g:led(x, y, 15)
+                g:led(x, y, ledLevels.high)
             else
-                g:led(x, y, 3)
+                g:led(x, y, ledLevels.low)
             end
         end
         y = y + 1
@@ -309,7 +324,7 @@ function drawMomentary()
     for x = 1, 8 do
         for y = 1, 16 do
             if momentary[x][y] then
-                g:led(x, y, 15)
+                g:led(x, y, ledLevels.high)
             end
         end
     end
@@ -319,7 +334,7 @@ function drawActivePulse()
     if seq.activePulse[seq.currentTrack] then
         local x = seq.activePulse[seq.currentTrack].x
         local y = 11 - seq.activePulse[seq.currentTrack].y
-        g:led(x, y, 15);
+        g:led(x, y, ledLevels.high);
     end
 end
 
@@ -345,11 +360,7 @@ function g.key(x, y, z)
 
     -- row 1 & 2: set seq length / loop
     if selectedPage ~= 4 and y <= 2 then
-        if shiftIsHeld() then
-            if on then
-                seq:toggleTrack(y)
-            end
-        elseif on and modIsHeld() then
+        if on and modIsHeld() then
             selectTrack(y)
             track = seq:getCurrentTrack()
             track:setLoop(1, 8)
@@ -424,7 +435,9 @@ function g.key(x, y, z)
 
     -- row 16: select page
     if on and y == 16 and x <= maxPages then
-        if modIsHeld() then
+        if shiftIsHeld() and x <= 2 then
+            seq:toggleTrack(x)
+        elseif modIsHeld() then
             if x == 1 then
                 track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'gateLength'})
             elseif x == 2 then
