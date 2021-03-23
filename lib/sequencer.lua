@@ -1,4 +1,4 @@
-lattice = require('lattice')
+lattice = include('lib/lattice')
 track = include('lib/track')
 
 local DEBUG = false
@@ -127,8 +127,7 @@ function sequencer:reset()
         self:resetPulseCount(i)
         self.tracks[i]:resetPitches()
     end
-    -- TODO: activate on next norns release
-    -- self.lattice.hard_restart()
+    self.lattice:hard_restart()
 end
 
 function sequencer:refreshProbabilities()
