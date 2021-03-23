@@ -359,13 +359,11 @@ end
 
 function sequencer:noteOn(trackIndex, pulse)
     if self:shouldSendToOutput(trackIndex, 'midi') then
-        print('midi')
         local midiCh = params:get('midi_ch_tr_' .. trackIndex)
         m:note_on(pulse.midiNote, 127, midiCh)
     end
 
     if self:shouldSendToOutput(trackIndex, 'crow') then
-        print('crow')
         -- trigger on outputs 1 and 3, pitch on outputs 2 and 4
         crow.output[trackIndex * 2].volts = pulse.volts
         local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
@@ -381,7 +379,6 @@ function sequencer:noteOn(trackIndex, pulse)
     end
 
     if self:shouldSendToOutput(trackIndex, 'audio') then
-        print('audio')
         engine.noteOn(trackIndex, pulse.hz, 100)
     end
 
