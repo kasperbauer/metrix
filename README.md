@@ -4,7 +4,7 @@ Please consider this when filing issues.
 
 # metrix
 
-[intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns. 🤖
+[intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns. 🤖💞
 
 All functionality and terms are directly adopted from metropolix. 
 If you're not familiar with it, please have a look at the metropolix manual or do some binge watching on [yt](https://youtu.be/niP5hVB43_8). 
@@ -43,7 +43,7 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 - `K3` Reset and restart
 
 ## Grid Layout
-The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
+The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. 🙏
 
 <img src="docs/ui.gif" alt="Grid Layout" width="512" height="512">
 
