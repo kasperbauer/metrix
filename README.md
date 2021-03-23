@@ -3,7 +3,7 @@
 [intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns.
 
 All functionality and terms are directly adopted from metropolix. 
-If you're not familiar with the functionality and terms, please have a look at the metropolix manual or do some binge watching on yt. :)
+If you're not familiar with it, please have a look at the metropolix manual or do some binge watching on yt. :)
 
 **TOC**
 1. [Features](#features)
