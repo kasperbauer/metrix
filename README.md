@@ -93,6 +93,8 @@ Set loopy to repeat all stages of the track
 - Delete a preset by holding `[shift]` and `[mod]` and select a preset slot.
 - Choose the playback order and clock division for the corresponding track
 
+<img src="docs/page3.gif" alt="Page 3: Presets and track settings" width="512" height="512">
+
 ## Crow
 Connect crow to control your eurorack system:
 - Outputs 1 and 3 send gates, triggers or envelopes (adjustable in the params) for each pulse
