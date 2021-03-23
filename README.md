@@ -3,18 +3,19 @@
 [intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns.
 
 All functionality and terms are directly adopted from metropolix. 
-If you're not familiar with the functionality and terms, please have a look at the metropolix manual or do some binge watching on yt. :)
+If you're not familiar with it, please have a look at the metropolix manual or do some binge watching on [yt](https://youtu.be/niP5hVB43_8). :)
 
 **TOC**
 1. [Features](#features)
 2. [Requirements](#requirements)
-3. [Layout](#layout)
+3. [Norns Keys/Encoders](#norns-keys-and-encoders)
+4. [Grid Layout](#grid-layout)
     - [Pages](#pages)
     - [Modifier Keys](#modifier-keys)
-4. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
-5. [Page 2: Pitch](#page-2-pitch)
-6. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
-7. [Params](#params)
+5. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
+6. [Page 2: Pitch](#page-2-pitch)
+7. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
+8. [Params](#params)
 
 ## Features
 - Two independent tracks with 8 stages each
@@ -31,8 +32,13 @@ If you're not familiar with the functionality and terms, please have a look at t
 - grid
 - optional: crow
 
-## Layout
-The layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
+## Norns Keys and Encoders
+**WIP;**
+- `K2` Play / Pause
+- `K3` Reset and restart
+
+## Grid Layout
+The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
 
 ### Page Selector
 In the bottom left corner, you can choose among the follwing pages:
