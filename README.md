@@ -44,12 +44,12 @@ The grid layout of **metrix** is strongly influenced by [skylines](https://lllll
 
 ### Track Selector / Loopy
 On pages 1 & 2, use the first two rows to select one of two tracks and to set the loop start and end points:
-- Tap on the currently unselected track to select it.
-- Hold the start point and select the end point to set the repeating stages.
-- Tap on a stage on the currently selected track to select only a single stage.
+- Tap on the currently unselected track to **select** it.
+- Tap and hold the start point and select the end point to set the **repeating stages**. This works in any direction.
+- Tap on a stage on the currently selected track to select only a **single stage**.
 
 ### Page Selector
-In the bottom left corner, you can choose among the follwing pages:
+In the bottom left corner, you can choose among the following pages:
 
 1. pulses and gates
 2. pitch
@@ -67,36 +67,38 @@ More on that on the corresponding sections.
 Hold the `[mod]` key to access some shortcuts:
 
 - `[mod] + [page 1] / [page 2]`
-Randomize the values related to that page
+**Randomize** the values related to that page
 - `[mod] + [value]`
-Set all stages to the selected value. Use the shift key additionally to access the secondary functions.
+Set **all stages** to the selected value. Use the shift key additionally to access the secondary functions.
 - `[mod] + [track selector]`
-Set loopy to repeat all stages of the track
+Set loopy to **repeat all stages** of the track
 
 ## Page 1: Pulses and gates
-- Use the top matrix to choose the pulse count for each stage. 
-- Use the bottom matrix to choose the gate type for each stage.
-- Press and hold `[shift]` to access the matrices for ratchets (top) and probability (bottom).
+- Use the top matrix to choose the **pulse count** for each stage. 
+- Use the bottom matrix to choose the **gate type** for each stage.
+- Press and hold `[shift]` to access the matrices for **ratchets** (top) and **probability** (bottom).
 
 <img src="docs/page1.gif" alt="Page 1: Pulses and gates" width="512" height="512">
 
 ## Page 2: Pitch
-- Use the top matrix to choose the pitch for each stage. 
-- Use the bottom matrix to choose the octave for each stage.
-- Press and hold `[shift]` to access the matrices for accumulating transposition (top), slide on/off and accent on/off (bottom).
+- Use the top matrix to choose the **pitch** for each stage. 
+- Use the bottom matrix to choose the **octave** for each stage.
+- Press and hold `[shift]` to access the matrices for **accumulating transposition** (top), **slide** on/off and **accent** on/off (bottom).
 
 <img src="docs/page2.gif" alt="Page 2: Pitch" width="512" height="512">
 
 ## Page 3: Presets and track settings
-- Save a preset by holding `[shift]` and selecting on of the 64 preset slots on the top.
-- Load a preset by tapping one of the preset slots.
-- Delete a preset by holding `[shift]` and `[mod]` and select a preset slot.
-- Choose the playback order and clock division for the corresponding track
+- **Save** a preset by holding `[shift]` and selecting on of the 64 preset slots on the top.
+- **Load** a preset by tapping one of the preset slots.
+- **Delete** a preset by holding `[shift]` and `[mod]` and selecting a preset slot.
+- Choose the **playback order** and **clock division** for the corresponding track
+
+<img src="docs/page3.gif" alt="Page 3: Presets and track settings" width="512" height="512">
 
 ## Crow
 Connect crow to control your eurorack system:
-- Outputs 1 and 3 send gates, triggers or envelopes (adjustable in the params) for each pulse
-- Outputs 2 and 4 send 1v/octave pitch voltage
+- Outputs 1 and 3 send **gates, triggers or envelopes** (adjustable in the params) for each pulse
+- Outputs 2 and 4 send **1v/octave** pitch voltage
 
 ## Params
 
@@ -113,7 +115,7 @@ Param | Description
 Output: Mute | Mute the selected track
 Output: Audio | Play audio on/off
 Output: MIDI | Send MIDI on/off
-Output: Crow | Send sequence to Crow
+Output: Crow | Send to Crow on/off
 Pitch: Octave Range | Adjust the via grid controlable octave range 
 Pitch: Acc. Limit | Set the limit over which transpositions are allowed to accumulate
 Pitch: Transpose Trigger | Apply the accumulation per stage / pulse / ratchet
