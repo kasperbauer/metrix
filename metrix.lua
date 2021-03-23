@@ -20,8 +20,8 @@ MollyThePoly = require "molly_the_poly/lib/molly_the_poly_engine"
 engine.name = "MollyThePoly"
 
 -- page selector
-local maxPages = 4
-local selectedPage = 2
+local maxPages = 3
+local selectedPage = 1
 
 -- momentary pressed keys
 local momentary = {}
@@ -158,7 +158,8 @@ function redrawGrid()
     if selectedPage == 1 then
         if shiftIsHeld() then
             drawMatrix('ratchetCount', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10, true)
-            drawMatrix('gateLength', stage:getGateLengths(), 12, 15)
+            drawMatrix('probability', stage:getProbabilities(), 12, 15)
+            -- drawMatrix('gateLength', stage:getGateLengths(), 12, 15)
         else
             drawMatrix('pulseCount', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10, true)
             drawMatrix('gateType', stage:getGateTypes(), 12, 15)
@@ -173,8 +174,6 @@ function redrawGrid()
             drawMatrix('octave', {3, 2, 1, 0}, 12, 15)
         end
     elseif selectedPage == 3 then
-        drawMatrix('probability', stage:getProbabilities(), 12, 15)
-    elseif selectedPage == 4 then
         drawPresetPicker()
         drawTrackOptions()
     end
@@ -279,7 +278,7 @@ end
 
 function drawBooleanMatrix(paramName, y)
     local track = seq:getCurrentTrack()
-    
+
     for x = 1, 8 do
         local stageIndex = x
         local value = track.stages[x][paramName]
@@ -384,7 +383,7 @@ function g.key(x, y, z)
     momentary[x][y] = z == 1 and true or false
 
     -- row 1 & 2: set seq length / loop
-    if selectedPage ~= 4 and y <= 2 then
+    if selectedPage ~= 3 and y <= 2 then
         if on and modIsHeld() then
             selectTrack(y)
             track = seq:getCurrentTrack()
@@ -409,7 +408,7 @@ function g.key(x, y, z)
         end
     end
 
-    -- row 3-10: pulse & gate type matrix
+    -- row 3-10: pulse & gate matrix
     if selectedPage == 1 and on then
         if y >= 3 and y <= 10 then
             if shiftIsHeld() then
@@ -421,9 +420,12 @@ function g.key(x, y, z)
             end
         elseif y >= 12 and y <= 15 then
             if shiftIsHeld() then
-                local gateLengths = stage:getGateLengths()
-                local gateLength = gateLengths[math.abs(11 - y)]
-                setParam(stage, 'gateLength', gateLength)
+                local probabilities = stage:getProbabilities()
+                local probability = probabilities[y - 11]
+                setParam(stage, 'probability', probability)
+                -- local gateLengths = stage:getGateLengths()
+                -- local gateLength = gateLengths[math.abs(11 - y)]
+                -- setParam(stage, 'gateLength', gateLength)
             else
                 local gateTypes = stage:getGateTypes()
                 local gateType = gateTypes[math.abs(11 - y)]
@@ -432,7 +434,7 @@ function g.key(x, y, z)
         end
     end
 
-    -- row 3-10: pitch & octave matrix
+    -- row 3-10: pitch matrix
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
             if shiftIsHeld() then
@@ -455,33 +457,7 @@ function g.key(x, y, z)
         end
     end
 
-    -- row 3-10: ratchet & probability matrix
     if selectedPage == 3 and on then
-        if y >= 12 and y <= 15 then
-            local probabilities = stage:getProbabilities()
-            local probability = probabilities[y - 11]
-            setParam(stage, 'probability', probability)
-        end
-    end
-
-    -- row 16: select page
-    if on and y == 16 and x <= maxPages then
-        if shiftIsHeld() and x <= 2 then
-            seq:toggleTrack(x)
-        elseif modIsHeld() then
-            if x == 1 then
-                track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'gateLength'})
-            elseif x == 2 then
-                track:randomize({'pitch', 'transpose', 'octave'})
-            elseif x == 3 then
-                track:randomize({'probability'})
-            end
-        else
-            selectPage(x)
-        end
-    end
-
-    if selectedPage == 4 and on then
         -- row 1-4: load presets
         if y >= 1 and y <= 4 then
             local presetIndex = (y - 1) * 8 + x
@@ -517,6 +493,23 @@ function g.key(x, y, z)
             local pattern = seq:getPattern(trackIndex)
             track:setDivision(division)
             pattern:set_division(division)
+        end
+    end
+
+    -- row 16: select page / randomize / mute
+    if on and y == 16 and x <= maxPages then
+        if shiftIsHeld() and x <= 2 then
+            seq:toggleTrack(x)
+        elseif modIsHeld() then
+            if x == 1 then
+                track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'gateLength'})
+            elseif x == 2 then
+                track:randomize({'pitch', 'transpose', 'octave'})
+            elseif x == 3 then
+                track:randomize({'probability'})
+            end
+        else
+            selectPage(x)
         end
     end
 
