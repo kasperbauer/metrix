@@ -20,7 +20,8 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 5. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
 6. [Page 2: Pitch](#page-2-pitch)
 7. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
-8. [Params](#params)
+8. [Crow / MIDI](#crow-midi)
+9. [Params](#params)
 
 ## Features
 - Two independent tracks with 8 stages each
@@ -103,10 +104,19 @@ Set loopy to **repeat all stages** of the track
 
 <img src="docs/page3.gif" alt="Page 3: Presets and track settings" width="512" height="512">
 
-## Crow
+## Crow / MIDI
+
+### Crow
 Connect crow to control your eurorack system:
 - Outputs 1 and 3 send **gates, triggers or envelopes** (adjustable in the params) for each pulse
 - Outputs 2 and 4 send **1v/octave** pitch voltage
+
+[0V translates to C4](https://vcvrack.com/manual/VoltageStandards) as the baseline frequency. Use your oscillator controls to offset the octave.
+
+### MIDI
+Connect your MIDI Device via params. Track 1 defaults to Channel 1, Track 2 defaults to Channel 2.
+
+The possible range for MIDI Note Events is [C1 to G9](https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies). It's theoretically possible to exceed this limitation with setting a high octave range and a little help from the **accumulating transposition** feature. However, metrix caps the pitch at G9. Nice try. :)
 
 ## Params
 
