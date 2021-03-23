@@ -2,9 +2,8 @@
 
 [intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns.
 
-All functionality and terms are directly adopted from metropolix.
-Have a look on yt or the Metropolix website for a general functional overview of the sequencer.
-Please look at the manual for further explanations if something is unclear.
+All functionality and terms are directly adopted from metropolix. 
+If you're not familiar with the functionality and terms, please have a look at the metropolix manual or do some binge watching on yt. :)
 
 **TOC**
 1. [Features](#features)
