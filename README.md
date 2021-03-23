@@ -1,9 +1,14 @@
+FYI:
+This is a public beta and not a fully functional release version.
+Please consider this when filing issues.
+
 # metrix
 
-[intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns.
+[intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns. 🤖❤️
 
 All functionality and terms are directly adopted from metropolix. 
-If you're not familiar with it, please have a look at the metropolix manual or do some binge watching on [yt](https://youtu.be/niP5hVB43_8). :)
+If you're not familiar with it, please have a look at the metropolix manual or do some binge watching on [yt](https://youtu.be/niP5hVB43_8). 
+And, if you're looking for a nice and powerful eurorack sequencer, consider buying it of course. :)
 
 **TOC**
 1. [Features](#features)
@@ -15,7 +20,8 @@ If you're not familiar with it, please have a look at the metropolix manual or d
 5. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
 6. [Page 2: Pitch](#page-2-pitch)
 7. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
-8. [Params](#params)
+8. [Crow / MIDI](#crow-midi)
+9. [Params](#params)
 
 ## Features
 - Two independent tracks with 8 stages each
@@ -38,7 +44,7 @@ If you're not familiar with it, please have a look at the metropolix manual or d
 - `K3` Reset and restart
 
 ## Grid Layout
-The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. ❤️
+The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. 🙏
 
 <img src="docs/ui.gif" alt="Grid Layout" width="512" height="512">
 
@@ -61,7 +67,10 @@ Hold these keys for secondary functions and shortcuts.
 
 #### _shift_
 Hold the `[shift]` key to switch to the secondary functions of a page. 
-More on that on the corresponding sections.
+More on that on the corresponding sections. Also:
+
+- `[shift] + [page 1] / [page 2]` 
+**mute / unmute** tracks 1 and 2
 
 #### _mod_
 Hold the `[mod]` key to access some shortcuts:
@@ -82,7 +91,7 @@ Set loopy to **repeat all stages** of the track
 
 ## Page 2: Pitch
 - Use the top matrix to choose the **pitch** for each stage. 
-- Use the bottom matrix to choose the **octave** for each stage.
+- Use the bottom matrix to choose the **octave** for each stage. Change the accessible octave range in the params.
 - Press and hold `[shift]` to access the matrices for **accumulating transposition** (top), **slide** on/off and **accent** on/off (bottom).
 
 <img src="docs/page2.gif" alt="Page 2: Pitch" width="512" height="512">
@@ -95,10 +104,19 @@ Set loopy to **repeat all stages** of the track
 
 <img src="docs/page3.gif" alt="Page 3: Presets and track settings" width="512" height="512">
 
-## Crow
+## Crow / MIDI
+
+### Crow
 Connect crow to control your eurorack system:
 - Outputs 1 and 3 send **gates, triggers or envelopes** (adjustable in the params) for each pulse
 - Outputs 2 and 4 send **1v/octave** pitch voltage
+
+[0V translates to C4](https://vcvrack.com/manual/VoltageStandards) as the baseline frequency. Notes lower than that get clamped at 0V minimum. Use your oscillator controls to offset the octave.
+
+### MIDI
+Connect your MIDI device using the corresponding param. Track 1 defaults to MIDI-Channel 1, Track 2 defaults to MIDI-Channel 2. The Channels can also be assigned in the params.
+
+The possible range for MIDI Note Events is [C1 to G9](https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies). It's theoretically possible to exceed this limitation with setting a high octave range and a little help from the **accumulating transposition** feature. However, metrix caps the pitch at G9. Nice try. :)
 
 ## Params
 
@@ -121,7 +139,7 @@ Pitch: Acc. Limit | Set the limit over which transpositions are allowed to accum
 Pitch: Transpose Trigger | Apply the accumulation per stage / pulse / ratchet
 Pitch: Slide Time | Sets the amount of time it takes to move from one pitch to the next (Note: Only 'analog' slide type is supported atm.)
 MIDI: Channel | Sets the MIDI channel for sending the track sequence to
-Crow: Gate Type | Sets the signal type crow generates to gate / trigger / envelope type
+Crow: Gate Type | Sets the signal type that crow generates: gate / trigger / envelope
 Crow: Env. Attack | Sets the attack time of the generated envelope
 Crow: Env. Sustain | Sets the sustain time of the generated envelope
 Crow: Env. Release | Sets the release time of the generated envelope
