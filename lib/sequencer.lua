@@ -359,7 +359,8 @@ end
 function sequencer:noteOn(trackIndex, pulse)
     if self:shouldSendToOutput(trackIndex, 'midi') then
         local midiCh = params:get('midi_ch_tr_' .. trackIndex)
-        m:note_on(pulse.midiNote, 127, midiCh)
+        local velocity = pulse.accent and 127 or 100
+        m:note_on(pulse.midiNote, velocity, midiCh)
     end
 
     if self:shouldSendToOutput(trackIndex, 'crow') then
@@ -382,12 +383,13 @@ function sequencer:noteOn(trackIndex, pulse)
     end
 
     if self:shouldSendToOutput(trackIndex, 'audio') then
+        local velocity = pulse.accent and 100 or 80
         engine.glide(pulse.slideAmount)
-        engine.noteOn(trackIndex, pulse.hz, 100)
+        engine.noteOn(trackIndex, pulse.hz, velocity)
     end
 
     if DEBUG then
-        print(self.lattice.transport, 'noteOn', pulse.midiNote, pulse.noteName, 127)
+        print(self.lattice.transport, 'noteOn', pulse.midiNote, pulse.noteName)
     end
 end
 
@@ -427,7 +429,7 @@ function sequencer:noteOff(trackIndex, pulse, transport)
     end
 
     if DEBUG then
-        print(transport or self.lattice.transport, 'noteOff', pulse.midiNote, pulse.noteName, 127)
+        print(transport or self.lattice.transport, 'noteOff', pulse.midiNote, pulse.noteName)
     end
 end
 
