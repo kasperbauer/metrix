@@ -90,7 +90,7 @@ Set loopy to **repeat all stages** of the track
 
 ## Page 2: Pitch
 - Use the top matrix to choose the **pitch** for each stage. 
-- Use the bottom matrix to choose the **octave** for each stage.
+- Use the bottom matrix to choose the **octave** for each stage. Change the accessible octave range in the params.
 - Press and hold `[shift]` to access the matrices for **accumulating transposition** (top), **slide** on/off and **accent** on/off (bottom).
 
 <img src="docs/page2.gif" alt="Page 2: Pitch" width="512" height="512">
