@@ -12,6 +12,10 @@ Please look at the manual for further explanations if something is unclear.
 3. [Layout](#layout)
     - [Pages](#pages)
     - [Modifier Keys](#modifier-keys)
+4. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
+5. [Page 2: Pitch](#page-2-pitch)
+6. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
+7. [Params](#params)
 
 ## Features
 - Two independent tracks with 8 stages each
@@ -31,7 +35,7 @@ Please look at the manual for further explanations if something is unclear.
 ## Layout
 The Layout of **metrix** ist influenced strongly by [skylines](https://llllllll.co/t/skylines/38856) and Kria. <3
 
-### Pages
+### Page Selector
 In the bottom left corner, you can choose among the follwing pages:
 
 1. pulses and gates
@@ -59,3 +63,7 @@ Hold the _[mod]_ key to access some shortcuts:
 Randomize the values related to that page
 - `[mod] + [value]`
 Set all stages to the selected value. Use the shift key additionally to access the secondary functions.
+
+## Page 1: Pulses and gates
+## Page 2: Pitch
+## Page 3: Presets and track settings
