@@ -7,7 +7,8 @@ Please consider this when filing issues.
 [intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns. 🤖
 
 All functionality and terms are directly adopted from metropolix. 
-If you're not familiar with it, please have a look at the metropolix manual or do some binge watching on [yt](https://youtu.be/niP5hVB43_8). :)
+If you're not familiar with it, please have a look at the metropolix manual or do some binge watching on [yt](https://youtu.be/niP5hVB43_8). 
+And, if you're looking for a nice and powerful eurorack sequencer, consider buying it of course. :)
 
 **TOC**
 1. [Features](#features)
