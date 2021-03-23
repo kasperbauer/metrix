@@ -369,12 +369,13 @@ function sequencer:noteOn(trackIndex, pulse)
         crow.output[trackIndex * 2].volts = pulse.volts
 
         -- output 1/3: gates / triggers
+        -- https://vcvrack.com/manual/VoltageStandards
         local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
 
         if crowGateTypeIndex == 1 then -- gate
-            crow.output[(trackIndex * 2) - 1].volts = 5
+            crow.output[(trackIndex * 2) - 1].volts = 10
         elseif crowGateTypeIndex == 2 then -- trigger
-            crow.output[(trackIndex * 2) - 1]("{to(5,0),to(0,0.005)}")
+            crow.output[(trackIndex * 2) - 1]("{to(10,0),to(0,0.002)}")
         elseif crowGateTypeIndex == 3 then -- envelope
             local a, s, r = params:get("crow_attack_tr_" .. trackIndex), params:get("crow_sustain_tr_" .. trackIndex),
                 params:get("crow_release_tr_" .. trackIndex)
