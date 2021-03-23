@@ -90,7 +90,7 @@ Set loopy to **repeat all stages** of the track
 ## Page 3: Presets and track settings
 - **Save** a preset by holding `[shift]` and selecting on of the 64 preset slots on the top.
 - **Load** a preset by tapping one of the preset slots.
-- **Delete** a preset by holding `[shift]` and `[mod]` and select a preset slot.
+- **Delete** a preset by holding `[shift]` and `[mod]` and selecting a preset slot.
 - Choose the **playback order** and **clock division** for the corresponding track
 
 <img src="docs/page3.gif" alt="Page 3: Presets and track settings" width="512" height="512">
