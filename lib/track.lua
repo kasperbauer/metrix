@@ -28,7 +28,7 @@ function track:new(args)
 
     args = args or {}
 
-    t.division = args.division or 1 / 16
+    t.division = args.division or 1 / 8
     t.loop = args.loop or {
         start = 1,
         stop = 8
