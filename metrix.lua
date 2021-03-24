@@ -168,7 +168,7 @@ function redrawGrid()
         if shiftIsHeld() then
             drawMatrix('transpose', {7, 6, 5, 4, 3, 2, 1, 0}, 3, 10)
             drawBooleanMatrix('slide', 12)
-            drawBooleanMatrix('accent', 14)
+            drawBooleanMatrix('accent', 13)
         else
             drawMatrix('pitch', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10)
             drawMatrix('octave', {3, 2, 1, 0}, 12, 15)
@@ -448,7 +448,7 @@ function g.key(x, y, z)
         elseif y >= 12 and y <= 15 then
             if shiftIsHeld() and y == 12 then
                 stage:toggleParam('slide')
-            elseif shiftIsHeld() and y == 14 then
+            elseif shiftIsHeld() and y == 13 then
                 stage:toggleParam('accent')
             else
                 local octave = 15 - y
