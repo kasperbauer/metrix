@@ -384,7 +384,7 @@ function sequencer:noteOn(trackIndex, pulse)
     end
 
     if self:shouldSendToOutput(trackIndex, 'audio') then
-        local velocity = pulse.accent and 100 or 80
+        local velocity = pulse.accent and 100 or 75
         engine.glide(pulse.slideAmount)
         engine.noteOn(trackIndex, pulse.hz, velocity)
     end
