@@ -52,7 +52,9 @@ function sequencer:resetTracks()
     self.tracks = {}
     self.patterns = {}
     self.events = {}
+    self.eventPattern = nil;
     self.lattice = lattice:new()
+    self:addEventPattern()
 end
 
 function sequencer:getCurrentTrack()
