@@ -106,10 +106,6 @@ function stage:resetPitch()
     self.accumulatedPitch = self.pitch
 end
 
-function stage:setAccumulatedPitch(pitch)
-    self.accumulatedPitch = pitch
-end
-
 function stage:accumulatePitch(trackIndex)
     local pitch = self.accumulatedPitch + self.transpose
     local transposeLimit = params:get("transpose_limit_tr_" .. trackIndex)
