@@ -33,7 +33,7 @@ function track:new(args)
         start = 1,
         stop = 8
     }
-    t.playbackOrder = playbackOrders[1]
+    t.playbackOrder = args.playbackOrder or playbackOrders[1]
     t.alternatePlaybackOrder = 'forward'
 
     local stages = {};
