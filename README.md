@@ -96,7 +96,7 @@ Set loopy to **repeat all stages** of the track
 
 Notes: 
   - As the currenty used engine supports **slide** only as a global command, it affects both tracks if using the built-in audio.
-  - **accent** is only available for MIDI right now (#17)
+  - ~~**accent** is only available for MIDI right now (#17)~~
   - **slide** is _not_ available for MIDI, as the standard doesn't support it
 
 <img src="docs/page2.gif" alt="Page 2: Pitch" width="512" height="512">
