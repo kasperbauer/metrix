@@ -178,7 +178,7 @@ function redrawGrid()
         drawTrackOptions()
     end
 
-    if selectedPage ~= 4 then
+    if selectedPage < 3 then
         drawActivePulse()
     end
 
