@@ -460,7 +460,7 @@ end
 
 function enc(n, d)
     -- track selection
-    if n == 2 then
+    if n == 1 then
         local trackIndex = d > 0 and 2 or 1
         selectTrack(trackIndex)
     end
