@@ -13,15 +13,16 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 **TOC**
 1. [Features](#features)
 2. [Requirements](#requirements)
-3. [Norns Keys/Encoders](#norns-keys-and-encoders)
-4. [Grid Layout](#grid-layout)
+3. [Screen](#screen)
+4. [Keys/Encoders](#keys-and-encoders)
+5. [Grid Layout](#grid-layout)
     - [Pages](#pages)
     - [Modifier Keys](#modifier-keys)
-5. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
-6. [Page 2: Pitch](#page-2-pitch)
-7. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
-8. [Crow / MIDI](#crow-midi)
-9. [Params](#params)
+6. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
+7. [Page 2: Pitch](#page-2-pitch)
+8. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
+9. [Crow / MIDI](#crow-midi)
+10. [Params](#params)
 
 ## Features
 - Two independent tracks with 8 stages each
@@ -38,7 +39,14 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 - grid
 - optional: crow
 
-## Norns Keys and Encoders
+## Screen
+The screen shows a simple representation of a pulse count matrix of the two tracks. The selected loop range, as well as the currently playing pulse is being highlighted. The bottom row shows the currently played note name and octave on the left, the playback order on the right. A line beneath the matrix indicates the currently selected Track.
+
+In the top right corner, you can see the play state and the current transport index.
+
+<img src="docs/screen.png" alt="Screen" width="512">
+
+## Keys and Encoders
 - `K2` Play / Pause
 - `K3` Reset and restart
 - `Enc2` Select Track
@@ -46,7 +54,7 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 ## Grid Layout
 The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and [Kria](https://monome.org/docs/ansible/kria). 🙏
 
-<img src="docs/ui.gif" alt="Grid Layout" width="512" height="512">
+<img src="docs/ui.gif" alt="Grid Layout" width="512">
 
 ### Track Selector / Loopy
 On pages 1 & 2, use the first two rows to select one of two tracks and to set the loop's start and end points:
@@ -87,7 +95,7 @@ Set loopy to **repeat all stages** of the track
 - Use the bottom matrix to choose the **gate type** for each stage.
 - Press and hold `[shift]` to access the matrices for **ratchets** (top) and **probability** (bottom).
 
-<img src="docs/page1.gif" alt="Page 1: Pulses and gates" width="512" height="512">
+<img src="docs/page1.gif" alt="Page 1: Pulses and gates" width="512">
 
 ## Page 2: Pitch
 - Use the top matrix to choose the **pitch** for each stage. 
@@ -99,7 +107,7 @@ Notes:
   - ~~**accent** is only available for MIDI right now (#17)~~
   - **slide** is _not_ available for MIDI, as the standard doesn't support it
 
-<img src="docs/page2.gif" alt="Page 2: Pitch" width="512" height="512">
+<img src="docs/page2.gif" alt="Page 2: Pitch" width="512">
 
 ## Page 3: Presets and track settings
 - **Save** a preset by holding `[shift]` and selecting on of the 64 preset slots on the top.
@@ -107,7 +115,7 @@ Notes:
 - **Delete** a preset by holding `[shift]` and `[mod]` and selecting a preset slot.
 - Choose the **playback order** and **clock division** for the corresponding track
 
-<img src="docs/page3.gif" alt="Page 3: Presets and track settings" width="512" height="512">
+<img src="docs/page3.gif" alt="Page 3: Presets and track settings" width="512">
 
 ## Crow / MIDI
 
