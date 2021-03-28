@@ -33,6 +33,7 @@ for x = 1, 8 do
     end
 end
 
+-- brightness levels
 local ledLevels = {
     off = 0,
     low = 4,
@@ -116,18 +117,8 @@ function redraw()
     screen.clear()
     screen.move(0, 8)
     screen.text('METRIX')
-    screen.move(0, 48)
-    if seq then
-        screen.text(seq.lattice.transport)
-    end
-    screen.move(0, 60)
-    if seq and seq.lattice.enabled then
-        screen.text('||')
-    else
-        screen.text('>')
-    end
-    screen.move(20, 60)
-    screen.text('reset')
+    screen.move(128, 60)
+    screen.text_right(seq.lattice.transport)
     screen.update()
 end
 
