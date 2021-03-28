@@ -49,15 +49,6 @@ function sequencer:addTrack(args)
     self.currentTrack = trackIndex
 end
 
-function sequencer:resetTracks()
-    self.tracks = {}
-    self.patterns = {}
-    self.events = {}
-    self.eventPattern = nil;
-    self.lattice = lattice:new()
-    self:addEventPattern()
-end
-
 function sequencer:getCurrentTrack()
     return self.tracks[self.currentTrack]
 end
@@ -68,6 +59,12 @@ end
 
 function sequencer:changeTrack(trackIndex)
     self.currentTrack = trackIndex
+end
+
+function sequencer:swapTrack(trackIndex, track)
+    self.tracks[trackIndex] = track
+    local pattern = self:getPattern(trackIndex)
+    pattern:set_division(track.division)
 end
 
 function sequencer:addPattern(division, trackIndex)

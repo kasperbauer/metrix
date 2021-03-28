@@ -451,7 +451,7 @@ function key(n, z)
         if n == 2 then
             seq:playPause()
         elseif n == 3 then
-            seq:reset()
+            seq:restart()
         end
     end
     requestScreenRedraw()
@@ -650,12 +650,9 @@ function loadPreset(presetIndex)
         return
     end
 
-    seq:resetTracks()
-
-    for i, track in pairs(data.tracks) do
-        seq:addTrack(track)
+    for trackIndex, track in pairs(data.tracks) do
+        seq:swapTrack(trackIndex, track)
     end
-    seq:changeTrack(1)
 
     requestGridRedraw()
 end
