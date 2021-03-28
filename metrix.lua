@@ -1,8 +1,9 @@
+-- metrix v1.0
 --
---
--- metrix v0.1
 -- metropolix for norns
--- github.com/kasperbauer/metrix
+--
+-- K2: play/pause
+-- K3: reset and restart
 --
 --
 musicUtil = require('lib/musicutil')
