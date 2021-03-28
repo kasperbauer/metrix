@@ -214,14 +214,15 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
 
         elseif track.playbackOrder == 'alternate' then
             if stageIndex == track.loop.stop then
-                self.alternatePlaybackOrder = 'reverse'
+                track.alternatePlaybackOrder = 'reverse'
             elseif stageIndex == track.loop.start then
-                self.alternatePlaybackOrder = 'forward'
+                track.alternatePlaybackOrder = 'forward'
             end
 
-            if self.alternatePlaybackOrder == 'forward' then
+            if track.alternatePlaybackOrder == 'forward' then
+                print('BOING')
                 self:advanceToNextStage(trackIndex, 1)
-            elseif self.alternatePlaybackOrder == 'reverse' then
+            elseif track.alternatePlaybackOrder == 'reverse' then
                 self:advanceToNextStage(trackIndex, -1)
             end
 
