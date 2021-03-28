@@ -30,7 +30,7 @@ function stage:new(args)
 
     t.pulseCount = args.pulseCount or 1
     t.ratchetCount = args.ratchetCount or 1
-    t.gateType = args.gateType or gateTypes[2]
+    t.gateType = args.gateType or gateTypes[math.random(1,4)]
     t.gateLength = args.gateLength or gateLengths[1]
     t.pitch = args.pitch or 1
     t.octave = args.octave or 0

@@ -143,14 +143,16 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
         gateType = 'rest',
         first = first,
         last = last,
-        duration = 1
+        duration = 1,
+        noteName = pulse.noteName
     }
 
     local void = {
         gateType = 'void',
         first = first,
         last = last,
-        duration = 1
+        duration = 1,
+        noteName = pulse.noteName
     }
 
     if stage.gateType == 'rest' then
@@ -230,7 +232,7 @@ function track:stageIsInLoop(stageIndex)
     return stageIndex >= self.loop.start and stageIndex <= self.loop.stop
 end
 
-function track:getPlaybackOrderShort()
+function track:getPlaybackOrderSymbol()
     local short = '>'
     if self.playbackOrder == 'reverse' then
         short = '<'

@@ -144,7 +144,7 @@ function redraw() -- 128x64
         local x0 = trackIndex == 2 and 72 or 0
         local width = ((pulseWidth + 1) * 8) - 1
 
-        if pulse then
+        if pulse and pulse.noteName then
             screen.level(15)
             screen.move(x0, 64)
             screen.text(pulse.noteName)
@@ -152,9 +152,10 @@ function redraw() -- 128x64
 
         screen.level(15)
         screen.move(x0 + width, 64)
-        screen.text_right(track:getPlaybackOrderShort())
+        screen.text_right(track:getPlaybackOrderSymbol())
 
         -- grid
+        local y0 = 44
         for stageIndex = 1, 8 do
             local stage = track:getStageWithIndex(stageIndex)
             local activePulseCoords = seq.activePulseCoords[trackIndex]
@@ -162,7 +163,7 @@ function redraw() -- 128x64
             local x = x0 + ((stageIndex - 1) * (pulseWidth + 1))
 
             for pulseIndex = 1, stage.pulseCount do
-                local y = 48 - (pulseIndex * (pulseHeight + 1))
+                local y = y0 - (pulseIndex * (pulseHeight + 1))
 
                 if seq:isMuted(trackIndex) then
                     screen.level(1)
@@ -178,12 +179,17 @@ function redraw() -- 128x64
                 screen.fill()
                 screen.close()
             end
+            if track:stageIsInLoop(stageIndex) then
+                screen.level(4)
+                screen.move(x + pulseWidth / 2, y0 + 9)
+                screen.text_center(stage:getGateTypeSymbol())
+            end
         end
 
         -- track selection
         if trackIndex == seq.currentTrack then
             screen.level(12)
-            screen.rect(x0, 32 + (pulseHeight * 4) + 5, width, 2)
+            screen.rect(x0, y0 + 1, width, 2)
             screen.fill()
             screen.close()
         end
