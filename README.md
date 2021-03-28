@@ -44,7 +44,7 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 - `Enc2` Select Track
 
 ## Grid Layout
-The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. 🙏
+The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and [Kria](https://monome.org/docs/ansible/kria). 🙏
 
 <img src="docs/ui.gif" alt="Grid Layout" width="512" height="512">
 
