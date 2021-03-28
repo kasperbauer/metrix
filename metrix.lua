@@ -54,6 +54,7 @@ seq = sequencer:new(function()
     requestScreenRedraw()
 end)
 seq:addTracks(2)
+seq:toggleTrack(2)
 
 -- redraw
 local gridIsDirty = true
