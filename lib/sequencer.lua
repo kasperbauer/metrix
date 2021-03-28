@@ -2,7 +2,6 @@ lattice = include('lib/lattice')
 track = include('lib/track')
 
 local DEBUG = false
-local DEBUG_MUTE_VOICE = 2
 
 local sequencer = {}
 local transposeTriggers = {"stage", "pulse", "ratchet"}
@@ -97,11 +96,6 @@ end
 
 function sequencer:playPause()
     self:addEventPattern()
-
-    if DEBUG then
-        local pattern = self.patterns[DEBUG_MUTE_VOICE]
-        pattern.enabled = false
-    end
 
     if self.lattice.enabled then
         self.lattice:stop()
