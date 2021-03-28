@@ -162,8 +162,10 @@ function redraw() -- 128x64
 
         -- track selection
         if trackIndex == seq.currentTrack then
+            local widthLoop = (track.loop.stop - (track.loop.start - 1)) * (blockWidth + 1)
+            local xLoop = x0 + (track.loop.start - 1) * (blockWidth + 1)
             screen.level(12)
-            screen.rect(x0, y0 + 1, width, 2)
+            screen.rect(xLoop, y0 + 1, widthLoop - 1, 2)
             screen.fill()
             screen.close()
         end
