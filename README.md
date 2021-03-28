@@ -6,20 +6,6 @@ All functionality and terms are directly adopted from metropolix.
 If you're not familiar with it, please have a look at the metropolix manual or do some binge watching on [yt](https://youtu.be/niP5hVB43_8). 
 And, if you're looking for a nice and powerful eurorack sequencer, consider buying it of course. :)
 
-**TOC**
-1. [Features](#features)
-2. [Requirements](#requirements)
-3. [Screen](#screen)
-4. [Keys/Encoders](#keys-and-encoders)
-5. [Grid Layout](#grid-layout)
-    - [Pages](#pages)
-    - [Modifier Keys](#modifier-keys)
-6. [Page 1: Pulses and gates](#page-1-pulses-and-gates)
-7. [Page 2: Pitch](#page-2-pitch)
-8. [Page 3: Presets and track settings](#page-3-presets-and-track-settings)
-9. [Crow / MIDI](#crow-midi)
-10. [Params](#params)
-
 ## Features
 - Two independent tracks with 8 stages each
 - Control many functions directly via grid (pulse count, gate type, ratchets, probability, pitch, octave, accumulation, slide and accent)
