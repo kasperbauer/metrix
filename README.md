@@ -39,9 +39,9 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 - optional: crow
 
 ## Norns Keys and Encoders
-**WIP;**
 - `K2` Play / Pause
 - `K3` Reset and restart
+- `Enc2` Select Track
 
 ## Grid Layout
 The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and Kria. 🙏
