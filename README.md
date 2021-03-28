@@ -1,7 +1,3 @@
-FYI:
-This is a public beta and not a fully functional release version.
-Please consider this when filing issues.
-
 # metrix
 
 [intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns. 🤖❤️
@@ -26,7 +22,7 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 
 ## Features
 - Two independent tracks with 8 stages each
-- Control many functions directly via grid (pulse count, gate type, ratchets, pitch, octave, accumulation, slide and accent)
+- Control many functions directly via grid (pulse count, gate type, ratchets, probability, pitch, octave, accumulation, slide and accent)
 - Set playback direction (forward, reverse, alternate, random) and clock division (1/1 - 1/32) per track
 - Loop the whole sequence or choose parts of it
 - Quantize to a scale and root note via global params
