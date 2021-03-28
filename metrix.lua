@@ -148,6 +148,7 @@ function redraw() -- 128x64
             screen.text(pulse.noteName)
         end
 
+        -- grid
         for stageIndex = 1, 8 do
             local stage = track:getStageWithIndex(stageIndex)
             local activePulseCoords = seq.activePulseCoords[trackIndex]
@@ -171,6 +172,14 @@ function redraw() -- 128x64
                 screen.fill()
                 screen.close()
             end
+        end
+
+        -- track selection
+        if trackIndex == seq.currentTrack then
+            screen.level(12)
+            screen.rect(x0, 32 + (pulseHeight * 4) + 5, ((pulseWidth + 1) * 8) - 1, 2)
+            screen.fill()
+            screen.close()
         end
     end
 
