@@ -6,6 +6,8 @@
 -- K3: reset and restart
 --
 --
+VERSION = '1.0'
+
 musicUtil = require('lib/musicutil')
 preset = include('lib/preset')
 sequencer = include('lib/sequencer')
@@ -113,12 +115,65 @@ function addParams()
     end
 end
 
-function redraw()
+function redraw() -- 128x64
     screen.clear()
-    screen.move(0, 8)
-    screen.text('METRIX')
-    screen.move(128, 60)
-    screen.text_right(seq.lattice.transport)
+    screen.level(ledLevels.high)
+
+    -- transport
+    if seq.lattice.enabled then
+        screen.move(120, 8)
+        screen.font_size(8)
+        screen.font_face(1)
+        screen.text_right(seq.lattice.transport)
+        drawIcon('play', 124, 2)
+    end
+
+    -- seperator
+    screen.level(10)
+    screen.move(63, 0)
+    screen.line_width(2)
+    screen.line(63, 64)
+    screen.stroke()
+
+    -- track sections
+    local pulseWidth, pulseHeight = 6, 3
+    for trackIndex = 1, #seq.tracks do
+        local track = seq:getTrack(trackIndex)
+        local pulse = seq.activePulse[trackIndex]
+        local x0 = trackIndex == 2 and 72 or 0
+
+        if pulse then
+            screen.level(15)
+            screen.move(x0, 64)
+            screen.text(pulse.noteName)
+        end
+
+        for stageIndex = 1, 8 do
+            local stage = track:getStageWithIndex(stageIndex)
+            local activePulseCoords = seq.activePulseCoords[trackIndex]
+
+            local x = x0 + ((stageIndex - 1) * (pulseWidth + 1))
+
+            for pulseIndex = 1, stage.pulseCount do
+                local y = 48 - (pulseIndex * (pulseHeight + 1))
+
+                if seq:isMuted(trackIndex) then
+                    screen.level(1)
+                elseif activePulseCoords and activePulseCoords.x == stageIndex and activePulseCoords.y == pulseIndex then
+                    screen.level(15)
+                elseif track:stageIsInLoop(stageIndex) then
+                    screen.level(5)
+                else
+                    screen.level(1)
+                end
+
+                screen.rect(x, y, pulseWidth, pulseHeight)
+                screen.fill()
+                screen.close()
+            end
+        end
+    end
+
     screen.update()
 end
 
@@ -505,6 +560,7 @@ function g.key(x, y, z)
     end
 
     requestGridRedraw()
+    requestScreenRedraw()
 end
 
 function setParam(stage, paramName, value)
