@@ -171,7 +171,7 @@ function redrawGrid()
     end
 
     if selectedPage < 3 then
-        drawActivePulse()
+        drawPulseCursor()
     end
 
     drawMomentary()
@@ -346,10 +346,11 @@ function drawMomentary()
     end
 end
 
-function drawActivePulse()
-    if seq.activePulse[seq.currentTrack] then
-        local x = seq.activePulse[seq.currentTrack].x
-        local y = 11 - seq.activePulse[seq.currentTrack].y
+function drawPulseCursor()
+    local coords = seq.activePulseCoords[seq.currentTrack];
+    if coords then
+        local x = coords.x
+        local y = 11 - coords.y
         g:led(x, y, ledLevels.high);
     end
 end

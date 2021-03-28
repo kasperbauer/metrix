@@ -20,7 +20,7 @@ function sequencer:new(onPulseAdvance)
     t.probabilities = {}
     t.stageIndex = {}
     t.pulseCount = {}
-    t.activePulse = {}
+    t.activePulseCoords = {}
     t.patterns = {}
     t.noteOffPattern = nil
     t.events = {}
@@ -124,7 +124,7 @@ end
 function sequencer:reset()
     self:refreshProbabilities()
     for i = 1, #self.tracks do
-        self:setActivePulse(i, 1, 1)
+        self:setActivePulseCoords(i, 1, 1)
         self:resetStageIndex(i)
         self:resetPulseCount(i)
         self.tracks[i]:resetPitches()
@@ -165,7 +165,7 @@ function sequencer:resetPulseCount(trackIndex)
 end
 
 function sequencer:advanceToNextPulse(trackIndex)
-    self:setActivePulse(trackIndex)
+    self:setActivePulseCoords(trackIndex)
 
     local track = self:getTrack(trackIndex)
     local stageIndex = self.stageIndex[trackIndex]
@@ -267,11 +267,11 @@ function sequencer:getTransposeTrigger(trackIndex)
     return triggers[triggerIndex];
 end
 
-function sequencer:setActivePulse(trackIndex, x, y)
+function sequencer:setActivePulseCoords(trackIndex, x, y)
     x = x or self.stageIndex[trackIndex]
     y = y or self.pulseCount[trackIndex]
 
-    self.activePulse[trackIndex] = {
+    self.activePulseCoords[trackIndex] = {
         x = x,
         y = y
     }
