@@ -118,12 +118,15 @@ function redraw() -- 128x64
     screen.level(ledLevels.high)
 
     -- transport
+    screen.font_size(8)
+    screen.font_face(1)
     if seq.lattice.enabled then
         screen.move(120, 8)
-        screen.font_size(8)
-        screen.font_face(1)
         screen.text_right(seq.lattice.transport)
         drawIcon('play', 124, 2)
+    elseif seq.lattice.transport == 0 then
+        screen.move(128, 8)
+        screen.text_right('K2 to play')
     end
 
     -- seperator
