@@ -5,7 +5,7 @@
 -- K2: play/pause
 -- K3: reset and restart
 --
--- Enc2: select track
+-- Enc1: select track
 musicUtil = require('lib/musicutil')
 preset = include('lib/preset')
 sequencer = include('lib/sequencer')
