@@ -29,10 +29,9 @@ function track:new(args)
     args = args or {}
 
     t.division = args.division or 1 / 8
-    local start = math.random(1, 7)
     t.loop = args.loop or {
-        start = start,
-        stop = start + math.random(1, 8 - start)
+        start = 1,
+        stop = 8
     }
     t.playbackOrder = args.playbackOrder or playbackOrders[1]
     t.alternatePlaybackOrder = 'forward'
@@ -45,8 +44,7 @@ function track:new(args)
     else
         for i = 1, 8 do
             stages[i] = stage:new({
-                pitch = i,
-                pulseCount = math.lowerRandom(1, 8)
+                pitch = i
             })
         end
     end
