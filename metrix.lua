@@ -139,12 +139,17 @@ function redraw() -- 128x64
         local track = seq:getTrack(trackIndex)
         local pulse = seq.activePulse[trackIndex]
         local x0 = trackIndex == 2 and 72 or 0
+        local width = ((pulseWidth + 1) * 8) - 1
 
         if pulse then
             screen.level(15)
             screen.move(x0, 64)
             screen.text(pulse.noteName)
         end
+
+        screen.level(15)
+        screen.move(x0 + width, 64)
+        screen.text_right(track:getPlaybackOrderShort())
 
         -- grid
         for stageIndex = 1, 8 do
@@ -175,7 +180,7 @@ function redraw() -- 128x64
         -- track selection
         if trackIndex == seq.currentTrack then
             screen.level(12)
-            screen.rect(x0, 32 + (pulseHeight * 4) + 5, ((pulseWidth + 1) * 8) - 1, 2)
+            screen.rect(x0, 32 + (pulseHeight * 4) + 5, width, 2)
             screen.fill()
             screen.close()
         end

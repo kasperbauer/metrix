@@ -230,4 +230,17 @@ function track:stageIsInLoop(stageIndex)
     return stageIndex >= self.loop.start and stageIndex <= self.loop.stop
 end
 
+function track:getPlaybackOrderShort()
+    local short = '>'
+    if self.playbackOrder == 'reverse' then
+        short = '<'
+    elseif self.playbackOrder == 'alternate' then
+        short = '< >'
+    elseif self.playbackOrder == 'random' then
+        short = '?'
+    end
+
+    return short
+end
+
 return track
