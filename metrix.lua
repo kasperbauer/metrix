@@ -137,12 +137,12 @@ function redraw() -- 128x64
     screen.stroke()
 
     -- track sections
-    local pulseWidth, pulseHeight = 6, 3
+    local blockWidth, blockHeight = 6, 3
     for trackIndex = 1, #seq.tracks do
         local track = seq:getTrack(trackIndex)
         local pulse = seq.activePulse[trackIndex]
         local x0 = trackIndex == 2 and 72 or 0
-        local width = ((pulseWidth + 1) * 8) - 1
+        local width = ((blockWidth + 1) * 8) - 1
 
         if pulse and pulse.noteName then
             screen.level(15)
@@ -153,44 +153,12 @@ function redraw() -- 128x64
         screen.level(15)
         screen.move(x0 + width, 64)
         screen.text_right(track:getPlaybackOrderSymbol())
+        screen.move(x0 + width / 2, 64)
+        screen.text_center(track:getHumanReadableDivision())
 
         -- grid
         local y0 = 44
-        for stageIndex = 1, 8 do
-            local stage = track:getStageWithIndex(stageIndex)
-            local activePulseCoords = seq.activePulseCoords[trackIndex]
-
-            local x = x0 + ((stageIndex - 1) * (pulseWidth + 1))
-
-            for pulseIndex = 1, stage.pulseCount do
-                local y = y0 - (pulseIndex * (pulseHeight + 1))
-
-                if seq:isMuted(trackIndex) then
-                    screen.level(1)
-                elseif activePulseCoords and activePulseCoords.x == stageIndex and activePulseCoords.y == pulseIndex then
-                    screen.level(15)
-                elseif track:stageIsInLoop(stageIndex) then
-                    screen.level(4)
-                else
-                    screen.level(1)
-                end
-
-                screen.rect(x, y, pulseWidth, pulseHeight)
-                screen.fill()
-                screen.close()
-            end
-
-            if seq:isMuted(trackIndex) then
-                screen.level(4)
-                screen.move(x0 + width / 2, y0 + 9)
-                screen.text_center('muted')
-
-            elseif track:stageIsInLoop(stageIndex) then
-                screen.level(4)
-                screen.move(x + pulseWidth / 2, y0 + 9)
-                screen.text_center(stage:getGateTypeSymbol())
-            end
-        end
+        drawPulseScreen(trackIndex, x0, y0, width, blockWidth, blockHeight)
 
         -- track selection
         if trackIndex == seq.currentTrack then
@@ -202,6 +170,45 @@ function redraw() -- 128x64
     end
 
     screen.update()
+end
+
+function drawPulseScreen(trackIndex, x0, y0, width, blockWidth, blockHeight)
+    local track = seq:getTrack(trackIndex)
+
+    for stageIndex = 1, 8 do
+        local stage = track:getStageWithIndex(stageIndex)
+        local activePulseCoords = seq.activePulseCoords[trackIndex]
+
+        local x = x0 + ((stageIndex - 1) * (blockWidth + 1))
+
+        for pulseIndex = 1, stage.pulseCount do
+            local y = y0 - (pulseIndex * (blockHeight + 1))
+
+            if seq:isMuted(trackIndex) then
+                screen.level(1)
+            elseif activePulseCoords and activePulseCoords.x == stageIndex and activePulseCoords.y == pulseIndex then
+                screen.level(15)
+            elseif track:stageIsInLoop(stageIndex) then
+                screen.level(4)
+            else
+                screen.level(1)
+            end
+
+            screen.rect(x, y, blockWidth, blockHeight)
+            screen.fill()
+            screen.close()
+        end
+
+        if seq:isMuted(trackIndex) then
+            screen.level(4)
+            screen.move(x0 + width / 2, y0 + 9)
+            screen.text_center('muted')
+        elseif track:stageIsInLoop(stageIndex) then
+            screen.level(4)
+            screen.move(x + blockWidth / 2, y0 + 9)
+            screen.text_center(stage:getGateTypeSymbol())
+        end
+    end
 end
 
 function redrawClock()
@@ -452,11 +459,8 @@ end
 function enc(n, d)
     -- track selection
     if n == 2 then
-        if d > 0 then
-            selectTrack(2)
-        else
-            selectTrack(1)
-        end
+        local trackIndex = d > 0 and 2 or 1
+        selectTrack(trackIndex)
     end
 
     requestGridRedraw()

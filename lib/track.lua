@@ -243,4 +243,19 @@ function track:getPlaybackOrderSymbol()
     return short
 end
 
+function track:getHumanReadableDivision()
+    local index = tab.key(divisions, self.division)
+    local humanReadableDivisions = {
+        [1] = "1/1",
+        [2] = "1/2",
+        [3] = "1/4.",
+        [4] = "1/4",
+        [5] = "1/8.",
+        [6] = "1/8",
+        [7] = "1/16",
+        [8] = "1/32"
+    }
+    return humanReadableDivisions[index]
+end
+
 return track
