@@ -40,7 +40,7 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 - optional: crow
 
 ## Screen
-The screen shows a simple representation of the pulse count matrices of the two tracks. The selected loop range, as well as the currently playing pulse is being highlighted. Beneath every stage you can see a symbol, representing the gate type. The bottom row shows the currently played note and octave on the left, the playback order on the right. A line beneath the matrix indicates the currently selected track.
+The screen shows a simple representation of the pulse count matrices of the two tracks. The selected loop range, as well as the currently playing pulse is being highlighted. Beneath every stage you can see a symbol, representing the gate type. The bottom row shows the currently played note and octave on the left, the clock division in the middle and the playback order on the right. A line beneath the matrix indicates the currently selected track and the selected loop range.
 
 In the top right corner, you can see the play state and the current transport index.
 
@@ -49,7 +49,7 @@ In the top right corner, you can see the play state and the current transport in
 ## Keys and Encoders
 - `K2` Play / Pause
 - `K3` Reset and restart
-- `Enc2` Select Track
+- `Enc1` Select Track
 
 ## Grid Layout
 The grid layout of **metrix** is strongly influenced by [skylines](https://llllllll.co/t/skylines/38856) and [Kria](https://monome.org/docs/ansible/kria). 🙏
