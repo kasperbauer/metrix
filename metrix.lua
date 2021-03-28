@@ -5,7 +5,8 @@
 -- K2: play/pause
 -- K3: reset and restart
 --
---
+-- Enc2: select track
+
 VERSION = '1.0'
 
 musicUtil = require('lib/musicutil')
@@ -148,6 +149,7 @@ function redraw() -- 128x64
             screen.text(pulse.noteName)
         end
 
+        -- grid
         for stageIndex = 1, 8 do
             local stage = track:getStageWithIndex(stageIndex)
             local activePulseCoords = seq.activePulseCoords[trackIndex]
@@ -171,6 +173,14 @@ function redraw() -- 128x64
                 screen.fill()
                 screen.close()
             end
+        end
+
+        -- track selection
+        if trackIndex == seq.currentTrack then
+            screen.level(12)
+            screen.rect(x0, 32 + (pulseHeight * 4) + 5, ((pulseWidth + 1) * 8) - 1, 2)
+            screen.fill()
+            screen.close()
         end
     end
 
@@ -420,6 +430,20 @@ function key(n, z)
     end
     requestScreenRedraw()
     requestGridRedraw()
+end
+
+function enc(n, d)
+    -- track selection
+    if n == 2 then
+        if d > 0 then
+            selectTrack(2)
+        else
+            selectTrack(1)
+        end
+    end
+
+    requestGridRedraw()
+    requestScreenRedraw()
 end
 
 function g.key(x, y, z)
