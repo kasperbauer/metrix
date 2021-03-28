@@ -161,7 +161,7 @@ function redraw() -- 128x64
                 elseif activePulseCoords and activePulseCoords.x == stageIndex and activePulseCoords.y == pulseIndex then
                     screen.level(15)
                 elseif track:stageIsInLoop(stageIndex) then
-                    screen.level(5)
+                    screen.level(4)
                 else
                     screen.level(1)
                 end
