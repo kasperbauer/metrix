@@ -116,4 +116,18 @@ function stage:accumulatePitch(trackIndex)
     end
 end
 
+function stage:getGateTypeSymbol()
+    local short = ':' 
+
+    if self.gateType == 'single' then
+        short = '.'
+    elseif self.gateType == 'hold' then
+        short = '|'
+    elseif self.gateType == 'rest' then
+        short = '-'
+    end
+
+    return short;
+end
+
 return stage
