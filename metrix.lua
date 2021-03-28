@@ -179,7 +179,13 @@ function redraw() -- 128x64
                 screen.fill()
                 screen.close()
             end
-            if track:stageIsInLoop(stageIndex) then
+
+            if seq:isMuted(trackIndex) then
+                screen.level(4)
+                screen.move(x0 + width / 2, y0 + 9)
+                screen.text_center('muted')
+
+            elseif track:stageIsInLoop(stageIndex) then
                 screen.level(4)
                 screen.move(x + pulseWidth / 2, y0 + 9)
                 screen.text_center(stage:getGateTypeSymbol())
