@@ -21,6 +21,7 @@ function sequencer:new(onPulseAdvance)
     t.stageIndex = {}
     t.pulseCount = {}
     t.activePulseCoords = {}
+    t.activePulse = {}
     t.patterns = {}
     t.noteOffPattern = nil
     t.events = {}
@@ -186,6 +187,7 @@ function sequencer:advanceToNextPulse(trackIndex)
         self:playNote(trackIndex, pulse)
     end
 
+    self.activePulse[trackIndex] = skip and nil or pulse
     self:prepareNextPulse(trackIndex, pulse)
 
     local transposeTrigger = self:getTransposeTrigger(trackIndex);
