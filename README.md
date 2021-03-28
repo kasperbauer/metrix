@@ -101,7 +101,7 @@ Notes:
 ## Crow / MIDI
 
 ### Crow
-Connect crow to control your eurorack system:
+Connect crow to send the sequences to your eurorack system:
 - Outputs 1 and 3 send **gates, triggers or envelopes** (adjustable in the params) for each pulse
 - Outputs 2 and 4 send **1v/octave** pitch voltage
 
