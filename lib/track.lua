@@ -59,6 +59,15 @@ function track:new(args)
 end
 
 function track:randomize(paramNames)
+    for i, name in ipairs(paramNames) do
+        if name == 'playbackOrder' then
+            self.playbackOrder = playbackOrders[math.random(1, 4)]
+        end
+        if name == 'division' then
+            self.division = divisions[math.random(1, 8)]
+        end
+    end
+
     for k, stage in pairs(self.stages) do
         stage:randomize(paramNames)
     end
