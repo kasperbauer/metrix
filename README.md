@@ -1,7 +1,3 @@
-FYI:
-This is a public beta and not a fully functional release version.
-Please consider this when filing issues.
-
 # metrix
 
 [intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns. 🤖❤️
