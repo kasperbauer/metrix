@@ -445,7 +445,7 @@ function key(n, z)
         if n == 2 then
             seq:playPause()
         elseif n == 3 then
-            seq:restart()
+            seq:reset()
         end
     end
     requestScreenRedraw()
