@@ -54,7 +54,6 @@ seq = sequencer:new(function()
     requestScreenRedraw()
 end)
 seq:addTracks(2)
-seq:toggleTrack(2)
 
 -- redraw
 local gridIsDirty = true
@@ -63,6 +62,7 @@ local screenIsDirty = false
 function init()
     initEngine()
     addParams()
+    seq:toggleTrack(2)
     m = midi.connect(params:get('midi_device'))
     clock.run(redrawClock)
     math.randomseed(util.time())
@@ -159,7 +159,40 @@ function redraw() -- 128x64
 
         -- grid
         local y0 = 44
-        drawPulseScreen(trackIndex, x0, y0, width, blockWidth, blockHeight)
+        for stageIndex = 1, 8 do
+            local stage = track:getStageWithIndex(stageIndex)
+            local activePulseCoords = seq.activePulseCoords[trackIndex]
+
+            local x = x0 + ((stageIndex - 1) * (blockWidth + 1))
+
+            for pulseIndex = 1, stage.pulseCount do
+                local y = y0 - (pulseIndex * (blockHeight + 1))
+
+                if seq:isMuted(trackIndex) then
+                    screen.level(1)
+                elseif activePulseCoords and activePulseCoords.x == stageIndex and activePulseCoords.y == pulseIndex then
+                    screen.level(15)
+                elseif track:stageIsInLoop(stageIndex) then
+                    screen.level(4)
+                else
+                    screen.level(1)
+                end
+
+                screen.rect(x, y, blockWidth, blockHeight)
+                screen.fill()
+                screen.close()
+            end
+
+            if seq:isMuted(trackIndex) then
+                screen.level(4)
+                screen.move(x0 + width / 2, y0 + 9)
+                screen.text_center('muted')
+            elseif track:stageIsInLoop(stageIndex) then
+                screen.level(4)
+                screen.move(x + blockWidth / 2, y0 + 9)
+                screen.text_center(stage:getGateTypeSymbol())
+            end
+        end
 
         -- track selection
         if trackIndex == seq.currentTrack then
@@ -173,45 +206,6 @@ function redraw() -- 128x64
     end
 
     screen.update()
-end
-
-function drawPulseScreen(trackIndex, x0, y0, width, blockWidth, blockHeight)
-    local track = seq:getTrack(trackIndex)
-
-    for stageIndex = 1, 8 do
-        local stage = track:getStageWithIndex(stageIndex)
-        local activePulseCoords = seq.activePulseCoords[trackIndex]
-
-        local x = x0 + ((stageIndex - 1) * (blockWidth + 1))
-
-        for pulseIndex = 1, stage.pulseCount do
-            local y = y0 - (pulseIndex * (blockHeight + 1))
-
-            if seq:isMuted(trackIndex) then
-                screen.level(1)
-            elseif activePulseCoords and activePulseCoords.x == stageIndex and activePulseCoords.y == pulseIndex then
-                screen.level(15)
-            elseif track:stageIsInLoop(stageIndex) then
-                screen.level(4)
-            else
-                screen.level(1)
-            end
-
-            screen.rect(x, y, blockWidth, blockHeight)
-            screen.fill()
-            screen.close()
-        end
-
-        if seq:isMuted(trackIndex) then
-            screen.level(4)
-            screen.move(x0 + width / 2, y0 + 9)
-            screen.text_center('muted')
-        elseif track:stageIsInLoop(stageIndex) then
-            screen.level(4)
-            screen.move(x + blockWidth / 2, y0 + 9)
-            screen.text_center(stage:getGateTypeSymbol())
-        end
-    end
 end
 
 function redrawClock()
@@ -235,7 +229,8 @@ function redrawGrid()
     drawMod()
 
     if selectedPage >= 1 and selectedPage <= 3 then
-        drawLoopPicker()
+        drawLoopPicker(1, 1)
+        drawLoopPicker(2, 2)
     end
 
     -- pulse matrix
@@ -302,24 +297,22 @@ function drawMod()
     g:led(7, 16, 3)
 end
 
-function drawLoopPicker()
-    for y = 1, 2 do
-        for x = 1, 8 do
-            local track = seq:getTrack(y);
-            local isSelected, start, stop = seq.currentTrack == y, track.loop.start, track.loop.stop
+function drawLoopPicker(trackIndex, y)
+    for x = 1, 8 do
+        local track = seq:getTrack(trackIndex);
+        local isSelected, start, stop = seq.currentTrack == y, track.loop.start, track.loop.stop
 
-            if (x >= start and x <= stop) then
-                if (isSelected) then
-                    g:led(x, y, ledLevels.high)
-                else
-                    g:led(x, y, ledLevels.mid)
-                end
+        if (x >= start and x <= stop) then
+            if (isSelected) then
+                g:led(x, y, ledLevels.high)
             else
-                if (isSelected) then
-                    g:led(x, y, ledLevels.low)
-                else
-                    g:led(x, y, ledLevels.off)
-                end
+                g:led(x, y, ledLevels.mid)
+            end
+        else
+            if (isSelected) then
+                g:led(x, y, ledLevels.low)
+            else
+                g:led(x, y, ledLevels.off)
             end
         end
     end
