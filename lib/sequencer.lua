@@ -120,7 +120,10 @@ function sequencer:reset()
         self:resetPulseCount(i)
         self.tracks[i]:resetPitches()
     end
-    self.lattice:hard_restart()
+
+    if self.lattice.enabled then
+        self.lattice:hard_restart()
+    end
 end
 
 function sequencer:refreshProbability(trackIndex, stageIndex)
