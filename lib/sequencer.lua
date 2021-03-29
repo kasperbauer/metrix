@@ -124,16 +124,20 @@ function sequencer:reset()
     self.lattice:hard_restart()
 end
 
+function sequencer:refreshProbability(trackIndex, stageIndex)
+    if self.probabilities[trackIndex] == nil then
+        self.probabilities[trackIndex] = {}
+    end
+    
+    self.probabilities[trackIndex][stageIndex] = math.random()
+end
+
 function sequencer:refreshProbabilities()
     for trackIndex = 1, #self.tracks do
-        local probabilities = {}
-        for i = 1, 8 do
-            table.insert(probabilities, math.random(1, 100) / 100)
+        for stageIndex = 1, 8 do
+            self:refreshProbability(trackIndex, stageIndex)
         end
-        self.probabilities[trackIndex] = probabilities
     end
-
-    local prob = self.probabilities[1]
 end
 
 function sequencer:resetStageIndex(trackIndex)
@@ -197,7 +201,7 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
     elseif track.loop.start == track.loop.stop then
         self.stageIndex[trackIndex] = track.loop.start
         self:resetPulseCount(trackIndex)
-    else
+    elseif pulse.last then
         self:resetPulseCount(trackIndex)
 
         if track.playbackOrder == 'forward' then
@@ -232,8 +236,6 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
 end
 
 function sequencer:advanceToNextStage(trackIndex, amount)
-    self:refreshProbabilities()
-
     local track = self:getTrack(trackIndex)
 
     if track.playbackOrder == 'random' then
@@ -248,6 +250,9 @@ function sequencer:advanceToNextStage(trackIndex, amount)
     elseif self.stageIndex[trackIndex] < track.loop.start then
         self:resetStageIndex(trackIndex)
     end
+
+    local stageIndex = self.stageIndex[trackIndex]
+    self:refreshProbability(trackIndex, stageIndex)
 end
 
 function sequencer:getTransposeTriggers()

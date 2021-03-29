@@ -120,7 +120,8 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
         return nil
     end
 
-    local first, last = pulseCount == 1, pulseCount >= stage.pulseCount
+    local first = pulseCount == 1
+    local last = pulseCount >= stage.pulseCount
     local octave = self:getOctaveByIndex(trackIndex, stageIndex)
     local midiNote = self:getMidiNote(stage.accumulatedPitch, octave)
     local scale = self:getScale()
