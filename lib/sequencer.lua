@@ -62,8 +62,7 @@ end
 
 function sequencer:swapTrack(trackIndex, track)
     self.tracks[trackIndex] = track
-    local pattern = self:getPattern(trackIndex)
-    pattern:set_division(track.division)
+    self:setDivision(trackIndex, track.division)
 end
 
 function sequencer:addPattern(division, trackIndex)
@@ -469,6 +468,14 @@ end
 
 function sequencer:isMuted(trackIndex)
     return params:get("mute_tr_" .. trackIndex) == 1
+end
+
+function sequencer:setDivision(trackIndex, division)
+    local track = self:getTrack(trackIndex)
+    local pattern = self:getPattern(trackIndex)
+    track:setDivision(division)
+    pattern:set_division(division)
+    pattern.phase = division * self.lattice.ppqn * self.lattice.meter
 end
 
 return sequencer

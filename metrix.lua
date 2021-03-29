@@ -578,10 +578,7 @@ function g.key(x, y, z)
             end
             local divisions = track:getDivisions()
             local division = divisions[x]
-            local track = seq:getTrack(trackIndex)
-            local pattern = seq:getPattern(trackIndex)
-            track:setDivision(division)
-            pattern:set_division(division)
+            seq:setDivision(trackIndex, division)
         end
     end
 
