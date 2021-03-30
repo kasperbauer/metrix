@@ -17,7 +17,7 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 - Generate random sequences 
 
 ## Requirements
-- norns (210114)
+- norns (210323)
 - grid
 - optional: crow
 
