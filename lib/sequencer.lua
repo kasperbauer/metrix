@@ -133,7 +133,7 @@ function sequencer:refreshProbability(trackIndex, stageIndex)
     if self.probabilities[trackIndex] == nil then
         self.probabilities[trackIndex] = {}
     end
-    
+
     self.probabilities[trackIndex][stageIndex] = math.random()
 end
 
@@ -481,7 +481,10 @@ function sequencer:setDivision(trackIndex, division)
     local pattern = self:getPattern(trackIndex)
     track:setDivision(division)
     pattern:set_division(division)
-    self.lattice:reset()
+    
+    if not self.lattice.enabled then
+        self.lattice:reset()
+    end
 end
 
 return sequencer
