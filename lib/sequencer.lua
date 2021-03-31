@@ -114,11 +114,12 @@ end
 
 function sequencer:reset()
     self:refreshProbabilities()
-    for i = 1, #self.tracks do
-        self:setActivePulseCoords(i, 1, 1)
-        self:resetStageIndex(i)
-        self:resetPulseCount(i)
-        self.tracks[i]:resetPitches()
+
+    for trackIndex = 1, #self.tracks do
+        self:resetStageIndex(trackIndex)
+        self:resetPulseCount(trackIndex)
+        self:setActivePulseCoords(trackIndex)
+        self.tracks[trackIndex]:resetPitches()
     end
 
     if self.lattice.enabled then
@@ -480,7 +481,7 @@ function sequencer:setDivision(trackIndex, division)
     local pattern = self:getPattern(trackIndex)
     track:setDivision(division)
     pattern:set_division(division)
-    pattern.phase = division * self.lattice.ppqn * self.lattice.meter
+    self.lattice:reset()
 end
 
 return sequencer
