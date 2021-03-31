@@ -123,6 +123,8 @@ function sequencer:reset()
 
     if self.lattice.enabled then
         self.lattice:hard_restart()
+    else
+        self.lattice:reset()
     end
 end
 
