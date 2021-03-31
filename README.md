@@ -30,7 +30,7 @@ In the top right corner, you can see the play state and the current transport in
 
 ## Keys and Encoders
 - `K2` Play / Pause
-- `K3` Reset and restart
+- `K3` Reset
 - `Enc1` Select Track
 
 ## Grid Layout

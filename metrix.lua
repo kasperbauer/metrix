@@ -3,7 +3,7 @@
 -- metropolix for norns
 --
 -- K2: play/pause
--- K3: reset and restart
+-- K3: reset
 --
 -- Enc1: select track
 musicUtil = require('lib/musicutil')
