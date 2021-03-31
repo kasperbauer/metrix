@@ -43,7 +43,8 @@ function Lattice:reset()
     self.superclock_id = nil 
   end
   for i, pattern in pairs(self.patterns) do
-    pattern.phase = pattern.phase_end or pattern.division * self.ppqn * self.meter
+    pattern.phase_end = pattern.division * self.ppqn * self.meter
+    pattern.phase = pattern.phase_end
   end
   self.transport = 0
   params:set("clock_reset",1)
@@ -166,7 +167,6 @@ end
 -- @tparam number n the division of the pattern
 function Pattern:set_division(n)
    self.division = n
-   self.phase_end = nil
 end
 
 --- set the action for this pattern
