@@ -1,25 +1,9 @@
 local stage = {}
 
-local gateTypes = {
-    [1] = 'hold',
-    [2] = 'multiple',
-    [3] = 'single',
-    [4] = 'rest'
-}
-
-local gateLengths = {
-    [1] = 1,
-    [2] = 0.75,
-    [3] = 0.5,
-    [4] = 0.1
-}
-
-local probabilities = {
-    [1] = 1,
-    [2] = 0.75,
-    [3] = 0.5,
-    [4] = 0.25
-}
+local gateTypes = {'hold', 'multiple', 'single', 'rest'}
+local gateLengths = {1, 0.75, 0.5, 0.1}
+local probabilities = {1, 0.75, 0.5, 0.25}
+local transpositionDirections = {'up', 'down'}
 
 function stage:new(args)
     local t = setmetatable({}, {
@@ -107,17 +91,31 @@ function stage:resetPitch()
 end
 
 function stage:accumulatePitch(trackIndex)
+    local direction = self:getAccumulationDirection(trackIndex)
     local pitch = self.accumulatedPitch + self.transpose
+    if direction == "down" then
+        pitch = self.accumulatedPitch - self.transpose
+    end
+
     local transposeLimit = params:get("transpose_limit_tr_" .. trackIndex)
-    if (pitch > self.pitch + transposeLimit) then
+    if pitch > self.pitch + transposeLimit or pitch < self.pitch - transposeLimit then
         self:resetPitch()
     else
         self.accumulatedPitch = pitch
     end
 end
 
+function stage:getTranspositionDirections()
+    return transpositionDirections;
+end
+
+function stage:getAccumulationDirection(trackIndex)
+    local directionIndex = params:get("transpose_direction_tr_" .. trackIndex)
+    return transpositionDirections[directionIndex]
+end
+
 function stage:getGateTypeSymbol()
-    local short = ':' 
+    local short = ':'
 
     if self.gateType == 'single' then
         short = '.'
