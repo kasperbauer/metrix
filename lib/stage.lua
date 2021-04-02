@@ -48,7 +48,7 @@ function stage:randomize(paramNames)
             self.pitch = math.random(1, 8)
         end
         if name == 'octave' then
-            self.octave = math.random(0, 3)
+            self.octave = math.lowerRandom(0, 3)
         end
         if name == 'gateType' then
             self.gateType = gateTypes[math.random(1, 4)]
