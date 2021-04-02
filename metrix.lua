@@ -6,7 +6,7 @@
 -- K3: reset
 --
 -- Enc1: select track
-musicUtil = require('lib/musicutil')
+musicUtil = require('musicutil')
 preset = include('lib/preset')
 sequencer = include('lib/sequencer')
 track = include('lib/track')
@@ -79,8 +79,8 @@ end
 function addParams()
     local csMillis = controlspec.new(0, 5, 'lin', 0.05, 0.05, 's')
     local scaleNames = {}
-    for i = 1, #musicUtil.SCALES do
-        table.insert(scaleNames, string.lower(musicUtil.SCALES[i].name))
+    for i, scale in ipairs(musicUtil.SCALES) do
+        table.insert(scaleNames, string.lower(scale.name))
     end
 
     params:add_separator("METRIX")
