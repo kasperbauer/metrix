@@ -206,7 +206,7 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
     elseif track.loop.start == track.loop.stop then
         self.stageIndex[trackIndex] = track.loop.start
         self:resetPulseCount(trackIndex)
-    elseif pulse.last then
+    elseif (pulse and pulse.last) or not pulse then
         self:resetPulseCount(trackIndex)
 
         if track.playbackOrder == 'forward' then
@@ -481,7 +481,7 @@ function sequencer:setDivision(trackIndex, division)
     local pattern = self:getPattern(trackIndex)
     track:setDivision(division)
     pattern:set_division(division)
-    
+
     if not self.lattice.enabled then
         self.lattice:reset()
     end
