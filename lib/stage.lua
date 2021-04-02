@@ -19,7 +19,7 @@ function stage:new(args)
     t.pitch = args.pitch or 1
     t.octave = args.octave or 0
     t.probability = args.probability or probabilities[1]
-    t.transpose = args.transpose or 0
+    t.transposeAmount = args.transposeAmount or 0
     t.accumulatedPitch = args.accumulatedPitch or 1
     t.slide = args.slide or false
     t.accent = args.accent or false
@@ -30,7 +30,7 @@ end
 function stage:setParam(paramName, value)
     self[paramName] = value
 
-    if paramName == 'transpose' and value == 0 then
+    if paramName == 'transposeAmount' and value == 0 then
         self:resetPitch()
     end
 end
@@ -62,8 +62,8 @@ function stage:randomize(paramNames)
         if name == 'probability' then
             self.probability = probabilities[math.random(1, 4)]
         end
-        if name == 'transpose' then
-            self.transpose = math.lowerRandom(0, 7, 4)
+        if name == 'transposeAmount' then
+            self.transposeAmount = math.lowerRandom(0, 7, 4)
         end
         if name == 'slide' then
             self.slide = math.random() > 0.5
@@ -92,9 +92,9 @@ end
 
 function stage:accumulatePitch(trackIndex)
     local direction = self:getAccumulationDirection(trackIndex)
-    local pitch = self.accumulatedPitch + self.transpose
+    local pitch = self.accumulatedPitch + self.transposeAmount
     if direction == "down" then
-        pitch = self.accumulatedPitch - self.transpose
+        pitch = self.accumulatedPitch - self.transposeAmount
     end
 
     local transposeLimit = params:get("transpose_limit_tr_" .. trackIndex)

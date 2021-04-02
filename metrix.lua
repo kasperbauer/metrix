@@ -247,7 +247,7 @@ function redrawGrid()
         end
     elseif selectedPage == 2 then
         if shiftIsHeld() then
-            drawMatrix('transpose', {7, 6, 5, 4, 3, 2, 1, 0}, 3, 10)
+            drawMatrix('transposeAmount', {7, 6, 5, 4, 3, 2, 1, 0}, 3, 10)
             drawBooleanMatrix('slide', 12)
             drawBooleanMatrix('accent', 13)
         else
@@ -529,8 +529,8 @@ function g.key(x, y, z)
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
             if shiftIsHeld() then
-                local transpose = 10 - y
-                setParam(stage, 'transpose', transpose)
+                local transposeAmount = 10 - y
+                setParam(stage, 'transposeAmount', transposeAmount)
             else
                 local pitch = 11 - y
                 setParam(stage, 'pitch', pitch)
@@ -592,7 +592,7 @@ function g.key(x, y, z)
             if x == 1 then
                 track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'probability'})
             elseif x == 2 then
-                track:randomize({'pitch', 'transpose', 'octave', 'slide', 'accent'})
+                track:randomize({'pitch', 'transposeAmount', 'octave', 'slide', 'accent'})
             end
         else
             selectPage(x)
