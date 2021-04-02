@@ -1,3 +1,5 @@
+<img src="https://memecreator.org/static/images/memes/5113079.jpg" alt="Metrix Schmetrix" width="256">
+
 # metrix
 
 [intellijel Metropolix](https://intellijel.com/shop/eurorack/metropolix/) for norns. 🤖❤️
