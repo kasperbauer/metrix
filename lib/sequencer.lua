@@ -114,7 +114,8 @@ end
 
 function sequencer:reset()
     self:refreshProbabilities()
-
+    self:noteOffAll()
+    
     for trackIndex = 1, #self.tracks do
         self:resetStageIndex(trackIndex)
         self:resetPulseCount(trackIndex)
