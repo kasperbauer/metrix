@@ -22,7 +22,6 @@ function stage:new(args)
     t.transposeAmount = args.transposeAmount or 0
     t.accumulatedPitch = args.accumulatedPitch or 1
     t.slide = args.slide or false
-    t.accent = args.accent or false
 
     return t
 end
@@ -67,9 +66,6 @@ function stage:randomize(paramNames)
         end
         if name == 'slide' then
             self.slide = math.random() > 0.5
-        end
-        if name == 'accent' then
-            self.accent = math.random() > 0.5
         end
     end
 end

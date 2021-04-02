@@ -10,7 +10,7 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 
 ## Features
 - Two independent tracks with 8 stages each
-- Control many functions directly via grid (pulse count, gate type, ratchets, probability, pitch, octave, accumulation, slide and accent)
+- Control many functions directly via grid (pulse count, gate type, ratchets, probability, pitch, octave, accumulation, slide)
 - Set playback direction (forward, reverse, alternate, random) and clock division (1/1 - 1/32) per track
 - Loop the whole sequence or choose parts of it
 - Quantize to a scale and root note via global params
@@ -84,7 +84,7 @@ Set loopy to **repeat all stages** of the track
 ## Page 2: Pitch
 - Use the top matrix to choose the **pitch** for each stage. 
 - Use the bottom matrix to choose the **octave** for each stage. Change the accessible octave range in the params.
-- Press and hold `[shift]` to access the matrices for **accumulating transposition** (top), **slide** on/off and **accent** on/off (bottom).
+- Press and hold `[shift]` to access the matrices for **accumulating transposition** (top) and **slide** on/off (bottom).
 
 Notes: 
   - As the currenty used engine supports **slide** only as a global command, it affects both tracks if using the built-in audio.

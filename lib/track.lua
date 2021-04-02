@@ -129,7 +129,6 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
         last = last,
         duration = 1,
         slideAmount = slideAmount,
-        accent = stage.accent
     }
 
     local rest = {
