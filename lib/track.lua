@@ -3,23 +3,8 @@ stage = include('lib/stage')
 
 local track = {}
 
-local divisions = {
-    [1] = 1 / 1,
-    [2] = 1 / 2,
-    [3] = 3 / 8,
-    [4] = 1 / 4,
-    [5] = 3 / 16,
-    [6] = 1 / 8,
-    [7] = 1 / 16,
-    [8] = 1 / 32
-}
-
-local playbackOrders = {
-    [1] = 'forward',
-    [2] = 'reverse',
-    [3] = 'alternate',
-    [4] = 'random'
-}
+local divisions = {1 / 1, 1 / 2, 3 / 8, 1 / 4, 3 / 16, 1 / 8, 1 / 16, 1 / 32}
+local playbackOrders = {'forward', 'reverse', 'alternate', 'random'}
 
 function track:new(args)
     local t = setmetatable({}, {
