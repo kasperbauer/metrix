@@ -115,7 +115,7 @@ end
 function sequencer:reset()
     self:refreshProbabilities()
     self:noteOffAll()
-    
+
     for trackIndex = 1, #self.tracks do
         self:resetStageIndex(trackIndex)
         self:resetPulseCount(trackIndex)
@@ -148,16 +148,12 @@ end
 
 function sequencer:resetStageIndex(trackIndex)
     local track = self:getTrack(trackIndex)
-    if (track.playbackOrder == 'forward') then
+    if track.playbackOrder == 'forward' then
         self.stageIndex[trackIndex] = track.loop.start
-    elseif (track.playbackOrder == 'reverse') then
+    elseif track.playbackOrder == 'reverse' then
         self.stageIndex[trackIndex] = track.loop.stop
-    elseif (track.playbackOrder == 'alternate') then
-        if self.alternatePlaybackOrder == 'forward' then
-            self.stageIndex[trackIndex] = track.loop.start
-        elseif self.alternatePlaybackOrder == 'reverse' then
-            self.stageIndex[trackIndex] = track.loop.stop
-        end
+    elseif track.playbackOrder == 'alternate' then
+        self.stageIndex[trackIndex] = track.loop.start
     end
 end
 
