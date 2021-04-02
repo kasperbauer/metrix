@@ -7,6 +7,7 @@
 --
 -- Enc1: select track
 musicUtil = require('musicutil')
+include('lib/chords')
 preset = include('lib/preset')
 sequencer = include('lib/sequencer')
 track = include('lib/track')
