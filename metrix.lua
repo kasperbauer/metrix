@@ -124,13 +124,18 @@ function redraw() -- 128x64
     -- transport
     screen.font_size(8)
     screen.font_face(1)
-    if seq.lattice.enabled then
+    if not seq.lattice.enabled and seq.lattice.transport == 0 then
+        screen.move(0, 8)
+        screen.text('K2 to play')
+        drawIcon('stop', 123, 2)
+    elseif seq.lattice.enabled then
         screen.move(120, 8)
         screen.text_right(seq.lattice.transport)
         drawIcon('play', 124, 2)
-    elseif seq.lattice.transport == 0 then
-        screen.move(128, 8)
-        screen.text_right('K2 to play')
+    else
+        screen.move(120, 8)
+        screen.text_right(seq.lattice.transport)
+        drawIcon('pause', 123, 2)
     end
 
     -- seperator

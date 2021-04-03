@@ -16,5 +16,17 @@ function drawIcon(name, x, y, level)
         screen.line(x, y)
         screen.fill()
         screen.close()
+    elseif name == 'pause' then
+        local h = 7;
+        screen.rect(x, y, 2, h)
+        screen.fill()
+        screen.rect(x + 3, y, 2, h)
+        screen.fill()
+        screen.close()
+    elseif name == 'stop' then
+        local w, h = 5,5
+        screen.rect(x, y + 1, w, h)
+        screen.fill()
+        screen.close()
     end
 end
