@@ -22,6 +22,7 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 - norns (210114)
 - grid
 - optional: crow
+- [molly the poly](https://llllllll.co/t/molly-the-poly/21090)
 
 ## Screen
 The screen shows a simple representation of the pulse count matrices of the two tracks. The selected loop range, as well as the currently playing pulse is being highlighted. Beneath every stage you can see a symbol, representing the gate type. The bottom row shows the currently played note and octave on the left, the clock division in the middle and the playback order on the right. A line beneath the matrix indicates the currently selected track and the selected loop range.
