@@ -206,7 +206,7 @@ function track:getNoteName(midiNote)
 end
 
 function track:getVolts(midiNote, octave)
-    local offset = 24 + (octave - 1) * 12;
+    local offset = 60 -- c4
     local volts = (midiNote - offset) / 12
     -- limit eurorack to 0-10V
     return util.clamp(volts, 0, 10)
