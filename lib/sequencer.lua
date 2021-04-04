@@ -21,6 +21,7 @@ function sequencer:new(onPulseAdvance)
     t.activePulseCoords = {}
     t.activePulse = {}
     t.patterns = {}
+    t.eventPattern = nil
     t.midiClockPattern = nil
     t.events = {}
 
