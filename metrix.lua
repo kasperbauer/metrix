@@ -16,7 +16,7 @@ include('lib/helpers')
 
 m = midi.connect()
 g = grid.connect()
-g:rotation(45)
+g:rotation(1) -- 90deg
 
 -- molly the poly
 MollyThePoly = require "molly_the_poly/lib/molly_the_poly_engine"
