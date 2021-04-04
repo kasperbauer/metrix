@@ -672,3 +672,12 @@ end
 function requestGridRedraw()
     gridIsDirty = true
 end
+
+function clock.transport.start()
+    seq:playPause()
+end
+
+function clock.transport.stop()
+    seq:playPause()
+    seq:reset()
+end
