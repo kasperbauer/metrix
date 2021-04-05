@@ -102,13 +102,14 @@ end
 
 function sequencer:start()
     self:addEventPattern()
-
     self:refreshProbabilities()
+
     if self.lattice.transport == 0 then
         m:start()
     else
         m:continue()
     end
+    
     self.lattice:start()
 end
 

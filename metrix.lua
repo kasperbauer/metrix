@@ -687,13 +687,17 @@ function requestGridRedraw()
 end
 
 function clock.transport.start()
-    seq:reset()
-    seq:start()
+    if clockIsSynced() then
+        seq:reset()
+        seq:start()
+    end
 end
 
 function clock.transport.stop()
-    seq:stop()
-    seq:reset()
-    requestScreenRedraw()
-    requestGridRedraw()
+    if clockIsSynced() then
+        seq:stop()
+        seq:reset()
+        requestScreenRedraw()
+        requestGridRedraw()
+    end
 end
