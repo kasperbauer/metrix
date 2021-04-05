@@ -117,6 +117,10 @@ function addParams()
     end
 end
 
+function clockIsSynced()
+    return params:string("clock_source") == "link" or params:string("clock_source") == "midi"
+end
+
 function redraw() -- 128x64
     screen.clear()
 
@@ -127,6 +131,10 @@ function redraw() -- 128x64
     --- bpm
     local tempo = number_format(clock.get_tempo(), 1)
     screen.move(2, 7)
+    if clockIsSynced() then
+        screen.circle(2, 5, 1)
+        screen.move(6, 7)
+    end
     screen.text(tempo .. " bpm")
 
     -- transport
