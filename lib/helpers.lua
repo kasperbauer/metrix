@@ -24,9 +24,14 @@ function drawIcon(name, x, y, level)
         screen.fill()
         screen.close()
     elseif name == 'stop' then
-        local w, h = 5,5
+        local w, h = 5, 5
         screen.rect(x, y + 1, w, h)
         screen.fill()
         screen.close()
     end
+end
+
+function number_format(number, decimals)
+    local power = 10 ^ decimals
+    return math.floor(number * power) / power
 end

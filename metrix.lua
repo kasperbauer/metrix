@@ -119,28 +119,33 @@ end
 
 function redraw() -- 128x64
     screen.clear()
-    screen.level(ledLevels.high)
 
-    -- transport
+    screen.level(ledLevels.high)
     screen.font_size(8)
     screen.font_face(1)
-    if not seq.lattice.enabled and seq.lattice.transport == 0 then
-        screen.move(0, 8)
-        screen.text('K2 to play')
-        drawIcon('stop', 123, 2)
-    elseif seq.lattice.enabled then
-        screen.move(120, 8)
+
+    --- bpm
+    local tempo = number_format(clock.get_tempo(), 1)
+    screen.move(2, 7)
+    screen.text(tempo .. " bpm")
+
+    -- transport
+    if seq.lattice.transport > 0 then
+        screen.move(119, 7)
         screen.text_right(seq.lattice.transport)
-        drawIcon('play', 124, 2)
+
+        if seq.lattice.enabled then
+            drawIcon('play', 122, 1)
+        else
+            drawIcon('pause', 121, 1)
+        end
     else
-        screen.move(120, 8)
-        screen.text_right(seq.lattice.transport)
-        drawIcon('pause', 123, 2)
+        drawIcon('stop', 121, 1)
     end
 
     -- seperator
-    screen.level(10)
-    screen.move(63, 0)
+    screen.level(ledLevels.low)
+    screen.move(63, 9)
     screen.line_width(2)
     screen.line(63, 64)
     screen.stroke()
