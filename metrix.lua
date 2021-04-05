@@ -463,7 +463,7 @@ end
 function key(n, z)
     if z == 1 then
         if n == 2 then
-            seq:playPause()
+            seq:toggle()
         elseif n == 3 then
             seq:reset()
         end
@@ -688,9 +688,12 @@ end
 
 function clock.transport.start()
     seq:reset()
-    seq:playPause()
+    seq:start()
 end
 
 function clock.transport.stop()
-    seq:playPause()
+    seq:stop()
+    seq:reset()
+    requestScreenRedraw()
+    requestGridRedraw()
 end

@@ -92,23 +92,31 @@ function sequencer:addEventPattern()
     })
 end
 
-function sequencer:playPause()
+function sequencer:toggle()
+    if self.lattice.enabled then
+        self:stop()
+    else
+        self:start()
+    end
+end
+
+function sequencer:start()
     self:addEventPattern()
 
-    if self.lattice.enabled then
-        self.lattice:stop()
-        m:stop()
-        self:noteOffAll()
-        self.events = {}
+    self:refreshProbabilities()
+    if self.lattice.transport == 0 then
+        m:start()
     else
-        self:refreshProbabilities()
-        if self.lattice.transport == 0 then
-            m:start()
-        else
-            m:continue()
-        end
-        self.lattice:start()
+        m:continue()
     end
+    self.lattice:start()
+end
+
+function sequencer:stop()
+    self.lattice:stop()
+    m:stop()
+    self:noteOffAll()
+    self.events = {}
 end
 
 function sequencer:reset()
