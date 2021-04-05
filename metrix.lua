@@ -687,10 +687,10 @@ function requestGridRedraw()
 end
 
 function clock.transport.start()
+    seq:reset()
     seq:playPause()
 end
 
 function clock.transport.stop()
     seq:playPause()
-    seq:reset()
 end
