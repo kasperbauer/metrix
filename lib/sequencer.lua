@@ -22,7 +22,6 @@ function sequencer:new(onPulseAdvance)
     t.activePulse = {}
     t.patterns = {}
     t.eventPattern = nil
-    t.midiClockPattern = nil
     t.events = {}
 
     t.onPulseAdvance = onPulseAdvance or function()
@@ -93,22 +92,8 @@ function sequencer:addEventPattern()
     })
 end
 
-function sequencer:addMidiClockPattern()
-    if self.midiClockPattern then
-        return
-    end
-
-    self.midiClockPattern = self.lattice:new_pattern({
-        action = function(t)
-            m:clock()
-        end,
-        division = 1 / 4 / (self.lattice.ppqn / 24) -- do every 24 ppqn
-    })
-end
-
 function sequencer:playPause()
     self:addEventPattern()
-    self:addMidiClockPattern()
 
     if self.lattice.enabled then
         self.lattice:stop()
