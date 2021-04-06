@@ -128,7 +128,7 @@ function track:getPulse(trackIndex, stageIndex, pulseCount)
         first = first,
         last = last,
         duration = 1,
-        slideAmount = slideAmount,
+        slideAmount = slideAmount
     }
 
     local rest = {
@@ -189,11 +189,24 @@ end
 
 function track:getMidiNote(pitch, octave)
     local scale = self:getScale()
-    local pitch = pitch
+    local scaleLength = #scale.intervals - 1
+    local octaveOffset = 0
+
+    -- downward accumulation
+    if pitch <= 0 then
+        octaveOffset = math.floor(pitch / scaleLength)
+        pitch = (pitch % scaleLength)
+        
+        if pitch == 0 then
+            pitch = scaleLength
+            octaveOffset = octaveOffset - 1
+        end
+    end
+
     -- 24 == C1
     local scaleRoot = 24 + (self:getRootNote() - 1)
     local midiScale = musicUtil.generate_scale_of_length(scaleRoot, scale.name, pitch)
-    local midiNote = midiScale[pitch] + (octave - 1) * 12;
+    local midiNote = midiScale[pitch] + (octave + octaveOffset - 1) * 12;
     return util.clamp(midiNote, 0, 127)
 end
 
