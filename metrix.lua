@@ -98,16 +98,22 @@ function addParams()
         params:add_separator('Output')
         params:add_binary("mute_tr_" .. i, "Mute", "toggle", 0)
         params:add_binary("output_audio_tr_" .. i, "Audio", "toggle", 1)
-        params:set_action("output_audio_tr_" .. i, function()
-            seq:noteOffAll()
+        params:set_action("output_audio_tr_" .. i, function(val)
+            if val == 0 then
+                seq:noteOffAll({'audio'})
+            end
         end)
         params:add_binary("output_midi_tr_" .. i, "MIDI", "toggle", 1)
-        params:set_action("output_midi_tr_" .. i, function()
-            seq:noteOffAll()
+        params:set_action("output_midi_tr_" .. i, function(val)
+            if val == 0 then
+                seq:noteOffAll({'midi'})
+            end
         end)
         params:add_binary("output_crow_tr_" .. i, "Crow", "toggle", 1)
-        params:set_action("output_crow_tr_" .. i, function()
-            seq:noteOffAll()
+        params:set_action("output_crow_tr_" .. i, function(val)
+            if val == 0 then
+                seq:noteOffAll({'crow'})
+            end
         end)
         params:add_separator('Pitch')
         params:add_option("octave_range_tr_" .. i, "Octave Range",

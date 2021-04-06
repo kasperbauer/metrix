@@ -109,7 +109,7 @@ function sequencer:start()
     else
         m:continue()
     end
-    
+
     self.lattice:start()
 end
 
@@ -420,21 +420,30 @@ function sequencer:handleEvents(transport)
     self.events[transport] = nil
 end
 
-function sequencer:noteOff(trackIndex, pulse, transport)
-    local midiCh = params:get('midi_ch_tr_' .. trackIndex)
-    if self:shouldSendToOutput(trackIndex, 'midi') then
-        m:note_off(pulse.midiNote, 127, midiCh)
-    end
+function sequencer:noteOff(trackIndex, pulse, transport, outputs)
+    outputs = outputs or {'audio', 'midi', 'crow'}
 
-    if self:shouldSendToOutput(trackIndex, 'crow') then
-        local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
-        if crowGateTypeIndex == 1 then
-            crow.output[(trackIndex * 2) - 1].volts = 0
+    for i, output in ipairs(outputs) do
+        if output == 'audio' then
+            print('noteoff audio')
+            engine.noteOff(trackIndex)
         end
-    end
 
-    if self:shouldSendToOutput(trackIndex, 'audio') then
-        engine.noteOff(trackIndex)
+        if output == 'midi' then
+            print('noteoff midi')
+
+            local midiCh = params:get('midi_ch_tr_' .. trackIndex)
+            m:note_off(pulse.midiNote, 127, midiCh)
+        end
+
+        if output == 'crow' then
+            print('noteoff crow')
+
+            local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
+            if crowGateTypeIndex == 1 then
+                crow.output[(trackIndex * 2) - 1].volts = 0
+            end
+        end
     end
 
     if DEBUG then
@@ -442,17 +451,21 @@ function sequencer:noteOff(trackIndex, pulse, transport)
     end
 end
 
-function sequencer:noteOffAll()
+function sequencer:noteOffAll(outputs)
+    outputs = outputs or {'audio', 'midi', 'crow'}
+
     for k1, events in pairs(self.events) do
         for k2, event in pairs(events) do
             if event.type == 'noteOff' then
-                self:noteOff(event.trackIndex, event.pulse, k1)
+                self:noteOff(event.trackIndex, event.pulse, k1, outputs)
             end
             self.events[k1] = nil
         end
     end
 
-    engine.noteOffAll()
+    if tab.contains(outputs, 'audio') then
+        engine.noteOffAll()
+    end
 end
 
 function sequencer:toggleTrack(trackIndex)
