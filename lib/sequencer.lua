@@ -196,7 +196,7 @@ function sequencer:advanceToNextPulse(trackIndex)
     self:prepareNextPulse(trackIndex, pulse)
 
     local transposeTrigger = self:getTransposeTrigger(trackIndex);
-    if transposeTrigger == 'pulse' then
+    if transposeTrigger == 'pulse' or transposeTrigger == 'ratchet' then
         local stage = track:getStageWithIndex(stageIndex)
         stage:accumulatePitch(trackIndex)
     end
