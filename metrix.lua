@@ -701,3 +701,9 @@ function clock.transport.stop()
         requestGridRedraw()
     end
 end
+
+function grid.add()
+    g = grid.connect()
+    g:rotation(1) -- 90deg
+    requestGridRedraw()
+end
