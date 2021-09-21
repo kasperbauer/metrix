@@ -15,8 +15,12 @@ stage = include('lib/stage')
 include('lib/helpers')
 
 m = midi.connect()
+
+function grid:led(x, y, val)
+    _norns.grid_set_led(self.dev, y, 9 - x, val)
+end
+
 g = grid.connect()
-g:rotation(1) -- 90deg
 
 -- molly the poly
 MollyThePoly = require "molly_the_poly/lib/molly_the_poly_engine"
@@ -68,6 +72,7 @@ function init()
     m = midi.connect(params:get('midi_device'))
     clock.run(redrawClock)
     math.randomseed(util.time())
+    redrawGrid()
 end
 
 function initEngine()
@@ -499,6 +504,10 @@ function enc(n, d)
 end
 
 function g.key(x, y, z)
+    local tempX, tempY = x, y
+    x = 9 - tempY
+    y = tempX
+
     local on, off = z == 1, z == 0
     local track = seq:getCurrentTrack()
     local stage = track:getStageWithIndex(x)
@@ -719,6 +728,5 @@ end
 
 function grid.add()
     g = grid.connect()
-    g:rotation(1) -- 90deg
     requestGridRedraw()
 end
