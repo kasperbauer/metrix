@@ -270,8 +270,8 @@ function redrawGrid()
     drawMod()
 
     if selectedPage >= 1 and selectedPage <= 3 then
-        drawLoopPicker(1, 1)
-        drawLoopPicker(2, 2)
+        drawTrackPicker(1)
+        drawLoopPicker(2)
     end
 
     -- pulse matrix
@@ -337,23 +337,32 @@ function drawMod()
     g:led(7, 16, 3)
 end
 
-function drawLoopPicker(trackIndex, y)
+function drawTrackPicker(y)
+    for x = 1, #seq.tracks do
+        if (x == seq.currentTrack) then
+            g:led(x, y, ledLevels.high)
+        elseif seq:isMuted(x) then
+            g:led(x, y, ledLevels.low)
+        else
+            g:led(x, y, ledLevels.mid)
+        end
+    end
+end
+
+function drawLoopPicker(y)
     for x = 1, 8 do
-        local track = seq:getTrack(trackIndex);
-        local isSelected, start, stop = seq.currentTrack == y, track.loop.start, track.loop.stop
+        local track = seq:getCurrentTrack()
+        local isMuted = seq:isMuted(seq.currentTrack)
+        local start, stop = track.loop.start, track.loop.stop
 
         if (x >= start and x <= stop) then
-            if (isSelected) then
+            if not isMuted then
                 g:led(x, y, ledLevels.high)
             else
                 g:led(x, y, ledLevels.mid)
             end
         else
-            if (isSelected) then
-                g:led(x, y, ledLevels.low)
-            else
-                g:led(x, y, ledLevels.off)
-            end
+            g:led(x, y, ledLevels.low)
         end
     end
 end
@@ -515,14 +524,21 @@ function g.key(x, y, z)
 
     momentary[x][y] = z == 1 and true or false
 
-    -- row 1 & 2: set seq length / loop
-    if selectedPage ~= 3 and y <= 2 then
+    -- row 1: select track
+    if selectedPage ~= 3 and y == 1 and on then
+        if modIsHeld() then
+            track:randomizeAll()
+        elseif shiftIsHeld() then
+            seq:toggleTrack(x)
+        else
+            seq:changeTrack(x)
+        end
+    end
+
+    -- row 2: set seq length / loop
+    if selectedPage ~= 3 and y == 2 then
         if on and modIsHeld() then
-            selectTrack(y)
-            track = seq:getCurrentTrack()
             track:setLoop(1, 8)
-        elseif seq.currentTrack ~= y then
-            selectTrack(y)
         else
             local pushed = getMomentariesInRow(y)
             if on then
@@ -626,9 +642,7 @@ function g.key(x, y, z)
 
     -- row 16: select page / randomize / mute
     if on and y == 16 and x <= maxPages then
-        if shiftIsHeld() and not modIsHeld() and x <= 2 then
-            seq:toggleTrack(x)
-        elseif modIsHeld() then
+        if modIsHeld() then
             if x == 1 then
                 track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'probability'})
             elseif x == 2 then

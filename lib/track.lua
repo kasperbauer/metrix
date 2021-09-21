@@ -58,6 +58,11 @@ function track:randomize(paramNames)
     end
 end
 
+function track:randomizeAll()
+    self:randomize({'pulseCount', 'ratchetCount', 'gateType', 'probability', 'pitch', 'transposeAmount', 'octave',
+                    'slide'})
+end
+
 function track:setLoop(start, stop)
     -- switch start / stop values if start > stop
     if start > stop then
@@ -196,7 +201,7 @@ function track:getMidiNote(pitch, octave)
     if pitch <= 0 then
         octaveOffset = math.floor(pitch / scaleLength)
         pitch = (pitch % scaleLength)
-        
+
         if pitch == 0 then
             pitch = scaleLength
             octaveOffset = octaveOffset - 1
