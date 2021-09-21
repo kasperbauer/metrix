@@ -527,7 +527,8 @@ function g.key(x, y, z)
     -- row 1: select track
     if selectedPage ~= 3 and y == 1 and on then
         if modIsHeld() then
-            track:randomizeAll()
+            local selectedTrack = seq:getTrack(x)
+            selectedTrack:randomizeAll()
         elseif shiftIsHeld() then
             seq:toggleTrack(x)
         else
