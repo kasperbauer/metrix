@@ -384,7 +384,8 @@ function sequencer:noteOn(trackIndex, pulse)
         if crowGateTypeIndex == 1 then -- gate
             crow.output[(trackIndex * 2) - 1].volts = 10
         elseif crowGateTypeIndex == 2 then -- trigger
-            crow.output[(trackIndex * 2) - 1]("{to(10,0),to(0,0.002)}")
+            crow.output[(trackIndex * 2) - 1].action = "{to(10,0),to(0,0.002)}"
+            crow.output[(trackIndex * 2) - 1]()
         elseif crowGateTypeIndex == 3 then -- envelope
             local a, s, r = params:get("crow_attack_tr_" .. trackIndex), params:get("crow_sustain_tr_" .. trackIndex),
                 params:get("crow_release_tr_" .. trackIndex)
@@ -425,20 +426,15 @@ function sequencer:noteOff(trackIndex, pulse, transport, outputs)
 
     for i, output in ipairs(outputs) do
         if output == 'audio' then
-            print('noteoff audio')
             engine.noteOff(trackIndex)
         end
 
         if output == 'midi' then
-            print('noteoff midi')
-
             local midiCh = params:get('midi_ch_tr_' .. trackIndex)
             m:note_off(pulse.midiNote, 127, midiCh)
         end
 
         if output == 'crow' then
-            print('noteoff crow')
-
             local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
             if crowGateTypeIndex == 1 then
                 crow.output[(trackIndex * 2) - 1].volts = 0
