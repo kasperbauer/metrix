@@ -710,10 +710,10 @@ function g.key(x, y, z)
             end
         end
 
-        -- rows 12 & 14: playback order
-        if (y == 12 or y == 14) and x <= 4 then
+        -- rows 10 & 13: playback order
+        if (y == 10 or y == 13) and x <= 4 then
             local trackIndex = 1
-            if y == 14 then
+            if y == 13 then
                 trackIndex = 2
             end
             local track = seq:getTrack(trackIndex)
@@ -721,10 +721,10 @@ function g.key(x, y, z)
             track:setPlaybackOrder(playbackOrders[x])
         end
 
-        -- rows 13 & 15: divisions
-        if y == 13 or y == 15 then
+        -- rows 11 & 14: divisions
+        if y == 11 or y == 14 then
             local trackIndex = 1
-            if y == 15 then
+            if y == 14 then
                 trackIndex = 2
             end
             local divisions = track:getDivisions()
