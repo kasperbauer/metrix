@@ -74,6 +74,22 @@ function init()
     clock.run(redrawClock)
     math.randomseed(util.time())
     redrawGrid()
+    setupCrowInputs()
+end
+
+function setupCrowInputs()
+    crow.input[2].change = onCrowInputChange
+    crow.input[2].mode("change", 2.0, 0.25, "both")
+end
+
+function onCrowInputChange(v)
+    seq:toggle()
+
+    if not v then
+        seq:reset()
+        requestScreenRedraw()
+        requestGridRedraw()
+    end
 end
 
 function initEngine()
