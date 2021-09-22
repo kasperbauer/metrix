@@ -152,7 +152,7 @@ function redraw() -- 128x64
     if selectedPage == 4 and #momentaries > 0 then
         local scale = getScale()
         screen.move(2, 7)
-        screen.text(scale.name)
+        screen.text(string.lower(scale.name))
     else
         --- bpm
         local tempo = number_format(clock.get_tempo(), 1)
