@@ -148,8 +148,7 @@ function redraw() -- 128x64
     screen.font_size(8)
     screen.font_face(1)
 
-
-    local momentaries = getMomentariesInRow(1,15)
+    local momentaries = getMomentariesInRow(1, 15)
     if selectedPage == 4 and #momentaries > 0 then
         local scale = getScale()
         screen.move(2, 7)
@@ -809,12 +808,17 @@ function loadPreset(presetIndex)
         seq:swapTrack(trackIndex, track)
     end
 
+    if data.scaleIndex then
+        params:set('scale', data.scaleIndex)
+    end
+
     requestGridRedraw()
 end
 
 function savePreset(presetIndex)
     local data = {
-        tracks = seq.tracks
+        tracks = seq.tracks,
+        scaleIndex = params:get('scale')
     }
     pre:save(presetIndex, data)
 end

@@ -29,7 +29,8 @@ function preset:load(id)
     self.current = id
 
     return {
-        tracks = tracks
+        tracks = tracks,
+        scaleIndex = data.scaleIndex
     };
 end
 
