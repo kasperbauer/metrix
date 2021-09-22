@@ -361,10 +361,11 @@ function drawLoopPicker(y)
     for x = 1, 8 do
         local track = seq:getCurrentTrack()
         local isMuted = seq:isMuted(seq.currentTrack)
+        local stage = track:getStageWithIndex(x)
         local start, stop = track.loop.start, track.loop.stop
 
         if (x >= start and x <= stop) then
-            if not isMuted then
+            if not isMuted and not stage.skip then
                 g:led(x, y, ledLevels.high)
             else
                 g:led(x, y, ledLevels.mid)
@@ -598,18 +599,25 @@ function g.key(x, y, z)
         end
     end
 
-    -- row 2: set seq length / loop
+    -- row 2: loopy
     if selectedPage < 3 and y == 2 then
+        local stage = track:getStageWithIndex(x)
+
         if on and modIsHeld() then
             track:setLoop(1, 8)
         else
             local pushed = getMomentariesInRow(y)
             if on then
-                if #pushed == 2 then
+                if #pushed == 2 and not shiftIsHeld() then
                     track:setLoop(pushed[1], pushed[2])
                     loopWasSelected = true
+                elseif #pushed == 1 and shiftIsHeld() then
+                    local activeStages = track:getActiveStagesInRange()
+                    if #activeStages > 1 or stage.skip then
+                        stage:toggleParam('skip')
+                    end
                 end
-            elseif #pushed == 0 then
+            elseif #pushed == 0 and not shiftIsHeld() then
                 if loopWasSelected == false and trackWasSelected == false then
                     track:setLoop(x, x)
                 end

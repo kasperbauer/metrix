@@ -175,10 +175,11 @@ function sequencer:advanceToNextPulse(trackIndex)
 
     local track = self:getTrack(trackIndex)
     local stageIndex = self.stageIndex[trackIndex]
+    local stage = track:getStageWithIndex(stageIndex)
     local pulseCount = self.pulseCount[trackIndex]
     local pulse = track:getPulse(trackIndex, stageIndex, pulseCount)
 
-    if pulse == nil or stageIndex < track.loop.start or stageIndex > track.loop.stop then
+    if pulse == nil or stageIndex < track.loop.start or stageIndex > track.loop.stop or stage.skip then
         self:prepareNextPulse(trackIndex, pulse)
         self:advanceToNextPulse(trackIndex)
         return
@@ -186,13 +187,13 @@ function sequencer:advanceToNextPulse(trackIndex)
 
     local pulseProbability = pulse.probability or 1
     local stageProbability = self.probabilities[trackIndex][stageIndex]
-    local skip = pulseProbability < stageProbability
+    local pause = pulseProbability < stageProbability
 
-    if not skip then
+    if not pause then
         self:playNote(trackIndex, pulse)
     end
 
-    self.activePulse[trackIndex] = skip and nil or pulse
+    self.activePulse[trackIndex] = pause and nil or pulse
     self:prepareNextPulse(trackIndex, pulse)
 
     local transposeTrigger = self:getTransposeTrigger(trackIndex);

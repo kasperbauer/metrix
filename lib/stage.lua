@@ -23,6 +23,7 @@ function stage:new(args)
     t.transpositionDirection = args.transpositionDirection or transpositionDirections[1]
     t.accumulatedPitch = args.accumulatedPitch or 1
     t.slide = args.slide or false
+    t.skip = args.skip or false
 
     return t
 end
@@ -119,6 +120,10 @@ function stage:getGateTypeSymbol()
         short = '|'
     elseif self.gateType == 'rest' then
         short = '-'
+    end
+
+    if (self.skip) then
+        short = '>'
     end
 
     return short;
