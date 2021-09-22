@@ -104,10 +104,12 @@ function sequencer:start()
     self:addEventPattern()
     self:refreshProbabilities()
 
-    if self.lattice.transport == 0 then
-        m:start()
-    else
-        m:continue()
+    if self:shouldSendMidiTransport() then
+        if self.lattice.transport == 0 then
+            m:start()
+        else
+            m:continue()
+        end
     end
 
     self.lattice:start()
@@ -115,7 +117,9 @@ end
 
 function sequencer:stop()
     self.lattice:stop()
-    m:stop()
+    if self:shouldSendMidiTransport() then
+        m:stop()
+    end
     self:noteOffAll()
     self.events = {}
 end
@@ -487,6 +491,10 @@ end
 
 function sequencer:isMuted(trackIndex)
     return params:get("mute_tr_" .. trackIndex) == 1
+end
+
+function sequencer:shouldSendMidiTransport()
+    return params:get("midi_send_transport") == 1
 end
 
 function sequencer:setDivision(trackIndex, division)

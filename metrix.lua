@@ -107,13 +107,14 @@ function addParams()
     end
 
     params:add_separator("METRIX")
-    params:add_group("General", 3)
+    params:add_group("General", 4)
     params:add_option("scale", "Scale", scaleNames, 1)
     params:add_option("root_note", "Root Note", musicUtil.NOTE_NAMES, 1)
     params:add_number("midi_device", "MIDI Device", 1, #midi.vports, 1)
     params:set_action("midi_device", function(port)
         m = midi.connect(port)
     end)
+    params:add_binary("midi_send_transport", "Send MIDI Transp. Msgs", "toggle", 0)
 
     for i = 1, 2 do
         params:add_group("Track " .. i, 17)
