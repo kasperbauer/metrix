@@ -73,7 +73,7 @@ Hold these keys for secondary functions and shortcuts.
 Hold the `[shift]` key to switch to the secondary functions of a page.
 More on that on the corresponding sections. Also:
 
-| Shurtcut                        | Description                                                                                                 |
+| Shortcut                        | Description                                                                                                 |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `[shift] + [track 1/2]`         | **Mute / unmute** tracks 1 and 2                                                                            |
 | `[shift] + [loopy]`             | **Skip** the selected stages. One stage must remain active and cannot be skipped.                           |
