@@ -148,14 +148,23 @@ function redraw() -- 128x64
     screen.font_size(8)
     screen.font_face(1)
 
-    --- bpm
-    local tempo = number_format(clock.get_tempo(), 1)
-    screen.move(2, 7)
-    if clockIsSynced() then
-        screen.circle(2, 5, 1)
-        screen.move(6, 7)
+
+    local momentaries = getMomentariesInRow(1,15)
+    if selectedPage == 4 and #momentaries > 0 then
+        local scale = getScale()
+        screen.move(2, 7)
+        screen.text(scale.name)
+    else
+        --- bpm
+        local tempo = number_format(clock.get_tempo(), 1)
+
+        screen.move(2, 7)
+        if clockIsSynced() then
+            screen.circle(2, 5, 1)
+            screen.move(6, 7)
+        end
+        screen.text(tempo .. " bpm")
     end
-    screen.text(tempo .. " bpm")
 
     -- transport
     if seq.lattice.transport > 0 then
@@ -760,13 +769,18 @@ function setParam(stage, paramName, value)
     end
 end
 
-function getMomentariesInRow(y)
-    local momentaries = {}
+function getMomentariesInRow(yStart, yEnd)
+    local momentaries, y = {}, yStart
+    local yEnd = yEnd or yStart
 
-    for x = 1, 8 do
-        if momentary[x][y] then
-            table.insert(momentaries, x)
+    while y <= yEnd do
+        for x = 1, 8 do
+            if momentary[x][y] then
+                table.insert(momentaries, x)
+            end
         end
+
+        y = y + 1
     end
 
     return momentaries
@@ -837,4 +851,9 @@ end
 function grid.add()
     g = grid.connect()
     requestGridRedraw()
+end
+
+function getScale()
+    local scaleIndex = params:get('scale')
+    return musicUtil.SCALES[scaleIndex]
 end
