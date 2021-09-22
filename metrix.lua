@@ -572,13 +572,11 @@ function g.key(x, y, z)
 
     local on, off = z == 1, z == 0
     local track = seq:getCurrentTrack()
-    local stage = track:getStageWithIndex(x)
-    local held, tapped = getMomentariesInRow(y), x
 
     momentary[x][y] = z == 1 and true or false
 
     -- row 1: select track
-    if selectedPage ~= 3 and y == 1 and on then
+    if selectedPage < 3 and y == 1 and x <= #seq.tracks and on then
         local selectedTrack = seq:getTrack(x)
 
         if modIsHeld() and shiftIsHeld() then
@@ -592,9 +590,8 @@ function g.key(x, y, z)
         end
     end
 
-    -- page 1: pulses & gates
     -- row 2: set seq length / loop
-    if selectedPage ~= 3 and y == 2 then
+    if selectedPage < 3 and y == 2 then
         if on and modIsHeld() then
             track:setLoop(1, 8)
         else
@@ -615,8 +612,11 @@ function g.key(x, y, z)
         end
     end
 
+    -- page 1: pulses & gates
     -- row 3-10: pulse & gate matrix
     if selectedPage == 1 and on then
+        local stage = track:getStageWithIndex(x)
+
         if y >= 3 and y <= 10 then
             if shiftIsHeld() then
                 local ratchetCount = 11 - y
@@ -644,6 +644,8 @@ function g.key(x, y, z)
     -- page 2: pitch
     -- row 3-10: pitch matrix
     if selectedPage == 2 and on then
+        local stage = track:getStageWithIndex(x)
+
         if y >= 3 and y <= 10 then
             if shiftIsHeld() then
                 local transposeAmount = 10 - y
