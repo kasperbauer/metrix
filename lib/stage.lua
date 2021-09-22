@@ -20,6 +20,7 @@ function stage:new(args)
     t.octave = args.octave or 0
     t.probability = args.probability or probabilities[1]
     t.transposeAmount = args.transposeAmount or 0
+    t.transpositionDirection = args.transpositionDirection or transpositionDirections[1]
     t.accumulatedPitch = args.accumulatedPitch or 1
     t.slide = args.slide or false
 
@@ -87,13 +88,14 @@ function stage:resetPitch()
 end
 
 function stage:accumulatePitch(trackIndex)
-    local direction = self:getAccumulationDirection(trackIndex)
     local pitch = self.accumulatedPitch + self.transposeAmount
-    if direction == "down" then
+
+    if self.transpositionDirection == "down" then
         pitch = self.accumulatedPitch - self.transposeAmount
     end
 
     local transposeLimit = params:get("transpose_limit_tr_" .. trackIndex)
+
     if pitch > self.pitch + transposeLimit or pitch < self.pitch - transposeLimit then
         self:resetPitch()
     else
@@ -103,11 +105,6 @@ end
 
 function stage:getTranspositionDirections()
     return transpositionDirections;
-end
-
-function stage:getAccumulationDirection(trackIndex)
-    local directionIndex = params:get("transpose_direction_tr_" .. trackIndex)
-    return transpositionDirections[directionIndex]
 end
 
 function stage:getGateTypeSymbol()

@@ -100,7 +100,7 @@ function addParams()
     end)
 
     for i = 1, 2 do
-        params:add_group("Track " .. i, 18)
+        params:add_group("Track " .. i, 17)
         params:add_separator('Output')
         params:add_binary("mute_tr_" .. i, "Mute", "toggle", 0)
         params:add_binary("output_audio_tr_" .. i, "Audio", "toggle", 1)
@@ -125,7 +125,6 @@ function addParams()
         params:add_option("octave_range_tr_" .. i, "Octave Range",
             {"1 to 4", "2 to 5", "3 to 6", "4 to 7", "5 to 8", "6 to 9"}, 4)
         params:add_number("transpose_limit_tr_" .. i, "Acc. Limit", 1, 127, 7)
-        params:add_option("transpose_direction_tr_" .. i, "Acc. Direction", stage:getTranspositionDirections(), 1)
         params:add_option("transpose_trigger_tr_" .. i, "Transpose Trigger", sequencer:getTransposeTriggers(), 1)
         params:add_control("slide_amount_tr_" .. i, "Slide Time", csMillis)
         params:add_separator('MIDI')
@@ -289,6 +288,7 @@ function redrawGrid()
         if shiftIsHeld() then
             drawMatrix('transposeAmount', {7, 6, 5, 4, 3, 2, 1, 0}, 3, 10)
             drawBooleanMatrix('slide', 12)
+            drawMatrix('transpositionDirection', stage:getTranspositionDirections(), 13, 14)
         else
             drawMatrix('pitch', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10)
             drawMatrix('octave', {3, 2, 1, 0}, 12, 15)
@@ -600,6 +600,9 @@ function g.key(x, y, z)
         elseif y >= 12 and y <= 15 then
             if shiftIsHeld() and y == 12 then
                 stage:toggleParam('slide')
+            elseif shiftIsHeld() and (y == 13 or y == 14) then
+                local direction = stage:getTranspositionDirections()[y - 12]
+                setParam(stage, 'transpositionDirection', direction)
             else
                 local octave = 15 - y
                 setParam(stage, 'octave', octave)
