@@ -498,7 +498,7 @@ end
 
 function drawTrackOptions()
     local playbackOrders = track.getPlaybackOrders()
-    local y = 12
+    local y = 10
 
     for trackIndex = 1, #seq.tracks do
         local track = seq:getTrack(trackIndex)
@@ -527,7 +527,7 @@ function drawTrackOptions()
                 g:led(x, y, ledLevels.low)
             end
         end
-        y = y + 1
+        y = y + 2
     end
 end
 
