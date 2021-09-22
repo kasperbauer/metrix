@@ -159,9 +159,6 @@ function redraw() -- 128x64
 
     -- transport
     if seq.lattice.transport > 0 then
-        screen.move(119, 7)
-        screen.text_right(seq.lattice.transport)
-
         if seq.lattice.enabled then
             drawIcon('play', 122, 1)
         else
