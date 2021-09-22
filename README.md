@@ -120,6 +120,8 @@ Notes:
 
 Connect crow to send the sequences to your eurorack system:
 
+- Input 1 **syncs the clock** to an external signal (see clock params)
+- Input 2 starts the sequencer on a **run** signal (high gate)
 - Outputs 1 and 3 send **gates, triggers or envelopes** (adjustable in the params) for each pulse
 - Outputs 2 and 4 send **1v/octave** pitch voltage
 
