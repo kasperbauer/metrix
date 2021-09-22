@@ -65,7 +65,7 @@ In the bottom left corner, you can choose among the following pages:
 2. pitch
 3. presets and track settings
 
-### Modifier Keys / Shortcuts
+## Modifier Keys / Shortcuts
 
 In the bottom right corner, the `[shift]` and `[mod]` keys are located.
 Hold these keys for secondary functions and shortcuts.
