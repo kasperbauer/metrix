@@ -42,8 +42,9 @@ local chords = {{
     intervals = {0, 2, 3, 5, 7, 10}
 }}
 
-
-for i, chord in ipairs(chords) do
-    chord.name = chord.name .. " Chord"
-    table.insert(musicUtil.SCALES, chord)
+if #musicUtil.SCALES == 41 then
+    for i, chord in ipairs(chords) do
+        chord.name = chord.name .. " Chord"
+        table.insert(musicUtil.SCALES, chord)
+    end
 end
