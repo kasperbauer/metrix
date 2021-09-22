@@ -60,7 +60,7 @@ end
 
 function track:randomizeAll()
     self:randomize({'pulseCount', 'ratchetCount', 'gateType', 'probability', 'pitch', 'transposeAmount', 'octave',
-                    'slide'})
+                    'slide', 'transpositionDirection'})
 end
 
 function track:setLoop(start, stop)

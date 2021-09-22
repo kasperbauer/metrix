@@ -68,6 +68,9 @@ function stage:randomize(paramNames)
         if name == 'slide' then
             self.slide = math.random() > 0.5
         end
+        if name == 'transpositionDirection' then
+            self.transpositionDirection = transpositionDirections[math.random(1, 2)]
+        end
     end
 end
 

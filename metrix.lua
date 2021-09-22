@@ -528,9 +528,12 @@ function g.key(x, y, z)
 
     -- row 1: select track
     if selectedPage ~= 3 and y == 1 and on then
-        if modIsHeld() then
-            local selectedTrack = seq:getTrack(x)
+        local selectedTrack = seq:getTrack(x)
+
+        if modIsHeld() and shiftIsHeld() then
             selectedTrack:randomizeAll()
+        elseif modIsHeld() then
+            selectedTrack:randomize({'pulseCount', 'ratchetCount', 'pitch', 'transposeAmount', 'transposeDirection'})
         elseif shiftIsHeld() then
             seq:toggleTrack(x)
         else
@@ -648,11 +651,17 @@ function g.key(x, y, z)
 
     -- row 16: select page / randomize / mute
     if on and y == 16 and x <= maxPages then
-        if modIsHeld() then
+        if modIsHeld() and shiftIsHeld() then
             if x == 1 then
                 track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'probability'})
             elseif x == 2 then
-                track:randomize({'pitch', 'transposeAmount', 'octave', 'slide'})
+                track:randomize({'pitch', 'transposeAmount', 'octave', 'slide', 'transposeDirection'})
+            end
+        elseif modIsHeld() then
+            if x == 1 then
+                track:randomize({'pulseCount', 'ratchetCount'})
+            elseif x == 2 then
+                track:randomize({'pitch', 'transposeAmount', 'transposeDirection'})
             end
         else
             selectPage(x)
