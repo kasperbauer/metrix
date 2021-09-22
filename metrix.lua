@@ -28,7 +28,7 @@ MollyThePoly = require "molly_the_poly/lib/molly_the_poly_engine"
 engine.name = "MollyThePoly"
 
 -- page selector
-local maxPages = 3
+local maxPages = 4
 local selectedPage = 1
 
 -- momentary pressed keys
@@ -296,6 +296,8 @@ function redrawGrid()
     elseif selectedPage == 3 then
         drawPresetPicker()
         drawTrackOptions()
+    elseif selectedPage == 4 then
+        drawScalePicker()
     end
 
     if selectedPage < 3 then
@@ -436,6 +438,58 @@ function drawPresetPicker()
     end
 end
 
+function drawScalePicker()
+    local scaleIndex = 1
+    local currentScaleIndex = params:get('scale')
+
+    -- default scales
+    for y = 1, 6 do
+        for x = 1, 8 do
+            if scaleIndex > 41 then
+                break
+            end
+
+            if (currentScaleIndex == scaleIndex) then
+                g:led(x, y, ledLevels.high)
+            else
+                g:led(x, y, ledLevels.low)
+            end
+
+            scaleIndex = scaleIndex + 1
+        end
+    end
+
+    -- major chords
+    for x = 1, 8 do
+        if scaleIndex > 48 then
+            break
+        end
+
+        if (currentScaleIndex == scaleIndex) then
+            g:led(x, 8, ledLevels.high)
+        else
+            g:led(x, 8, ledLevels.low)
+        end
+
+        scaleIndex = scaleIndex + 1
+    end
+
+    -- minor chords
+    for x = 1, 8 do
+        if scaleIndex > #musicUtil.SCALES then
+            break
+        end
+
+        if (currentScaleIndex == scaleIndex) then
+            g:led(x, 9, ledLevels.high)
+        else
+            g:led(x, 9, ledLevels.low)
+        end
+
+        scaleIndex = scaleIndex + 1
+    end
+end
+
 function drawTrackOptions()
     local playbackOrders = track.getPlaybackOrders()
     local y = 12
@@ -541,6 +595,7 @@ function g.key(x, y, z)
         end
     end
 
+    -- page 1: pulses & gates
     -- row 2: set seq length / loop
     if selectedPage ~= 3 and y == 2 then
         if on and modIsHeld() then
@@ -589,6 +644,7 @@ function g.key(x, y, z)
         end
     end
 
+    -- page 2: pitch
     -- row 3-10: pitch matrix
     if selectedPage == 2 and on then
         if y >= 3 and y <= 10 then
@@ -613,6 +669,7 @@ function g.key(x, y, z)
         end
     end
 
+    -- page 3: presets / settings
     if selectedPage == 3 and on then
         -- row 1-4: load presets
         if y >= 1 and y <= 8 then
@@ -649,7 +706,30 @@ function g.key(x, y, z)
         end
     end
 
-    -- row 16: select page / randomize / mute
+    -- page 4: scales
+    if selectedPage == 4 and on then
+        -- row 1-6: default scales
+        if y >= 1 and y <= 6 then
+            local scaleIndex = (y - 1) * 8 + x
+            if scaleIndex <= 41 then
+                params:set("scale", scaleIndex)
+            end
+            -- row 8: major chords
+        elseif y == 8 then
+            local scaleIndex = (y - 1) * 8 + x - 15
+            if scaleIndex <= 48 then
+                params:set("scale", scaleIndex)
+            end
+            -- row 9: major chords
+        elseif y == 9 then
+            local scaleIndex = (y - 1) * 8 + x - 16
+            if scaleIndex <= #musicUtil.SCALES then
+                params:set("scale", scaleIndex)
+            end
+        end
+    end
+
+    -- row 16: select page
     if on and y == 16 and x <= maxPages then
         if modIsHeld() and shiftIsHeld() then
             if x == 1 then

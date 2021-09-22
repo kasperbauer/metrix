@@ -5,7 +5,7 @@ local chords = {{
     name = "Major 6th",
     intervals = {0, 4, 7, 9}
 }, {
-    name = "Major 6th",
+    name = "Major 7th",
     intervals = {0, 4, 7, 11}
 }, {
     name = "Major 7th (b5)",
