@@ -603,13 +603,23 @@ function g.key(x, y, z)
     if selectedPage < 3 and y == 2 then
         local stage = track:getStageWithIndex(x)
 
-        if on and modIsHeld() then
+        if on and modIsHeld() and shiftIsHeld() then
+            track:activateAllStages()
             track:setLoop(1, 8)
-        else
+        elseif on and modIsHeld() then
+            track:setLoop(1, 8)
+        elseif not modIsHeld() then
             local pushed = getMomentariesInRow(y)
+
             if on then
                 if #pushed == 2 and not shiftIsHeld() then
-                    track:setLoop(pushed[1], pushed[2])
+                    local start, stop = pushed[1], pushed[2]
+                    local activeStages = track:getActiveStagesInRange(start, stop)
+                    if (#activeStages == 0) then
+                        local firstStage = track:getStageWithIndex(start);
+                        firstStage.skip = false
+                    end
+                    track:setLoop(start, stop)
                     loopWasSelected = true
                 elseif #pushed == 1 and shiftIsHeld() then
                     local activeStages = track:getActiveStagesInRange()
@@ -619,6 +629,8 @@ function g.key(x, y, z)
                 end
             elseif #pushed == 0 and not shiftIsHeld() then
                 if loopWasSelected == false and trackWasSelected == false then
+                    local stage = track:getStageWithIndex(x)
+                    stage.skip = false
                     track:setLoop(x, x)
                 end
 

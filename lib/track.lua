@@ -270,16 +270,25 @@ function track:getHumanReadableDivision()
     return humanReadableDivisions[index]
 end
 
-function track:getActiveStagesInRange()
+function track:getActiveStagesInRange(start, stop)
+    start = start or self.loop.start
+    stop = stop or self.loop.stop
+
     local activeStages = {}
 
     for k, stage in pairs(self.stages) do
-        if k >= self.loop.start and k <= self.loop.stop and not stage.skip then
+        if k >= start and k <= stop and not stage.skip then
             table.insert(activeStages, stage)
         end
     end
 
     return activeStages
+end
+
+function track:activateAllStages()
+    for k, stage in pairs(self.stages) do
+        stage.skip = false
+    end
 end
 
 return track
