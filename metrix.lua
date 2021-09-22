@@ -16,6 +16,7 @@ include('lib/helpers')
 
 m = midi.connect()
 
+-- manual grid rotation
 function grid:led(x, y, val)
     _norns.grid_set_led(self.dev, y, 9 - x, val)
 end
@@ -513,6 +514,7 @@ function enc(n, d)
 end
 
 function g.key(x, y, z)
+    -- manual grid rotation
     local tempX, tempY = x, y
     x = 9 - tempY
     y = tempX
