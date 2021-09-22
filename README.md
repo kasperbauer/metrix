@@ -116,7 +116,7 @@ Connect your MIDI device using the corresponding param. Track 1 defaults to MIDI
 ### General
 Param | Description
 ----- | ---
-Scale | Choose on of the provided scales
+Scale | Choose one of the provided scales
 RootNote | Choose the root note of that scale
 MIDI Device | Choose a MIDI device to send the sequence data to
 
