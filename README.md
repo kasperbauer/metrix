@@ -48,7 +48,8 @@ The grid layout of **metrix** is strongly influenced by [skylines](https://lllll
 
 ### Track Selector
 
-Use the first row to **select** track 1 or 2
+Use the first row to **select** track 1 or 2.
+
 Hold `[shift]` while selecting to **mute/unmute** a track.
 
 ### Loopy
