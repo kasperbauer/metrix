@@ -310,7 +310,7 @@ function redrawGrid()
         if shiftIsHeld() then
             drawMatrix('transposeAmount', {7, 6, 5, 4, 3, 2, 1, 0}, 3, 10)
             drawBooleanMatrix('slide', 12)
-            drawMatrix('transpositionDirection', stage:getTranspositionDirections(), 13, 14)
+            drawMatrix('transpositionDirection', stage:getTranspositionDirections(), 13, 15)
         else
             drawMatrix('pitch', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10)
             drawMatrix('octave', {3, 2, 1, 0}, 12, 15)

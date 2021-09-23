@@ -3,7 +3,7 @@ local stage = {}
 local gateTypes = {'hold', 'multiple', 'single', 'rest'}
 local gateLengths = {1, 0.75, 0.5, 0.1}
 local probabilities = {1, 0.75, 0.5, 0.25}
-local transpositionDirections = {'up', 'down'}
+local transpositionDirections = {'up', 'down', 'freeze'}
 
 function stage:new(args)
     local t = setmetatable({}, {
@@ -92,6 +92,10 @@ function stage:resetPitch()
 end
 
 function stage:accumulatePitch(trackIndex)
+    if self.transpositionDirection == 'freeze' then
+        return
+    end
+    
     local pitch = self.accumulatedPitch + self.transposeAmount
 
     if self.transpositionDirection == "down" then
