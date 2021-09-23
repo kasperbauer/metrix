@@ -155,7 +155,8 @@ function addParams()
 end
 
 function clockIsSynced()
-    return params:string("clock_source") == "link" or params:string("clock_source") == "midi"
+    return params:string("clock_source") == "link" or params:string("clock_source") == "midi" or
+               params:string("clock_source") == "crow"
 end
 
 function redraw() -- 128x64
