@@ -335,16 +335,8 @@ function drawBottomRow()
     local y = 16
 
     if modIsHeld() then
-        for x = 1, (maxPages - 1) do
+        for x = 1, 2 do
             g:led(x, y, ledLevels.mid)
-        end
-    elseif shiftIsHeld() then
-        for x = 1, #seq.tracks do
-            if not seq:isMuted(x) then
-                g:led(x, y, ledLevels.high)
-            else
-                g:led(x, y, ledLevels.low)
-            end
         end
     else
         for x = 1, maxPages do
