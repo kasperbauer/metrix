@@ -703,7 +703,7 @@ function g.key(x, y, z)
         elseif y >= 12 and y <= 15 then
             if shiftIsHeld() and y == 12 then
                 stage:toggleParam('slide')
-            elseif shiftIsHeld() and (y == 13 or y == 14) then
+            elseif shiftIsHeld() and y <= 15 then
                 local direction = stage:getTranspositionDirections()[y - 12]
                 setParam(stage, 'transpositionDirection', direction)
             else
