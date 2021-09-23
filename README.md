@@ -30,7 +30,7 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 
 The screen shows a simple representation of the pulse count matrices of the two tracks. The selected loop range, as well as the currently playing pulse is being highlighted. Beneath every stage you can see a symbol, representing the gate type. The bottom row shows the currently played note and octave on the left, the clock division in the middle and the playback order on the right. A line beneath the matrix indicates the currently selected track and the selected loop range.
 
-In the top right corner, you can see the play state and the current transport index.
+In the top right corner, you can see the play state, the top left corner shows the tempo and a little dot to indicate if the sequencer is synced externally.
 
 <img src="docs/screen.png" alt="Screen" width="512">
 
@@ -56,6 +56,7 @@ Use the second row to set the loop's start and end points:
 
 - Tap and hold the start point and select the end point to set the **looped stages**. This works in any direction.
 - Tap on a stage on the currently selected track to select only a **single stage**.
+- Hold `[shift]` and tap a single stage to **skip** that stage. One stage must remain active.
 
 ### Page Selector
 
@@ -64,6 +65,7 @@ In the bottom left corner, you can choose among the following pages:
 1. pulses and gates
 2. pitch
 3. presets and track settings
+4. scales and root note
 
 ## Modifier Keys / Shortcuts
 
@@ -96,7 +98,7 @@ More on that on the corresponding sections. Also:
 
 - Use the top matrix to choose the **pitch** for each stage.
 - Use the bottom matrix to choose the **octave** for each stage. Change the accessible octave range in the params.
-- Press and hold `[shift]` to access the matrices for **accumulating transposition** (top) and **slide** on/off (bottom).
+- Press and hold `[shift]` to access the matrices for **accumulating transposition** (top), **slide** on/off and **transposition direction** up/down/freeze (bottom).
 
 Notes:
 
@@ -118,12 +120,12 @@ Notes:
 
 ### Crow
 
-Connect crow to send the sequences to your eurorack system:
+Connect crow to connect metrix to your eurorack system:
 
-- Input 1 **syncs the clock** to an external signal (see clock params)
-- Input 2 starts the sequencer on a **run** signal (high gate)
-- Outputs 1 and 3 send **gates, triggers or envelopes** (adjustable in the params) for each pulse
-- Outputs 2 and 4 send **1v/octave** pitch voltage
+- Input 1 **syncs the clock** to an external signal (see clock params). Using a permanent 24ppqn signal is recommended to avoid sync issues.
+- Input 2 starts the sequencer on a **run** signal (high gate).
+- Outputs 1 and 3 send **gates, triggers or envelopes** (adjustable in the params) for each pulse.
+- Outputs 2 and 4 send **1v/octave** pitch voltage.
 
 ### MIDI
 
@@ -133,11 +135,12 @@ Connect your MIDI device using the corresponding param. Track 1 defaults to MIDI
 
 ### General
 
-| Param       | Description                                       |
-| ----------- | ------------------------------------------------- |
-| Scale       | Choose one of the provided scales                 |
-| RootNote    | Choose the root note of that scale                |
-| MIDI Device | Choose a MIDI device to send the sequence data to |
+| Param                  | Description                                               |
+| ---------------------- | --------------------------------------------------------- |
+| Scale                  | Choose one of the provided scales                         |
+| RootNote               | Choose the root note of that scale                        |
+| MIDI Device            | Choose a MIDI device to send the sequence data to         |
+| Send MIDI Transp. Msgs | Send start / stop / continue messages to your MIDI Device |
 
 ### Track 1/2
 
