@@ -29,7 +29,7 @@ engine.name = "MollyThePoly"
 
 -- page selector
 local maxPages = 4
-local selectedPage = 4
+local selectedPage = 1
 
 -- momentary pressed keys
 local momentary = {}
