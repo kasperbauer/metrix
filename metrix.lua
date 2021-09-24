@@ -7,6 +7,7 @@
 --
 -- Enc1: select track
 musicUtil = require('musicutil')
+util = require('util')
 include('lib/chords')
 preset = include('lib/preset')
 sequencer = include('lib/sequencer')
@@ -142,8 +143,7 @@ function addParams()
             end
         end)
         params:add_separator('Pitch')
-        params:add_option("octave_range_tr_" .. i, "Octave Range",
-            {"1 to 4", "2 to 5", "3 to 6", "4 to 7", "5 to 8", "6 to 9"}, 4)
+        params:add_option("octave_range_tr_" .. i, "Octave Range", seq:getOctaveRanges(), 3)
         params:add_number("transpose_limit_tr_" .. i, "Acc. Limit", 1, 127, 7)
         params:add_option("transpose_trigger_tr_" .. i, "Transpose Trigger", sequencer:getTransposeTriggers(), 1)
         params:add_control("slide_amount_tr_" .. i, "Slide Time", csMillis)
@@ -661,6 +661,14 @@ function enc(n, d)
     if n == 1 then
         local trackIndex = d > 0 and 2 or 1
         selectTrack(trackIndex)
+    end
+
+    -- octave range
+    if n > 1 then
+        local trackIndex = n - 1
+        local octaveRanges, octaveRange = seq:getOctaveRanges(), params:get("octave_range_tr_" .. trackIndex) + d
+        octaveRange = util.clamp(octaveRange, 1, #octaveRanges)
+        params:set("octave_range_tr_" .. trackIndex, octaveRange)
     end
 
     requestGridRedraw()

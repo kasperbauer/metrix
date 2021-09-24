@@ -6,6 +6,7 @@ local DEBUG = false
 local sequencer = {}
 local transposeTriggers = {"stage", "pulse", "ratchet"}
 local crowGateTypes = {"gate", "trigger", "envelope"}
+local octaveRanges = {"1 to 4", "2 to 5", "3 to 6", "4 to 7", "5 to 8", "6 to 9"}
 
 function sequencer:new(onPulseAdvance)
     local t = setmetatable({}, {
@@ -483,6 +484,10 @@ end
 
 function sequencer:getCrowGateType(index)
     return crowGateTypes[index]
+end
+
+function sequencer:getOctaveRanges()
+    return octaveRanges
 end
 
 function sequencer:shouldSendToOutput(trackIndex, type) -- type: audio, midi, crow
