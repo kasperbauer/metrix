@@ -30,7 +30,8 @@ function preset:load(id)
 
     return {
         tracks = tracks,
-        scaleIndex = data.scaleIndex
+        scaleIndex = data.scaleIndex,
+        rootNote = data.rootNote
     };
 end
 

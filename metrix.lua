@@ -83,9 +83,10 @@ function setupCrowInputs()
 end
 
 function onCrowInputChange(v)
-    seq:toggle()
-
-    if not v then
+    if v then
+        seq:start()
+    else
+        seq:stop()
         seq:reset()
         requestScreenRedraw()
         requestGridRedraw()
@@ -930,13 +931,18 @@ function loadPreset(presetIndex)
         params:set('scale', data.scaleIndex)
     end
 
+    if data.rootNote then
+        params:set('root_note', data.rootNote)
+    end
+
     requestGridRedraw()
 end
 
 function savePreset(presetIndex)
     local data = {
         tracks = seq.tracks,
-        scaleIndex = params:get('scale')
+        scaleIndex = params:get('scale'),
+        rootNote = params:get('root_note')
     }
     pre:save(presetIndex, data)
 end
