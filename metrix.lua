@@ -29,7 +29,7 @@ engine.name = "MollyThePoly"
 
 -- page selector
 local maxPages = 4
-local selectedPage = 1
+local selectedPage = 4
 
 -- momentary pressed keys
 local momentary = {}
@@ -109,7 +109,9 @@ function addParams()
     params:add_separator("METRIX")
     params:add_group("General", 4)
     params:add_option("scale", "Scale", scaleNames, 1)
+    params:set_action("scale", requestGridRedraw)
     params:add_option("root_note", "Root Note", musicUtil.NOTE_NAMES, 1)
+    params:set_action("root_note", requestGridRedraw)
     params:add_number("midi_device", "MIDI Device", 1, #midi.vports, 1)
     params:set_action("midi_device", function(port)
         m = midi.connect(port)
@@ -166,11 +168,16 @@ function redraw() -- 128x64
     screen.font_size(8)
     screen.font_face(1)
 
-    local momentaries = getMomentariesInRow(1, 15)
-    if selectedPage == 4 and #momentaries > 0 then
+    local scaleMomentaries = getMomentariesInRow(1, 9)
+    local rootNoteMomentaries = getMomentariesInRow(13, 14)
+    if selectedPage == 4 and #scaleMomentaries > 0 then
         local scale = getScale()
         screen.move(2, 7)
         screen.text(string.lower(scale.name))
+    elseif selectedPage == 4 and #rootNoteMomentaries > 0 then
+        local noteName = musicUtil.NOTE_NAMES[params:get('root_note')]
+        screen.move(2, 7)
+        screen.text(string.lower(noteName))
     else
         --- bpm
         local tempo = number_format(clock.get_tempo(), 1)
@@ -321,6 +328,7 @@ function redrawGrid()
         drawTrackOptions()
     elseif selectedPage == 4 then
         drawScalePicker()
+        drawRootNotePicker()
     end
 
     if selectedPage < 3 then
@@ -503,6 +511,81 @@ function drawScalePicker()
         end
 
         scaleIndex = scaleIndex + 1
+    end
+end
+
+function drawRootNotePicker()
+    local noteMap = getNoteMap()
+    local rootNote = params:get('root_note')
+    for pitch, coords in ipairs(noteMap) do
+        if rootNote == pitch then
+            g:led(coords.x, coords.y, ledLevels.high)
+        else
+            g:led(coords.x, coords.y, ledLevels.low)
+        end
+    end
+end
+
+function getNoteMap()
+    local noteMap = {}
+    noteMap[1] = {
+        x = 1,
+        y = 14
+    }
+    noteMap[2] = {
+        x = 2,
+        y = 13
+    }
+    noteMap[3] = {
+        x = 2,
+        y = 14
+    }
+    noteMap[4] = {
+        x = 3,
+        y = 13
+    }
+    noteMap[5] = {
+        x = 3,
+        y = 14
+    }
+    noteMap[6] = {
+        x = 4,
+        y = 14
+    }
+    noteMap[7] = {
+        x = 5,
+        y = 13
+    }
+    noteMap[8] = {
+        x = 5,
+        y = 14
+    }
+    noteMap[9] = {
+        x = 6,
+        y = 13
+    }
+    noteMap[10] = {
+        x = 6,
+        y = 14
+    }
+    noteMap[11] = {
+        x = 7,
+        y = 13
+    }
+    noteMap[12] = {
+        x = 7,
+        y = 14
+    }
+
+    return noteMap;
+end
+
+function getNoteFromCoords(x, y)
+    local noteMap = getNoteMap()
+    for pitch, coords in ipairs(noteMap) do
+        if x == coords.x and y == coords.y then
+            return pitch
+        end
     end
 end
 
@@ -762,6 +845,11 @@ function g.key(x, y, z)
             local scaleIndex = (y - 1) * 8 + x - 16
             if scaleIndex <= #musicUtil.SCALES then
                 params:set("scale", scaleIndex)
+            end
+        elseif y == 13 or y == 14 then
+            local rootNote = getNoteFromCoords(x, y)
+            if rootNote then
+                params:set('root_note', rootNote)
             end
         end
     end
