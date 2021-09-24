@@ -31,7 +31,8 @@ function preset:load(id)
     return {
         tracks = tracks,
         scaleIndex = data.scaleIndex,
-        rootNote = data.rootNote
+        rootNote = data.rootNote,
+        mutes = data.mutes
     };
 end
 

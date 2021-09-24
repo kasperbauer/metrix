@@ -935,15 +935,23 @@ function loadPreset(presetIndex)
         params:set('root_note', data.rootNote)
     end
 
+    if data.mutes then
+        params:set('mute_tr_1', data.mutes[1])
+        params:set('mute_tr_2', data.mutes[2])
+    end
+
     requestGridRedraw()
 end
 
 function savePreset(presetIndex)
+    local mute1, mute2 = params:get('mute_tr_1'), params:get('mute_tr_2')
     local data = {
         tracks = seq.tracks,
         scaleIndex = params:get('scale'),
-        rootNote = params:get('root_note')
+        rootNote = params:get('root_note'),
+        mutes = {mute1, mute2}
     }
+
     pre:save(presetIndex, data)
 end
 
