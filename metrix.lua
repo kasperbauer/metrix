@@ -352,16 +352,18 @@ function drawBottomRow()
         for x = 1, maxPages do
             g:led(x, y, ledLevels.low)
         end
-        g:led(selectedPage, 16, 15)
+        g:led(selectedPage, 16, ledLevels.high)
     end
 end
 
 function drawShift()
-    g:led(8, 16, 3)
+    g:led(8, 1, ledLevels.low)
+    g:led(8, 16, ledLevels.low)
 end
 
 function drawMod()
-    g:led(7, 16, 3)
+    g:led(7, 1, ledLevels.low)
+    g:led(7, 16, ledLevels.low)
 end
 
 function drawTrackPicker(y)
@@ -913,11 +915,11 @@ function getMomentariesInRow(yStart, yEnd)
 end
 
 function shiftIsHeld()
-    return momentary[8][16];
+    return momentary[8][16] or momentary[8][1];
 end
 
 function modIsHeld()
-    return momentary[7][16];
+    return momentary[7][16] or momentary[7][1];
 end
 
 function selectPage(pageNumber)
