@@ -168,22 +168,29 @@ function redraw() -- 128x64
     screen.level(ledLevels.high)
     screen.font_size(8)
     screen.font_face(1)
+    screen.move(2, 7)
 
     local scaleMomentaries = getMomentariesInRow(1, 9)
     local rootNoteMomentaries = getMomentariesInRow(13, 14)
+    local presetMomentaries = getMomentariesInRow(1, 8)
     if selectedPage == 4 and #scaleMomentaries > 0 then
         local scale = getScale()
-        screen.move(2, 7)
         screen.text(string.lower(scale.name))
     elseif selectedPage == 4 and #rootNoteMomentaries > 0 then
         local noteName = musicUtil.NOTE_NAMES[params:get('root_note')]
-        screen.move(2, 7)
         screen.text(string.lower(noteName))
+    elseif selectedPage == 3 and #presetMomentaries > 0 then
+        if shiftIsHeld() and modIsHeld() then
+            screen.text('deleted')
+        elseif shiftIsHeld() then
+            screen.text('saved')
+        else
+            screen.text('loaded')
+        end
     else
         --- bpm
         local tempo = number_format(clock.get_tempo(), 1)
 
-        screen.move(2, 7)
         if clockIsSynced() then
             screen.circle(2, 5, 1)
             screen.move(6, 7)
