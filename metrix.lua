@@ -209,6 +209,20 @@ function redraw() -- 128x64
     screen.line(63, 64)
     screen.stroke()
 
+    -- octaves
+    local range1, range2 = params:get('octave_range_tr_1'), params:get('octave_range_tr_2')
+    local ranges = {range1, range2}
+    local octaveRanges = seq:getOctaveRanges()
+    for trackIndex = 1, 2 do
+        for rangeIndex, range in ipairs(octaveRanges) do
+            if rangeIndex == ranges[trackIndex] then
+                screen.rect(57 + (trackIndex - 1) * 10, 27 - ((rangeIndex - 1) * 4), 3, 3)
+            else
+                screen.rect(58 + (trackIndex - 1) * 10, 28 - ((rangeIndex - 1) * 4), 1, 1)
+            end
+        end
+    end
+
     -- track sections
     local blockWidth, blockHeight = 6, 3
     for trackIndex = 1, #seq.tracks do
@@ -949,7 +963,7 @@ function loadPreset(presetIndex)
         params:set('mute_tr_1', data.mutes[1])
         params:set('mute_tr_2', data.mutes[2])
     end
-    
+
     if data.octaveRanges then
         params:set('octave_range_tr_1', data.octaveRanges[1])
         params:set('octave_range_tr_2', data.octaveRanges[2])
