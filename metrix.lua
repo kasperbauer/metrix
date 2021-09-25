@@ -949,17 +949,24 @@ function loadPreset(presetIndex)
         params:set('mute_tr_1', data.mutes[1])
         params:set('mute_tr_2', data.mutes[2])
     end
+    
+    if data.octaveRanges then
+        params:set('octave_range_tr_1', data.octaveRanges[1])
+        params:set('octave_range_tr_2', data.octaveRanges[2])
+    end
 
     requestGridRedraw()
 end
 
 function savePreset(presetIndex)
     local mute1, mute2 = params:get('mute_tr_1'), params:get('mute_tr_2')
+    local range1, range2 = params:get('octave_range_tr_1'), params:get('octave_range_tr_2')
     local data = {
         tracks = seq.tracks,
         scaleIndex = params:get('scale'),
         rootNote = params:get('root_note'),
-        mutes = {mute1, mute2}
+        mutes = {mute1, mute2},
+        octaveRanges = {range1, range2}
     }
 
     pre:save(presetIndex, data)

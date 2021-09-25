@@ -27,13 +27,10 @@ function preset:load(id)
     end
 
     self.current = id
+    data.tracks = tracks
 
-    return {
-        tracks = tracks,
-        scaleIndex = data.scaleIndex,
-        rootNote = data.rootNote,
-        mutes = data.mutes
-    };
+
+    return data
 end
 
 function preset:save(id, data)
