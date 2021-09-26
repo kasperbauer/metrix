@@ -223,9 +223,9 @@ function redraw() -- 128x64
     for trackIndex = 1, 2 do
         for rangeIndex, range in ipairs(octaveRanges) do
             if rangeIndex == ranges[trackIndex] then
-                screen.rect(57 + (trackIndex - 1) * 10, 27 - ((rangeIndex - 1) * 4), 3, 3)
+                screen.rect(57 + (trackIndex - 1) * 9, 31 - ((rangeIndex - 1) * 4), 3, 3)
             else
-                screen.rect(58 + (trackIndex - 1) * 10, 28 - ((rangeIndex - 1) * 4), 1, 1)
+                screen.rect(58 + (trackIndex - 1) * 9, 32 - ((rangeIndex - 1) * 4), 1, 1)
             end
         end
     end
