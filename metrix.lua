@@ -121,7 +121,7 @@ function addParams()
     params:add_binary("midi_send_transport", "Send MIDI Transp. Msgs", "toggle", 0)
 
     for i = 1, 2 do
-        params:add_group("Track " .. i, 17)
+        params:add_group("Track " .. i, 19)
         params:add_separator('Output')
         params:add_binary("mute_tr_" .. i, "Mute", "toggle", 0)
         params:add_binary("output_audio_tr_" .. i, "Audio", "toggle", 1)
@@ -154,6 +154,13 @@ function addParams()
         params:add_control("crow_attack_tr_" .. i, "Env. Attack", csMillis)
         params:add_control("crow_sustain_tr_" .. i, "Env. Sustain", csMillis)
         params:add_control("crow_release_tr_" .. i, "Env. Release", csMillis)
+        params:add_separator('Reset')
+        params:add_trigger("reset_tr_" .. i, "Reset Track")
+        params:set_action("reset_tr_" .. i, function()
+            seq:resetTrack(i)
+            requestGridRedraw()
+            requestScreenRedraw()
+        end)
     end
 end
 

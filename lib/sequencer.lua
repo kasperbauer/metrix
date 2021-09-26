@@ -48,6 +48,11 @@ function sequencer:addTrack(args)
     self.currentTrack = trackIndex
 end
 
+function sequencer:resetTrack(trackIndex)
+    local track = track:new()
+    self:swapTrack(trackIndex, track)
+end
+
 function sequencer:getCurrentTrack()
     return self.tracks[self.currentTrack]
 end
@@ -76,8 +81,8 @@ function sequencer:addPattern(division, trackIndex)
     table.insert(self.patterns, pattern)
 end
 
-function sequencer:getPattern(patternIndex)
-    return self.patterns[patternIndex]
+function sequencer:getPattern(trackIndex)
+    return self.patterns[trackIndex]
 end
 
 function sequencer:addEventPattern()
