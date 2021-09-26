@@ -28,7 +28,15 @@ And, if you're looking for a nice and powerful eurorack sequencer, consider buyi
 
 ## Screen
 
-The screen shows a simple representation of the pulse count matrices of the two tracks. The selected loop range, as well as the currently playing pulse is being highlighted. Beneath every stage you can see a symbol, representing the gate type. The bottom row shows the currently played note and octave on the left, the clock division in the middle and the playback order on the right. A line beneath the matrix indicates the currently selected track and the selected loop range.
+The screen shows a simple representation of the pulse count matrices of the two tracks. 
+The selected loop range, as well as the currently playing pulse is being highlighted. 
+The dots in the middle show the selected octave ranges.
+
+Beneath every stage you can see a symbol, representing the gate type. 
+
+The bottom row shows the currently played note and octave on the left, the clock 
+division in the middle and the playback order on the right. A line beneath the matrix 
+indicates the currently selected track and the selected loop range.
 
 In the top right corner, you can see the play state, the top left corner shows the tempo and a little dot to indicate if the sequencer is synced externally.
 
@@ -39,6 +47,7 @@ In the top right corner, you can see the play state, the top left corner shows t
 - `K2` Play / Pause
 - `K3` Reset
 - `Enc1` Select Track
+- `Enc2` + `Enc3` Select octave ranges
 
 ## Grid Layout
 
@@ -71,7 +80,7 @@ In the bottom left corner, you can choose among the following pages:
 
 ## Modifier Keys / Shortcuts
 
-In the bottom right corner, the `[shift]` and `[mod]` keys are located.
+In the bottom and top right corner, the `[shift]` and `[mod]` keys are located.
 Hold these keys for secondary functions and shortcuts.
 
 Hold the `[shift]` key to switch to the secondary functions of a page.
@@ -117,6 +126,14 @@ Notes:
 - Choose the **playback order** and **clock division** for the corresponding track
 
 <img src="docs/page3.gif" alt="Page 3: Presets and track settings" width="512">
+
+## Page 4: Scales and root note
+
+- **Load** a scale or chord shape
+- Choose the **root note**
+- The name of the selected scale / note is shown on the screen while holding down a button
+
+<img src="docs/page4.gif" alt="Page 4: Scale and root note" width="512">
 
 ## Crow / MIDI
 
