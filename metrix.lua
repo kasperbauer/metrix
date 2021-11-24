@@ -22,6 +22,13 @@ function grid:led(x, y, val)
     _norns.grid_set_led(self.dev, y, 9 - x, val)
 end
 
+-- restore default rotation on script clear
+function cleanup()
+  function grid:led(x, y, val)
+    _norns.grid_set_led(self.dev, x, y, val)
+  end
+end
+
 g = grid.connect()
 
 -- molly the poly
