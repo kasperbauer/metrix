@@ -81,17 +81,22 @@ end
 function setupCrowInputs()
     crow.input[2].change = onCrowInputChange
     crow.input[2].mode("change", 2.0, 0.25, "both")
+    resetSequencer()
 end
 
 function onCrowInputChange(v)
     if v then
         seq:start()
     else
-        seq:stop()
-        seq:reset()
-        requestScreenRedraw()
-        requestGridRedraw()
+        resetSequencer()
     end
+end
+
+function resetSequencer()
+    seq:stop()
+    seq:reset()
+    requestScreenRedraw()
+    requestGridRedraw()
 end
 
 function initEngine()
