@@ -114,7 +114,7 @@ function addParams()
     end
 
     params:add_separator("METRIX")
-    params:add_group("General", 4)
+    params:add_group("General", 5)
     params:add_option("scale", "Scale", scaleNames, 1)
     params:set_action("scale", requestGridRedraw)
     params:add_option("root_note", "Root Note", musicUtil.NOTE_NAMES, 1)
@@ -124,6 +124,13 @@ function addParams()
         m = midi.connect(port)
     end)
     params:add_binary("midi_send_transport", "Send MIDI Transp. Msgs", "toggle", 0)
+    params:add_trigger("reset_all_tracks", "Reset all Tracks")
+    params:set_action("reset_all_tracks", function()
+        seq:resetTrack(1)
+        seq:resetTrack(2)
+        requestGridRedraw()
+        requestScreenRedraw()
+    end)
 
     for i = 1, 2 do
         params:add_group("Track " .. i, 19)
