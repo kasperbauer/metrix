@@ -21,7 +21,7 @@ function stage:new(args)
     t.probability = args.probability or probabilities[1]
     t.transposeAmount = args.transposeAmount or 0
     t.transpositionDirection = args.transpositionDirection or transpositionDirections[1]
-    t.accumulatedPitch = args.accumulatedPitch or 1
+    t.accumulatedPitch = args.accumulatedPitch or args.pitch or 1
     t.slide = args.slide or false
     t.skip = args.skip or false
 
@@ -47,6 +47,7 @@ function stage:randomize(paramNames)
         end
         if name == 'pitch' then
             self.pitch = math.random(1, 8)
+            self:resetPitch()
         end
         if name == 'octave' then
             self.octave = math.lowerRandom(0, 3)
