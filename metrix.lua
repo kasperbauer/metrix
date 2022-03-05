@@ -702,9 +702,9 @@ function key(n, z)
     if z == 1 then
         keys[n] = true
 
-        if n == 2 then
+        if not keys[1] and n == 2 then
             seq:toggle()
-        elseif n == 3 then
+        elseif not keys[1] and n == 3 then
             seq:reset()
         end
     else
@@ -727,7 +727,13 @@ function enc(n, d)
 
         if keys[1] then
             local track = seq:getTrack(trackIndex)
-            track:rotate(d)
+            if keys[2] then
+                track:rotateGates(d)
+            elseif keys[3] then
+                track:rotatePitch(d)
+            else
+                track:rotate(d)
+            end
         else
             local octaveRanges, octaveRange = seq:getOctaveRanges(), params:get("octave_range_tr_" .. trackIndex) + d
             octaveRange = util.clamp(octaveRange, 1, #octaveRanges)

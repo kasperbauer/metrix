@@ -35,3 +35,35 @@ function number_format(number, decimals)
     local power = 10 ^ decimals
     return math.floor(number * power) / power
 end
+
+function tab.rotate(data, d)
+    if d > 0 then
+        local last = table.remove(data)
+        table.insert(data, 1, last)
+    else
+        local first = table.remove(data, 1)
+        table.insert(data, first)
+    end
+end
+
+function tab.merge(table1, table2)
+    for k, v in pairs(table2) do
+        table1[k] = v
+    end
+end
+
+function tab.pick(data, props)
+    local picks = {}
+
+    for i, item in ipairs(data) do
+        local pick = {}
+
+        for i, key in ipairs(props) do
+            pick[key] = item[key]
+        end
+
+        table.insert(picks, pick)
+    end
+
+    return picks;
+end

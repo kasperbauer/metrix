@@ -292,12 +292,29 @@ function track:activateAllStages()
 end
 
 function track:rotate(d)
-    if d > 0 then
-        local last = table.remove(self.stages)
-        table.insert(self.stages, 1, last)
-    else
-        local first = table.remove(self.stages, 1)
-        table.insert(self.stages, first)
+    tab.rotate(self.stages, d)
+end
+
+function track:rotateGates(d)
+    local gates = tab.pick(self.stages, {'pulseCount', 'ratchetCount', 'gateType', 'gateLength', 'probability', 'skip'})
+
+    tab.rotate(gates, d)
+
+    for stageIndex, stage in pairs(self.stages) do
+        local gate = gates[stageIndex];
+        tab.merge(stage, gate)
+    end
+end
+
+function track:rotatePitch(d)
+    local pitches = tab.pick(self.stages, {'pitch', 'octave', 'transposeAmount', 'transpositionDirection',
+                                           'accumulatedPitch', 'slide'})
+
+    tab.rotate(pitches, d)
+
+    for stageIndex, stage in pairs(self.stages) do
+        local pitch = pitches[stageIndex]
+        tab.merge(stage, pitch)
     end
 end
 
