@@ -24,9 +24,9 @@ end
 
 -- restore default rotation on script clear
 function cleanup()
-  function grid:led(x, y, val)
-    _norns.grid_set_led(self.dev, x, y, val)
-  end
+    function grid:led(x, y, val)
+        _norns.grid_set_led(self.dev, x, y, val)
+    end
 end
 
 g = grid.connect()
@@ -47,6 +47,11 @@ for x = 1, 8 do
         momentary[x][y] = false
     end
 end
+
+local keys = {}
+keys[1] = false
+keys[2] = false
+keys[3] = false
 
 -- brightness levels
 local ledLevels = {
@@ -695,11 +700,15 @@ end
 
 function key(n, z)
     if z == 1 then
+        keys[n] = true
+
         if n == 2 then
             seq:toggle()
         elseif n == 3 then
             seq:reset()
         end
+    else
+        keys[n] = false
     end
     requestScreenRedraw()
     requestGridRedraw()
@@ -715,9 +724,15 @@ function enc(n, d)
     -- octave range
     if n > 1 then
         local trackIndex = n - 1
-        local octaveRanges, octaveRange = seq:getOctaveRanges(), params:get("octave_range_tr_" .. trackIndex) + d
-        octaveRange = util.clamp(octaveRange, 1, #octaveRanges)
-        params:set("octave_range_tr_" .. trackIndex, octaveRange)
+
+        if keys[1] then
+            local track = seq:getTrack(trackIndex)
+            track:rotate(d)
+        else
+            local octaveRanges, octaveRange = seq:getOctaveRanges(), params:get("octave_range_tr_" .. trackIndex) + d
+            octaveRange = util.clamp(octaveRange, 1, #octaveRanges)
+            params:set("octave_range_tr_" .. trackIndex, octaveRange)
+        end
     end
 
     requestGridRedraw()

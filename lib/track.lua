@@ -291,4 +291,14 @@ function track:activateAllStages()
     end
 end
 
+function track:rotate(d)
+    if d > 0 then
+        local last = table.remove(self.stages)
+        table.insert(self.stages, 1, last)
+    else
+        local first = table.remove(self.stages, 1)
+        table.insert(self.stages, first)
+    end
+end
+
 return track
