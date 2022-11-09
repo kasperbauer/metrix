@@ -4,8 +4,10 @@
 --
 -- K2: play/pause
 -- K3: reset
---
 -- Enc1: select track
+-- Enc2/3: transpose octaves
+-- K1 + Enc2/3: rotate sequences
+
 musicUtil = require('musicutil')
 util = require('util')
 include('lib/chords')
