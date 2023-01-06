@@ -7,7 +7,6 @@
 -- Enc1: select track
 -- Enc2/3: transpose octaves
 -- K1 + Enc2/3: rotate sequences
-
 musicUtil = require('musicutil')
 util = require('util')
 include('lib/chords')
@@ -75,7 +74,7 @@ seq = sequencer:new(function()
     requestGridRedraw()
     requestScreenRedraw()
 end)
-seq:addTracks(2)
+seq:addTracks(4)
 
 -- redraw
 local gridIsDirty = true
@@ -85,6 +84,8 @@ function init()
     initEngine()
     addParams()
     seq:toggleTrack(2)
+    seq:toggleTrack(3)
+    seq:toggleTrack(4)
     m = midi.connect(params:get('midi_device'))
     clock.run(redrawClock)
     math.randomseed(util.time())
@@ -140,13 +141,14 @@ function addParams()
     params:add_binary("midi_send_transport", "Send MIDI Transp. Msgs", "toggle", 0)
     params:add_trigger("reset_all_tracks", "Reset all Tracks")
     params:set_action("reset_all_tracks", function()
-        seq:resetTrack(1)
-        seq:resetTrack(2)
+        for i = 1, #seq.tracks do
+            seq:resetTrack(i)
+        end
         requestGridRedraw()
         requestScreenRedraw()
     end)
 
-    for i = 1, 2 do
+    for i = 1, #seq.tracks do
         params:add_group("Track " .. i, 19)
         params:add_separator('Output')
         params:add_binary("mute_tr_" .. i, "Mute", "toggle", 0)
@@ -205,7 +207,7 @@ function redraw() -- 128x64
 
     local scaleMomentaries = getMomentariesInRow(1, 9)
     local rootNoteMomentaries = getMomentariesInRow(13, 14)
-    local presetMomentaries = getMomentariesInRow(1, 8)
+    local presetMomentaries = getMomentariesInRow(1, 5)
     if selectedPage == 4 and #scaleMomentaries > 0 then
         local scale = getScale()
         screen.text(string.lower(scale.name))
@@ -224,11 +226,25 @@ function redraw() -- 128x64
         --- bpm
         local tempo = number_format(clock.get_tempo(), 1)
 
-        if clockIsSynced() then
-            screen.circle(2, 5, 1)
-            screen.move(6, 7)
+        screen.move(116, 7)
+        screen.text_right(tempo .. " bpm" .. (clockIsSynced() and '.' or ''))
+
+        -- track indicators
+        screen.blend_mode(1)
+
+        if seq.currentTrack < 3 then
+            screen.rect(0, 1, 15, 7)
         end
-        screen.text(tempo .. " bpm")
+        screen.move(1, 7)
+        screen.level(15)
+        screen.text("1/2")
+
+        if seq.currentTrack > 2 then
+            screen.rect(20, 1, 17, 7)
+        end
+        screen.move(21, 7)
+        screen.level(15)
+        screen.text("3/4")
     end
 
     -- transport
@@ -250,8 +266,9 @@ function redraw() -- 128x64
     screen.stroke()
 
     -- octaves
-    local range1, range2 = params:get('octave_range_tr_1'), params:get('octave_range_tr_2')
-    local ranges = {range1, range2}
+    local r1, r2, r3, r4 = params:get('octave_range_tr_1'), params:get('octave_range_tr_2'),
+        params:get('octave_range_tr_3'), params:get('octave_range_tr_4')
+    local ranges = seq.currentTrack < 3 and {r1, r2} or {r3, r4}
     local octaveRanges = seq:getOctaveRanges()
     for trackIndex = 1, 2 do
         for rangeIndex, range in ipairs(octaveRanges) do
@@ -265,10 +282,11 @@ function redraw() -- 128x64
 
     -- track sections
     local blockWidth, blockHeight = 6, 3
-    for trackIndex = 1, #seq.tracks do
+    local startAt = seq.currentTrack < 3 and 1 or 3
+    for trackIndex = startAt, startAt + 1 do
         local track = seq:getTrack(trackIndex)
         local pulse = seq.activePulse[trackIndex]
-        local x0 = trackIndex == 2 and 72 or 0
+        local x0 = (trackIndex == 2 or trackIndex == 4) and 72 or 0
         local width = ((blockWidth + 1) * 8) - 1
 
         if pulse and pulse.noteName then
@@ -309,15 +327,17 @@ function redraw() -- 128x64
                 screen.close()
             end
 
-            if seq:isMuted(trackIndex) then
-                screen.level(4)
-                screen.move(x0 + width / 2, y0 + 9)
-                screen.text_center('muted')
-            elseif track:stageIsInLoop(stageIndex) then
+            if not seq:isMuted(trackIndex) and track:stageIsInLoop(stageIndex) then
                 screen.level(4)
                 screen.move(x + blockWidth / 2, y0 + 9)
                 screen.text_center(stage:getGateTypeSymbol())
             end
+        end
+
+        if seq:isMuted(trackIndex) then
+            screen.level(4)
+            screen.move(x0 + width / 2, y0 + 9)
+            screen.text_center('muted')
         end
 
         -- track selection
@@ -505,7 +525,7 @@ function drawBooleanMatrix(paramName, y)
 end
 
 function drawPresetPicker()
-    for y = 1, 8 do
+    for y = 1, 5 do
         for x = 1, 8 do
             local presetIndex = (y - 1) * 8 + x
             if (pre.current == presetIndex) then
@@ -648,12 +668,12 @@ end
 
 function drawTrackOptions()
     local playbackOrders = track.getPlaybackOrders()
-    local y = 10
+    local y = 7
 
     for trackIndex = 1, #seq.tracks do
         local track = seq:getTrack(trackIndex)
 
-        -- rows 12 & 15: playback orders
+        -- rows 7,9,11,13: playback orders
         for x = 1, #playbackOrders do
             g:led(x, y, ledLevels.low)
 
@@ -670,14 +690,14 @@ function drawTrackOptions()
         y = y + 1
 
         for x = 1, 8 do
-            -- rows 13 & 15: divisions
+            -- rows 8,10,12,14: divisions
             if x == track:getDivisionIndex() then
                 g:led(x, y, ledLevels.high)
             else
                 g:led(x, y, ledLevels.low)
             end
         end
-        y = y + 2
+        y = y + 1
     end
 end
 
@@ -719,13 +739,17 @@ end
 function enc(n, d)
     -- track selection
     if n == 1 then
-        local trackIndex = d > 0 and 2 or 1
+        local trackIndex = util.clamp(seq.currentTrack + (d > 0 and 1 or -1), 1, #seq.tracks)
         selectTrack(trackIndex)
     end
 
     -- octave range
     if n > 1 then
         local trackIndex = n - 1
+
+        if seq.currentTrack > 2 then
+            trackIndex = trackIndex + 2
+        end
 
         if keys[1] then
             local track = seq:getTrack(trackIndex)
@@ -872,8 +896,8 @@ function g.key(x, y, z)
 
     -- page 3: presets / settings
     if selectedPage == 3 and on then
-        -- row 1-4: load presets
-        if y >= 1 and y <= 8 then
+        -- row 1-5: load presets
+        if y >= 1 and y <= 5 then
             local presetIndex = (y - 1) * 8 + x
             if shiftIsHeld() and modIsHeld() then
                 pre:delete(presetIndex)
@@ -884,22 +908,30 @@ function g.key(x, y, z)
             end
         end
 
-        -- rows 10 & 13: playback order
-        if (y == 10 or y == 13) and x <= 4 then
+        -- rows 7,9,11,13: playback order
+        if (y == 7 or y == 9 or y == 11 or y == 13) and x <= 4 then
             local trackIndex = 1
-            if y == 13 then
+            if y == 9 then
                 trackIndex = 2
+            elseif y == 11 then
+                trackIndex = 3
+            elseif y == 13 then
+                trackIndex = 4
             end
             local track = seq:getTrack(trackIndex)
             local playbackOrders = track:getPlaybackOrders()
             track:setPlaybackOrder(playbackOrders[x])
         end
 
-        -- rows 11 & 14: divisions
-        if y == 11 or y == 14 then
+        -- rows 8,10,12,14: divisions
+        if y == 8 or y == 10 or y == 12 or y == 14 then
             local trackIndex = 1
-            if y == 14 then
+            if y == 10 then
                 trackIndex = 2
+            elseif y == 12 then
+                trackIndex = 3
+            elseif y == 14 then
+                trackIndex = 4
             end
             local divisions = track:getDivisions()
             local division = divisions[x]
@@ -1018,25 +1050,31 @@ function loadPreset(presetIndex)
     if data.mutes then
         params:set('mute_tr_1', data.mutes[1])
         params:set('mute_tr_2', data.mutes[2])
+        params:set('mute_tr_3', data.mutes[3])
+        params:set('mute_tr_4', data.mutes[4])
     end
 
     if data.octaveRanges then
         params:set('octave_range_tr_1', data.octaveRanges[1])
         params:set('octave_range_tr_2', data.octaveRanges[2])
+        params:set('octave_range_tr_3', data.octaveRanges[3])
+        params:set('octave_range_tr_4', data.octaveRanges[4])
     end
 
     requestGridRedraw()
 end
 
 function savePreset(presetIndex)
-    local mute1, mute2 = params:get('mute_tr_1'), params:get('mute_tr_2')
-    local range1, range2 = params:get('octave_range_tr_1'), params:get('octave_range_tr_2')
+    local m1, m2, m3, m4 = params:get('mute_tr_1'), params:get('mute_tr_2'), params:get('mute_tr_3'),
+        params:get('mute_tr_4')
+    local r1, r2, r3, r4 = params:get('octave_range_tr_1'), params:get('octave_range_tr_2'),
+        params:get('octave_range_tr_3'), params:get('octave_range_tr_4')
     local data = {
         tracks = seq.tracks,
         scaleIndex = params:get('scale'),
         rootNote = params:get('root_note'),
-        mutes = {mute1, mute2},
-        octaveRanges = {range1, range2}
+        mutes = {m1, m2, m3, m4},
+        octaveRanges = {r1, r2, r3, r4}
     }
 
     pre:save(presetIndex, data)
