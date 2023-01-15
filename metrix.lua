@@ -123,9 +123,15 @@ end
 
 function addParams()
     local csMillis = controlspec.new(0, 5, 'lin', 0.05, 0.05, 's')
+    
     local scaleNames = {}
     for i, scale in ipairs(musicUtil.SCALES) do
         table.insert(scaleNames, string.lower(scale.name))
+    end
+
+    local midiDeviceNames = {}
+    for i = 1, #midi.vports do
+        table.insert(midiDeviceNames, util.trim_string_to_width(midi.connect(i).name, 70))
     end
 
     params:add_separator("METRIX")
@@ -134,7 +140,7 @@ function addParams()
     params:set_action("scale", requestGridRedraw)
     params:add_option("root_note", "Root Note", musicUtil.NOTE_NAMES, 1)
     params:set_action("root_note", requestGridRedraw)
-    params:add_number("midi_device", "MIDI Device", 1, #midi.vports, 1)
+    params:add_option("midi_device", "MIDI Device", midiDeviceNames, 1)
     params:set_action("midi_device", function(port)
         m = midi.connect(port)
     end)
