@@ -1,4 +1,4 @@
-lattice = require('lattice')
+lattice = include('lib/lattice')
 track = include('lib/track')
 
 local DEBUG = false
@@ -71,7 +71,7 @@ function sequencer:swapTrack(trackIndex, track)
 end
 
 function sequencer:addPattern(division, trackIndex)
-    local pattern = self.lattice:new_pattern({
+    local pattern = self.lattice:new_sprocket({
         action = function()
             self:advanceToNextPulse(trackIndex)
             self.onPulseAdvance()
@@ -90,7 +90,7 @@ function sequencer:addEventPattern()
         return
     end
 
-    self.eventPattern = self.lattice:new_pattern({
+    self.eventPattern = self.lattice:new_sprocket({
         action = function(t)
             self:handleEvents(t)
         end,
@@ -378,6 +378,8 @@ function sequencer:addEvent(type, pulse, trackIndex, ppqn)
 end
 
 function sequencer:noteOn(trackIndex, pulse)
+    print(trackIndex)
+
     if self:shouldSendToOutput(trackIndex, 'midi') then
         local midiCh = params:get('midi_ch_tr_' .. trackIndex)
         m:note_on(pulse.midiNote, 100, midiCh)
