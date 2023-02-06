@@ -378,8 +378,6 @@ function sequencer:addEvent(type, pulse, trackIndex, ppqn)
 end
 
 function sequencer:noteOn(trackIndex, pulse)
-    print(trackIndex)
-
     if self:shouldSendToOutput(trackIndex, 'midi') then
         local midiCh = params:get('midi_ch_tr_' .. trackIndex)
         m:note_on(pulse.midiNote, 100, midiCh)
