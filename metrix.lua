@@ -134,7 +134,7 @@ function addParams()
     end
 
     params:add_separator("METRIX")
-    params:add_group("General", 5)
+    params:add_group("General", 6)
     params:add_option("scale", "Scale", scaleNames, 1)
     params:set_action("scale", requestGridRedraw)
     params:add_option("root_note", "Root Note", musicUtil.NOTE_NAMES, 1)
@@ -145,6 +145,7 @@ function addParams()
         print('connected to ' .. midiDeviceNames[port])
     end)
     params:add_binary("midi_send_transport", "Send MIDI Transp. Msgs", "toggle", 0)
+    params:add_number("random_pulse_length", "Randomize to Pulse Count", 0, 32, 16)
     params:add_trigger("reset_all_tracks", "Reset all Tracks")
     params:set_action("reset_all_tracks", function()
         for i = 1, #seq.tracks do

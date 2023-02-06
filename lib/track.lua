@@ -53,9 +53,41 @@ function track:randomize(paramNames)
         end
     end
 
-    for k, stage in pairs(self.stages) do
-        stage:randomize(paramNames)
+    local maxLength = params:get('random_pulse_length')
+
+    repeat
+        for k, stage in pairs(self.stages) do
+            stage:randomize(paramNames)
+        end
+    until maxLength == 0 or self:getTotalPulseCount() >= maxLength
+
+    if maxLength > 0 then
+        local length = 0
+        for k, stage in pairs(self.stages) do
+            length = length + stage.pulseCount
+            if length >= maxLength then
+                if length > maxLength then
+                    local diff = length - maxLength
+                    stage.pulseCount = stage.pulseCount - diff
+                end
+
+                self.loop = {
+                    start = 1,
+                    stop = k
+                }
+
+                break
+            end
+        end
     end
+end
+
+function track:getTotalPulseCount()
+    local count = 0
+    for k, stage in pairs(self.stages) do
+        count = count + stage.pulseCount
+    end
+    return count;
 end
 
 function track:randomizeAll()
