@@ -37,7 +37,6 @@ MollyThePoly = require "molly_the_poly/lib/molly_the_poly_engine"
 engine.name = "MollyThePoly"
 
 -- page selector
-local maxPages = 4
 local selectedPage = 1
 
 -- momentary pressed keys
@@ -123,7 +122,7 @@ end
 
 function addParams()
     local csMillis = controlspec.new(0, 5, 'lin', 0.05, 0.05, 's')
-    
+
     local scaleNames = {}
     for i, scale in ipairs(musicUtil.SCALES) do
         table.insert(scaleNames, string.lower(scale.name))
@@ -143,6 +142,7 @@ function addParams()
     params:add_option("midi_device", "MIDI Device", midiDeviceNames, 1)
     params:set_action("midi_device", function(port)
         m = midi.connect(port)
+        print('connected to ' .. midiDeviceNames[port])
     end)
     params:add_binary("midi_send_transport", "Send MIDI Transp. Msgs", "toggle", 0)
     params:add_trigger("reset_all_tracks", "Reset all Tracks")
@@ -182,7 +182,7 @@ function addParams()
         params:add_option("transpose_trigger_tr_" .. i, "Transpose Trigger", sequencer:getTransposeTriggers(), 1)
         params:add_control("slide_amount_tr_" .. i, "Slide Time", csMillis)
         params:add_separator('MIDI')
-        params:add_number("midi_ch_tr_" .. i, "MIDI Channel", 1, 127, i)
+        params:add_number("midi_ch_tr_" .. i, "MIDI Channel", 1, 16, i)
         params:add_separator('Crow')
         params:add_option("crow_gate_type_tr_" .. i, "GateType", sequencer:getCrowGateTypes(), 2)
         params:add_control("crow_attack_tr_" .. i, "Env. Attack", csMillis)
@@ -214,13 +214,13 @@ function redraw() -- 128x64
     local scaleMomentaries = getMomentariesInRow(1, 9)
     local rootNoteMomentaries = getMomentariesInRow(13, 14)
     local presetMomentaries = getMomentariesInRow(1, 5)
-    if selectedPage == 4 and #scaleMomentaries > 0 then
+    if scalesPageIsHeld() and #scaleMomentaries > 0 then
         local scale = getScale()
         screen.text(string.lower(scale.name))
-    elseif selectedPage == 4 and #rootNoteMomentaries > 0 then
+    elseif scalesPageIsHeld() and #rootNoteMomentaries > 0 then
         local noteName = musicUtil.NOTE_NAMES[params:get('root_note')]
         screen.text(string.lower(noteName))
-    elseif selectedPage == 3 and #presetMomentaries > 0 then
+    elseif presetsPageIsHeld() and #presetMomentaries > 0 then
         if shiftIsHeld() and modIsHeld() then
             screen.text('deleted')
         elseif shiftIsHeld() then
@@ -386,7 +386,13 @@ function redrawGrid()
     end
 
     -- pulse matrix
-    if selectedPage == 1 then
+    if presetsPageIsHeld() then
+        drawPresetPicker()
+        drawTrackOptions()
+    elseif scalesPageIsHeld() then
+        drawScalePicker()
+        drawRootNotePicker()
+    elseif selectedPage == 1 then
         if shiftIsHeld() then
             drawMatrix('ratchetCount', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10, true)
             drawMatrix('probability', stage:getProbabilities(), 12, 15)
@@ -404,15 +410,9 @@ function redrawGrid()
             drawMatrix('pitch', {8, 7, 6, 5, 4, 3, 2, 1}, 3, 10)
             drawMatrix('octave', {3, 2, 1, 0}, 12, 15)
         end
-    elseif selectedPage == 3 then
-        drawPresetPicker()
-        drawTrackOptions()
-    elseif selectedPage == 4 then
-        drawScalePicker()
-        drawRootNotePicker()
     end
 
-    if selectedPage < 3 then
+    if not presetsPageIsHeld() and not scalesPageIsHeld() then
         drawPulseCursor()
     end
 
@@ -429,9 +429,10 @@ function drawBottomRow()
             g:led(x, y, ledLevels.mid)
         end
     else
-        for x = 1, maxPages do
-            g:led(x, y, ledLevels.low)
-        end
+        g:led(1, y, ledLevels.low)
+        g:led(2, y, ledLevels.low)
+        g:led(4, y, ledLevels.low)
+        g:led(5, y, ledLevels.low)
         g:led(selectedPage, 16, ledLevels.high)
     end
 end
@@ -786,122 +787,10 @@ function g.key(x, y, z)
     local on, off = z == 1, z == 0
     local track = seq:getCurrentTrack()
 
-    momentary[x][y] = z == 1 and true or false
+    momentary[x][y] = on
 
-    -- row 1: select track
-    if selectedPage < 3 and y == 1 and x <= #seq.tracks and on then
-        local selectedTrack = seq:getTrack(x)
-
-        if modIsHeld() and shiftIsHeld() then
-            selectedTrack:randomizeAll()
-        elseif modIsHeld() then
-            selectedTrack:randomize({'pulseCount', 'ratchetCount', 'pitch', 'transposeAmount', 'transposeDirection'})
-        elseif shiftIsHeld() then
-            seq:toggleTrack(x)
-        else
-            seq:changeTrack(x)
-        end
-    end
-
-    -- row 2: loopy
-    if selectedPage < 3 and y == 2 then
-        local stage = track:getStageWithIndex(x)
-
-        if on and modIsHeld() and shiftIsHeld() then
-            track:activateAllStages()
-            track:setLoop(1, 8)
-        elseif on and modIsHeld() then
-            track:setLoop(1, 8)
-        elseif not modIsHeld() then
-            local pushed = getMomentariesInRow(y)
-
-            if on then
-                if #pushed == 2 and not shiftIsHeld() then
-                    local start, stop = pushed[1], pushed[2]
-                    local activeStages = track:getActiveStagesInRange(start, stop)
-                    if (#activeStages == 0) then
-                        local firstStage = track:getStageWithIndex(start);
-                        firstStage.skip = false
-                    end
-                    track:setLoop(start, stop)
-                    loopWasSelected = true
-                elseif #pushed == 1 and shiftIsHeld() then
-                    local activeStages = track:getActiveStagesInRange()
-                    if #activeStages > 1 or stage.skip then
-                        stage:toggleParam('skip')
-                    end
-                end
-            elseif #pushed == 0 and not shiftIsHeld() then
-                if loopWasSelected == false and trackWasSelected == false then
-                    local stage = track:getStageWithIndex(x)
-                    stage.skip = false
-                    track:setLoop(x, x)
-                end
-
-                loopWasSelected = false
-                trackWasSelected = false
-            end
-        end
-    end
-
-    -- page 1: pulses & gates
-    -- row 3-10: pulse & gate matrix
-    if selectedPage == 1 and on then
-        local stage = track:getStageWithIndex(x)
-
-        if y >= 3 and y <= 10 then
-            if shiftIsHeld() then
-                local ratchetCount = 11 - y
-                setParam(stage, 'ratchetCount', ratchetCount)
-            else
-                local pulseCount = 11 - y
-                setParam(stage, 'pulseCount', pulseCount)
-            end
-        elseif y >= 12 and y <= 15 then
-            if shiftIsHeld() then
-                local probabilities = stage:getProbabilities()
-                local probability = probabilities[y - 11]
-                setParam(stage, 'probability', probability)
-                -- local gateLengths = stage:getGateLengths()
-                -- local gateLength = gateLengths[math.abs(11 - y)]
-                -- setParam(stage, 'gateLength', gateLength)
-            else
-                local gateTypes = stage:getGateTypes()
-                local gateType = gateTypes[math.abs(11 - y)]
-                setParam(stage, 'gateType', gateType)
-            end
-        end
-    end
-
-    -- page 2: pitch
-    -- row 3-10: pitch matrix
-    if selectedPage == 2 and on then
-        local stage = track:getStageWithIndex(x)
-
-        if y >= 3 and y <= 10 then
-            if shiftIsHeld() then
-                local transposeAmount = 10 - y
-                setParam(stage, 'transposeAmount', transposeAmount)
-            else
-                local pitch = 11 - y
-                setParam(stage, 'pitch', pitch)
-                setParam(stage, 'accumulatedPitch', pitch)
-            end
-        elseif y >= 12 and y <= 15 then
-            if shiftIsHeld() and y == 12 then
-                stage:toggleParam('slide')
-            elseif shiftIsHeld() and y <= 15 then
-                local direction = stage:getTranspositionDirections()[y - 12]
-                setParam(stage, 'transpositionDirection', direction)
-            else
-                local octave = 15 - y
-                setParam(stage, 'octave', octave)
-            end
-        end
-    end
-
-    -- page 3: presets / settings
-    if selectedPage == 3 and on then
+    -- presets / settings
+    if presetsPageIsHeld() and on then
         -- row 1-5: load presets
         if y >= 1 and y <= 5 then
             local presetIndex = (y - 1) * 8 + x
@@ -943,10 +832,9 @@ function g.key(x, y, z)
             local division = divisions[x]
             seq:setDivision(trackIndex, division)
         end
-    end
 
-    -- page 4: scales
-    if selectedPage == 4 and on then
+        -- scales
+    elseif scalesPageIsHeld() and on then
         -- row 1-6: default scales
         if y >= 1 and y <= 6 then
             local scaleIndex = (y - 1) * 8 + x
@@ -971,24 +859,136 @@ function g.key(x, y, z)
                 params:set('root_note', rootNote)
             end
         end
-    end
+    elseif not presetsPageIsHeld() and not scalesPageIsHeld() then
+        -- row 1: select track
+        if selectedPage < 3 and y == 1 and x <= #seq.tracks and on then
+            local selectedTrack = seq:getTrack(x)
 
-    -- row 16: select page
-    if on and y == 16 and x <= maxPages then
-        if modIsHeld() and shiftIsHeld() then
-            if x == 1 then
-                track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'probability'})
-            elseif x == 2 then
-                track:randomize({'pitch', 'transposeAmount', 'octave', 'slide', 'transposeDirection'})
+            if modIsHeld() and shiftIsHeld() then
+                selectedTrack:randomizeAll()
+            elseif modIsHeld() then
+                selectedTrack:randomize({'pulseCount', 'ratchetCount', 'pitch', 'transposeAmount', 'transposeDirection'})
+            elseif shiftIsHeld() then
+                seq:toggleTrack(x)
+            else
+                seq:changeTrack(x)
             end
-        elseif modIsHeld() then
-            if x == 1 then
-                track:randomize({'pulseCount', 'ratchetCount'})
-            elseif x == 2 then
-                track:randomize({'pitch', 'transposeAmount', 'transposeDirection'})
+        end
+
+        -- row 2: loopy
+        if selectedPage < 3 and y == 2 then
+            local stage = track:getStageWithIndex(x)
+
+            if on and modIsHeld() and shiftIsHeld() then
+                track:activateAllStages()
+                track:setLoop(1, 8)
+            elseif on and modIsHeld() then
+                track:setLoop(1, 8)
+            elseif not modIsHeld() then
+                local pushed = getMomentariesInRow(y)
+
+                if on then
+                    if #pushed == 2 and not shiftIsHeld() then
+                        local start, stop = pushed[1], pushed[2]
+                        local activeStages = track:getActiveStagesInRange(start, stop)
+                        if (#activeStages == 0) then
+                            local firstStage = track:getStageWithIndex(start);
+                            firstStage.skip = false
+                        end
+                        track:setLoop(start, stop)
+                        loopWasSelected = true
+                    elseif #pushed == 1 and shiftIsHeld() then
+                        local activeStages = track:getActiveStagesInRange()
+                        if #activeStages > 1 or stage.skip then
+                            stage:toggleParam('skip')
+                        end
+                    end
+                elseif #pushed == 0 and not shiftIsHeld() then
+                    if loopWasSelected == false and trackWasSelected == false then
+                        local stage = track:getStageWithIndex(x)
+                        stage.skip = false
+                        track:setLoop(x, x)
+                    end
+
+                    loopWasSelected = false
+                    trackWasSelected = false
+                end
             end
-        else
-            selectPage(x)
+        end
+
+        -- page 1: pulses & gates
+        -- row 3-10: pulse & gate matrix
+        if selectedPage == 1 and on then
+            local stage = track:getStageWithIndex(x)
+
+            if y >= 3 and y <= 10 then
+                if shiftIsHeld() then
+                    local ratchetCount = 11 - y
+                    setParam(stage, 'ratchetCount', ratchetCount)
+                else
+                    local pulseCount = 11 - y
+                    setParam(stage, 'pulseCount', pulseCount)
+                end
+            elseif y >= 12 and y <= 15 then
+                if shiftIsHeld() then
+                    local probabilities = stage:getProbabilities()
+                    local probability = probabilities[y - 11]
+                    setParam(stage, 'probability', probability)
+                    -- local gateLengths = stage:getGateLengths()
+                    -- local gateLength = gateLengths[math.abs(11 - y)]
+                    -- setParam(stage, 'gateLength', gateLength)
+                else
+                    local gateTypes = stage:getGateTypes()
+                    local gateType = gateTypes[math.abs(11 - y)]
+                    setParam(stage, 'gateType', gateType)
+                end
+            end
+        end
+
+        -- page 2: pitch
+        -- row 3-10: pitch matrix
+        if selectedPage == 2 and on then
+            local stage = track:getStageWithIndex(x)
+
+            if y >= 3 and y <= 10 then
+                if shiftIsHeld() then
+                    local transposeAmount = 10 - y
+                    setParam(stage, 'transposeAmount', transposeAmount)
+                else
+                    local pitch = 11 - y
+                    setParam(stage, 'pitch', pitch)
+                    setParam(stage, 'accumulatedPitch', pitch)
+                end
+            elseif y >= 12 and y <= 15 then
+                if shiftIsHeld() and y == 12 then
+                    stage:toggleParam('slide')
+                elseif shiftIsHeld() and y <= 15 then
+                    local direction = stage:getTranspositionDirections()[y - 12]
+                    setParam(stage, 'transpositionDirection', direction)
+                else
+                    local octave = 15 - y
+                    setParam(stage, 'octave', octave)
+                end
+            end
+        end
+
+        -- row 16: select page
+        if on and y == 16 and x <= 2 then
+            if modIsHeld() and shiftIsHeld() then
+                if x == 1 then
+                    track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'probability'})
+                elseif x == 2 then
+                    track:randomize({'pitch', 'transposeAmount', 'octave', 'slide', 'transposeDirection'})
+                end
+            elseif modIsHeld() then
+                if x == 1 then
+                    track:randomize({'pulseCount', 'ratchetCount'})
+                elseif x == 2 then
+                    track:randomize({'pitch', 'transposeAmount', 'transposeDirection'})
+                end
+            else
+                selectPage(x)
+            end
         end
     end
 
@@ -1028,6 +1028,14 @@ end
 
 function modIsHeld()
     return momentary[7][16] or momentary[7][1];
+end
+
+function presetsPageIsHeld()
+    return momentary[4][16];
+end
+
+function scalesPageIsHeld()
+    return momentary[5][16];
 end
 
 function selectPage(pageNumber)
