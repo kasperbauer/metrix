@@ -53,31 +53,37 @@ function track:randomize(paramNames)
         end
     end
 
-    local maxLength = params:get('random_pulse_length')
+    if tab.contains(paramNames, 'pulseCount') and tab.contains(paramNames, 'ratchetCount') then
+        local maxLength = params:get('random_pulse_length')
 
-    repeat
+        repeat
+            for k, stage in pairs(self.stages) do
+                stage:randomize({'pulseCount', 'ratchetCount'})
+            end
+        until maxLength == 0 or self:getTotalPulseCount() >= maxLength
+
+        if maxLength > 0 then
+            local length = 0
+            for k, stage in pairs(self.stages) do
+                length = length + stage.pulseCount
+                if length >= maxLength then
+                    if length > maxLength then
+                        local diff = length - maxLength
+                        stage.pulseCount = stage.pulseCount - diff
+                    end
+
+                    self.loop = {
+                        start = 1,
+                        stop = k
+                    }
+
+                    break
+                end
+            end
+        end
+    else
         for k, stage in pairs(self.stages) do
             stage:randomize(paramNames)
-        end
-    until maxLength == 0 or self:getTotalPulseCount() >= maxLength
-
-    if maxLength > 0 then
-        local length = 0
-        for k, stage in pairs(self.stages) do
-            length = length + stage.pulseCount
-            if length >= maxLength then
-                if length > maxLength then
-                    local diff = length - maxLength
-                    stage.pulseCount = stage.pulseCount - diff
-                end
-
-                self.loop = {
-                    start = 1,
-                    stop = k
-                }
-
-                break
-            end
         end
     end
 end

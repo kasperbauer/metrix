@@ -979,7 +979,7 @@ function g.key(x, y, z)
                 if x == 1 then
                     track:randomize({'pulseCount', 'ratchetCount', 'gateType', 'probability'})
                 elseif x == 2 then
-                    track:randomize({'pitch', 'transposeAmount', 'octave', 'slide', 'transposeDirection'})
+                    track:randomize({'pitch', 'transposeAmount', 'transposeDirection', 'octave', 'slide'})
                 end
             elseif modIsHeld() then
                 if x == 1 then
