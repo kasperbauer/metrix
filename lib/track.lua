@@ -80,6 +80,9 @@ function track:randomize(paramNames)
                     break
                 end
             end
+            for k, stage in pairs(self.stages) do
+                stage:randomize(paramNames)
+            end
         end
     else
         for k, stage in pairs(self.stages) do
