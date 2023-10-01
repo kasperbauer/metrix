@@ -156,7 +156,7 @@ function addParams()
     end)
 
     for i = 1, #seq.tracks do
-        params:add_group("Track " .. i, 19)
+        params:add_group("Track " .. i, 20)
         params:add_separator('Output')
         params:add_binary("mute_tr_" .. i, "Mute", "toggle", 0)
         params:add_binary("output_audio_tr_" .. i, "Audio", "toggle", 1)
@@ -171,7 +171,7 @@ function addParams()
                 seq:noteOffAll({'midi'})
             end
         end)
-        params:add_binary("output_crow_tr_" .. i, "Crow", "toggle", 1)
+        params:add_binary("output_crow_tr_" .. i, "Crow", "toggle", i <= 2 and 1 or 0)
         params:set_action("output_crow_tr_" .. i, function(val)
             if val == 0 then
                 seq:noteOffAll({'crow'})
@@ -186,6 +186,9 @@ function addParams()
         params:add_number("midi_ch_tr_" .. i, "MIDI Channel", 1, 16, i)
         params:add_separator('Crow')
         params:add_option("crow_gate_type_tr_" .. i, "GateType", sequencer:getCrowGateTypes(), 2)
+        local crowOutput = i == 1 and 1 or 2
+        if i > 2 then crowOutput = 3 end
+        params:add_option("crow_outputs_tr_" .. i, "Outputs", sequencer:getCrowOutputs(), crowOutput)
         params:add_control("crow_attack_tr_" .. i, "Env. Attack", csMillis)
         params:add_control("crow_sustain_tr_" .. i, "Env. Sustain", csMillis)
         params:add_control("crow_release_tr_" .. i, "Env. Release", csMillis)

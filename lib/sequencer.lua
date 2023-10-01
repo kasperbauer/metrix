@@ -6,6 +6,7 @@ local DEBUG = false
 local sequencer = {}
 local transposeTriggers = {"stage", "pulse", "ratchet"}
 local crowGateTypes = {"gate", "trigger", "envelope"}
+local crowOutputs = {"1/2", "3/4", "no out"}
 local octaveRanges = {"1 to 4", "2 to 5", "3 to 6", "4 to 7", "5 to 8", "6 to 9"}
 
 function sequencer:new(onPulseAdvance)
@@ -384,24 +385,32 @@ function sequencer:noteOn(trackIndex, pulse)
     end
 
     if self:shouldSendToOutput(trackIndex, 'crow') then
-        -- output 2/4: pitch
-        crow.output[trackIndex * 2].slew = pulse.slideAmount
-        crow.output[trackIndex * 2].volts = pulse.volts
+        local gateOut = 1
+        local pitchOut = 2
 
-        -- output 1/3: gates / triggers
+        if params:get('crow_outputs_tr_' .. trackIndex) == 2 then
+            gateOut = 3
+            pitchOut = 4
+        end
+
+        -- pitch
+        crow.output[pitchOut].slew = pulse.slideAmount
+        crow.output[pitchOut].volts = pulse.volts
+
+        -- gates / triggers
         -- https://vcvrack.com/manual/VoltageStandards
         local crowGateTypeIndex = params:get("crow_gate_type_tr_" .. trackIndex)
 
         if crowGateTypeIndex == 1 then -- gate
-            crow.output[(trackIndex * 2) - 1].volts = 10
+            crow.output[gateOut].volts = 10
         elseif crowGateTypeIndex == 2 then -- trigger
-            crow.output[(trackIndex * 2) - 1].action = "{to(10,0),to(0,0.002)}"
-            crow.output[(trackIndex * 2) - 1]()
+            crow.output[gateOut].action = "{to(10,0),to(0,0.002)}"
+            crow.output[gateOut]()
         elseif crowGateTypeIndex == 3 then -- envelope
             local a, s, r = params:get("crow_attack_tr_" .. trackIndex), params:get("crow_sustain_tr_" .. trackIndex),
                 params:get("crow_release_tr_" .. trackIndex)
-            crow.output[(trackIndex * 2) - 1].action = "{to(5," .. a .. "),to(5," .. s .. "),to(0," .. r .. ")}"
-            crow.output[(trackIndex * 2) - 1]()
+            crow.output[gateOut].action = "{to(5," .. a .. "),to(5," .. s .. "),to(0," .. r .. ")}"
+            crow.output[gateOut]()
         end
     end
 
@@ -486,6 +495,10 @@ end
 
 function sequencer:getCrowGateTypes()
     return crowGateTypes
+end
+
+function sequencer:getCrowOutputs()
+    return crowOutputs
 end
 
 function sequencer:getCrowGateType(index)
