@@ -93,13 +93,14 @@ function init()
 end
 
 function setupCrowInputs()
+    crow.input[1].stream = onCrowInput1
+    crow.input[1].change = onCrowInput1
+    crow.input[2].stream = onCrowInput2
+    crow.input[2].change = onCrowInput2
+
     setupCrowIn(1)
     setupCrowIn(2)
-    -- crow.input[1].stream = onCrowInput1Change
-    -- crow.input[1].mode = 'stream'
 
-    -- crow.input[2].change = onCrowInput2Change
-    -- crow.input[2].mode("change", 2.0, 0.25, "both")
     resetSequencer()
 end
 
@@ -108,9 +109,12 @@ function setupCrowIn(i)
     local clock = 2
     local changeBoth = 3
     local changeRising = 4
-    local stream = {5, 7, 9, 11, -- octave range
-    6, 8, 10, 12 -- track length
+    local stream = {5, 8, 11, 14, -- octave range
+    6, 9, 12, 15, -- track length
+    7, 10, 13, 16 -- playback order
     }
+
+    -- FIXME: only 52 handlers allowed
 
     local val = params:get('crow_in_' .. i)
     if (val == none) then
@@ -118,43 +122,42 @@ function setupCrowIn(i)
     elseif (val == clock) then
         crow.input[i].mode('clock')
     elseif val == changeBoth then
-        crow.input[i].change = (i == 1 and onCrowInput1Change or onCrowInput2Change)
         crow.input[i].mode("change", 2.0, 0.25, "both")
     elseif val == changeRising then
-        crow.input[i].change = (i == 1 and onCrowInput1Change or onCrowInput2Change)
         crow.input[i].mode("change", 2.0, 0.25, "rising")
     elseif tab.contains(stream, val) then
-        crow.input[i].stream = (i == 1 and onCrowInput1Change or onCrowInput2Change)
-        crow.input[i].mode = "stream"
+        crow.input[i].mode('stream')
     end
 end
 
-function onCrowInput1Change(v)
-    onCrowInputChange(1, v)
+function onCrowInput1(v)
+    onCrowInput(1, v)
 end
 
-function onCrowInput2Change(v)
-    onCrowInputChange(2, v)
+function onCrowInput2(v)
+    onCrowInput(2, v)
 end
 
-function onCrowInputChange(crowInput, v)
+function onCrowInput(crowInput, v)
     local paramVal = params:get('crow_in_' .. crowInput)
-    local track2 = {7, 8}
-    local track3 = {9, 10}
-    local track4 = {11, 12}
+    local track2 = {8, 9, 10}
+    local track3 = {11, 12, 13}
+    local track4 = {14, 15, 16}
     local trackIndex = 1;
-    if tab.contains(track2, paramVal) then 
+    if tab.contains(track2, paramVal) then
         trackIndex = 2
-    elseif tab.contains(track3, paramVal) then 
+    elseif tab.contains(track3, paramVal) then
         trackIndex = 3
-    elseif tab.contains(track4, paramVal) then 
-        trackIndex = 4 
+    elseif tab.contains(track4, paramVal) then
+        trackIndex = 4
     end
+    local track = seq:getTrack(trackIndex)
 
     local run = 3
     local reset = 4
-    local octaveRange = {5, 7, 9, 11}
-    local trackLength = {6, 8, 10, 12}
+    local octaveRange = {5, 8, 11, 14}
+    local trackLength = {6, 9, 12, 15}
+    local playbackOrder = {7, 10, 13, 16}
 
     if paramVal == run and v then
         seq:start()
@@ -167,10 +170,14 @@ function onCrowInputChange(crowInput, v)
         local range = util.clamp(math.floor((v + segment / 2) / segment), 1, 6);
         params:set("octave_range_tr_" .. trackIndex, range)
     elseif tab.contains(trackLength, paramVal) then
-        local track = seq:getTrack(trackIndex)
         local segment = 5 / (8 + 1)
         local stop = util.clamp(math.floor((v + segment / 2) / segment), 1, 8)
         track:setLoop(track.loop.start, stop)
+    elseif tab.contains(playbackOrder, paramVal) then
+        local segment = 5 / (4 + 1)
+        local orderIndex = util.clamp(math.floor((v + segment / 2) / segment), 1, 4)
+        local playbackOrders = track:getPlaybackOrders()
+        track:setPlaybackOrder(playbackOrders[orderIndex])
     end
 
     requestGridRedraw()
@@ -208,6 +215,7 @@ function addParams()
     for i = 1, #seq.tracks do
         table.insert(crowInOptions, 'Octave range TR' .. i)
         table.insert(crowInOptions, 'Track length TR' .. i)
+        table.insert(crowInOptions, 'Playback order TR' .. i)
     end
 
     params:add_separator("METRIX")
@@ -232,9 +240,13 @@ function addParams()
         requestScreenRedraw()
     end)
     params:add_option("crow_in_1", "Crow In 1", crowInOptions, 2)
-    params:set_action("crow_in_1", setupCrowInputs)
+    params:set_action("crow_in_1", function()
+        setupCrowIn(1)
+    end)
     params:add_option("crow_in_2", "Crow In 2", crowInOptions, 3)
-    params:set_action("crow_in_2", setupCrowInputs)
+    params:set_action("crow_in_2", function()
+        setupCrowIn(2)
+    end)
 
     for i = 1, #seq.tracks do
         params:add_group("Track " .. i, 20)
