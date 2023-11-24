@@ -20,6 +20,7 @@ function track:new(args)
     }
     t.playbackOrder = args.playbackOrder or playbackOrders[1]
     t.alternatePlaybackOrder = 'forward'
+    t.mainProbability = 1
 
     local stages = {};
     if args.stages then

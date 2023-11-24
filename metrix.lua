@@ -93,17 +93,88 @@ function init()
 end
 
 function setupCrowInputs()
-    crow.input[2].change = onCrowInputChange
-    crow.input[2].mode("change", 2.0, 0.25, "both")
+    setupCrowIn(1)
+    setupCrowIn(2)
+    -- crow.input[1].stream = onCrowInput1Change
+    -- crow.input[1].mode = 'stream'
+
+    -- crow.input[2].change = onCrowInput2Change
+    -- crow.input[2].mode("change", 2.0, 0.25, "both")
     resetSequencer()
 end
 
-function onCrowInputChange(v)
-    if v then
-        seq:start()
-    else
-        resetSequencer()
+function setupCrowIn(i)
+    local none = 1
+    local clock = 2
+    local changeBoth = 3
+    local changeRising = 4
+    local stream = {5, 7, 9, 11, -- octave range
+    6, 8, 10, 12 -- track length
+    }
+
+    local val = params:get('crow_in_' .. i)
+    if (val == none) then
+        crow.input[i].mode('none')
+    elseif (val == clock) then
+        crow.input[i].mode('clock')
+    elseif val == changeBoth then
+        crow.input[i].change = (i == 1 and onCrowInput1Change or onCrowInput2Change)
+        crow.input[i].mode("change", 2.0, 0.25, "both")
+    elseif val == changeRising then
+        crow.input[i].change = (i == 1 and onCrowInput1Change or onCrowInput2Change)
+        crow.input[i].mode("change", 2.0, 0.25, "rising")
+    elseif tab.contains(stream, val) then
+        crow.input[i].stream = (i == 1 and onCrowInput1Change or onCrowInput2Change)
+        crow.input[i].mode = "stream"
     end
+end
+
+function onCrowInput1Change(v)
+    onCrowInputChange(1, v)
+end
+
+function onCrowInput2Change(v)
+    onCrowInputChange(2, v)
+end
+
+function onCrowInputChange(crowInput, v)
+    local paramVal = params:get('crow_in_' .. crowInput)
+    local track2 = {7, 8}
+    local track3 = {9, 10}
+    local track4 = {11, 12}
+    local trackIndex = 1;
+    if tab.contains(track2, paramVal) then 
+        trackIndex = 2
+    elseif tab.contains(track3, paramVal) then 
+        trackIndex = 3
+    elseif tab.contains(track4, paramVal) then 
+        trackIndex = 4 
+    end
+
+    local run = 3
+    local reset = 4
+    local octaveRange = {5, 7, 9, 11}
+    local trackLength = {6, 8, 10, 12}
+
+    if paramVal == run and v then
+        seq:start()
+    elseif paramVal == run and not v then
+        resetSequencer()
+    elseif paramVal == reset and paramVal then
+        seq:reset()
+    elseif tab.contains(octaveRange, paramVal) then
+        local segment = 5 / (6 + 1)
+        local range = util.clamp(math.floor((v + segment / 2) / segment), 1, 6);
+        params:set("octave_range_tr_" .. trackIndex, range)
+    elseif tab.contains(trackLength, paramVal) then
+        local track = seq:getTrack(trackIndex)
+        local segment = 5 / (8 + 1)
+        local stop = util.clamp(math.floor((v + segment / 2) / segment), 1, 8)
+        track:setLoop(track.loop.start, stop)
+    end
+
+    requestGridRedraw()
+    requestScreenRedraw()
 end
 
 function resetSequencer()
@@ -133,8 +204,14 @@ function addParams()
         table.insert(midiDeviceNames, util.trim_string_to_width(midi.connect(i).name, 70))
     end
 
+    local crowInOptions = {'None', 'Clock Sync', 'Run', 'Restart'}
+    for i = 1, #seq.tracks do
+        table.insert(crowInOptions, 'Octave range TR' .. i)
+        table.insert(crowInOptions, 'Track length TR' .. i)
+    end
+
     params:add_separator("METRIX")
-    params:add_group("General", 6)
+    params:add_group("General", 8)
     params:add_option("scale", "Scale", scaleNames, 1)
     params:set_action("scale", requestGridRedraw)
     params:add_option("root_note", "Root Note", musicUtil.NOTE_NAMES, 1)
@@ -154,6 +231,10 @@ function addParams()
         requestGridRedraw()
         requestScreenRedraw()
     end)
+    params:add_option("crow_in_1", "Crow In 1", crowInOptions, 2)
+    params:set_action("crow_in_1", setupCrowInputs)
+    params:add_option("crow_in_2", "Crow In 2", crowInOptions, 3)
+    params:set_action("crow_in_2", setupCrowInputs)
 
     for i = 1, #seq.tracks do
         params:add_group("Track " .. i, 20)
@@ -187,7 +268,9 @@ function addParams()
         params:add_separator('Crow')
         params:add_option("crow_gate_type_tr_" .. i, "GateType", sequencer:getCrowGateTypes(), 2)
         local crowOutput = i == 1 and 1 or 2
-        if i > 2 then crowOutput = 3 end
+        if i > 2 then
+            crowOutput = 3
+        end
         params:add_option("crow_outputs_tr_" .. i, "Outputs", sequencer:getCrowOutputs(), crowOutput)
         params:add_control("crow_attack_tr_" .. i, "Env. Attack", csMillis)
         params:add_control("crow_sustain_tr_" .. i, "Env. Sustain", csMillis)
