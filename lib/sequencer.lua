@@ -1,4 +1,4 @@
-lattice = include('lib/lattice')
+lattice = require('lattice')
 track = include('lib/track')
 
 local DEBUG = false
