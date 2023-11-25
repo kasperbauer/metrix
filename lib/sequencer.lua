@@ -217,12 +217,18 @@ end
 function sequencer:prepareNextPulse(trackIndex, pulse)
     local track = self:getTrack(trackIndex)
     local stageIndex = self.stageIndex[trackIndex];
+    local transposeTrigger = self:getTransposeTrigger(trackIndex);
 
     if pulse and not pulse.last then
         self.pulseCount[trackIndex] = self.pulseCount[trackIndex] + 1
     elseif track.loop.start == track.loop.stop then
         self.stageIndex[trackIndex] = track.loop.start
         self:resetPulseCount(trackIndex)
+
+        if transposeTrigger == 'stage' then
+            local stage = track:getStageWithIndex(stageIndex)
+            stage:accumulatePitch(trackIndex)
+        end
     elseif (pulse and pulse.last) or not pulse then
         self:resetPulseCount(trackIndex)
 
@@ -249,7 +255,6 @@ function sequencer:prepareNextPulse(trackIndex, pulse)
             self:advanceToNextStage(trackIndex)
         end
 
-        local transposeTrigger = self:getTransposeTrigger(trackIndex);
         if transposeTrigger == 'stage' then
             local stage = track:getStageWithIndex(stageIndex)
             stage:accumulatePitch(trackIndex)
